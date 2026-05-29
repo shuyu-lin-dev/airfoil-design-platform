@@ -1,0 +1,51 @@
+# 翼型气动与强度智能设计平台 Agent 入口
+
+本文是本仓库的 agent 入口文件，只做路由，不承载详细规则、命令或领域硬约束。
+
+## 项目概览
+
+"翼型气动与强度智能设计平台"后端 MVP。第一版用 FastAPI + 占位算法打通翼型生成、气动预测、强度预测、优化设计、教学接口和 HDF5 artifact 存储的数据流。
+
+## 快速开始
+
+后端代码目录尚未创建。当前无 `make` 目标可用，后续任务会逐步建立。
+
+- 安装依赖：待 T001 创建 `backend/pyproject.toml` 后确定。
+- 启动开发：`cd backend && uvicorn airfoil_platform.main:app --reload`
+- 运行测试：`cd backend && pytest`
+- 完整验证：见各任务的 `validation.commands`。
+
+当前状态和下一步见 `PROGRESS.md`。
+
+## 硬约束
+
+以下规则分布在 `.harness/instruction/rules/` 中，按需读取：
+
+- `.harness/instruction/rules/agent-workflow.md`：WIP=1，一次只做一个功能点，验证通过才能标记完成。
+- `.harness/instruction/rules/domain-constraints.md`：CST 参数顺序、比例字段小数表达、重量单位 N 等领域硬约束。
+- `.harness/instruction/rules/testing.md`：TDD、API 行为测试、`cd backend && pytest` 标准验证命令。
+- `.harness/instruction/rules/artifact-policy.md`：HDF5 存储、JSON sidecar、同步写入异步语义。
+- `.harness/instruction/rules/architecture-boundaries.md`：目录职责和依赖方向，`api` 不写业务逻辑，`lib` 不依赖业务层。
+
+涉及 API 变更必须更新对应测试。不要绕过既有架构边界；需要例外时先在 `DECISIONS.md` 记录决策。
+
+## 专题文档
+
+- `CONTEXT.md`：领域语言、字段边界和已解决歧义——**会话冷启动必读**。
+- `docs/spec.md`：后端 MVP 规格摘要。
+- `docs/api-contracts.md`：API 输入输出契约摘要。
+- `docs/backend-mvp-full-spec.md`：完整后端 MVP 原始规格。
+- `.harness/instruction/`：初始化契约、规则（rules/）、架构决策（adr/）和模板符合性检查。
+- `.harness/feedback/`：完成定义和会话退出检查清单。
+- `.harness/state/`：冲刺合同和会话运行记录。
+- `.harness/environment/`：环境声明和启动脚本。
+- `.harness/tool/`：工具权限和 CI 配置。
+
+## 会话流程
+
+1. 开始前读 `CONTEXT.md`、`PROGRESS.md`、`DECISIONS.md` 和 `tasks/tasks.yaml`。
+2. 确认当前 `active` 任务；若无，从 `tasks/tasks.yaml` 选取下一个 `not_started` 任务。
+3. 阅读对应冲刺合同（`.harness/state/sprint-contracts/`），缺失则先创建。
+4. 执行任务，遵守 `allowed_paths` 和 WIP=1。
+5. 运行验证命令，通过后更新 `tasks/tasks.yaml` 的 `status` 和 `evidence`。
+6. 结束前更新 `PROGRESS.md`，按 `.harness/feedback/session-exit-checklist.md` 做交接。

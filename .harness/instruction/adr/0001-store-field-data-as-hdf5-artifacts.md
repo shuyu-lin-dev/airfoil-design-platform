@@ -1,0 +1,3 @@
+# Store Field Data as HDF5 Artifacts
+
+The backend MVP keeps REST JSON for requests, scalar results, small debug-friendly arrays, and artifact metadata, but stores pressure fields, velocity fields, and future large field data as local HDF5 artifacts under `runtime_artifacts/`. Each HDF5 file has a same-name JSON sidecar for artifact metadata so `GET /artifacts/{artifact_id}` can work across process restarts without a database. This preserves curl/Swagger debuggability for API contracts while avoiding large JSON payloads for numeric arrays; the first implementation writes artifacts synchronously but keeps `pending / ready / failed` status semantics so a real async queue can be added later without changing the REST contract.

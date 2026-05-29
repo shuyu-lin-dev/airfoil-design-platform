@@ -1,0 +1,1322 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>翼型气动与强度智能设计平台 — 后端 MVP Spec v0.1</title>
+<style>
+  :root {
+    --bg: #f6f8fa; --surface: #ffffff; --ink: #1a1e2b; --muted: #5e6a7a;
+    --line: #dfe4ea; --line-light: #eef1f5; --radius: 10px;
+    --geo: #0f766e;    --geo-soft: #e6f4f1;    --geo-line: #b2d8cf;
+    --aero: #2563a8;   --aero-soft: #e9f2ff;   --aero-line: #b8cef0;
+    --struct: #9334a6; --struct-soft: #f5edf9; --struct-line: #d9c2e8;
+    --opt: #c2410c;    --opt-soft: #fff4ed;    --opt-line: #f0c9b0;
+    --teach: #237047;  --teach-soft: #e7f5eb;  --teach-line: #b8dcc8;
+    --artifact: #5b4a3f; --artifact-soft: #faf5f0;
+    --shadow-sm: 0 1px 3px rgba(26,30,43,0.06);
+    --shadow: 0 4px 14px rgba(26,30,43,0.07);
+    --sans: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.62; }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 100; background: var(--surface);
+    border-bottom: 1px solid var(--line); padding: 0 24px;
+    display: flex; align-items: center; gap: 24px; height: 52px; overflow-x: auto;
+  }
+  .topbar .logo { font-weight: 700; font-size: 14px; white-space: nowrap; color: var(--ink); }
+  .topbar a { font-size: 13px; color: var(--muted); text-decoration: none; white-space: nowrap; }
+  .topbar a:hover { color: var(--ink); }
+
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 32px 24px 80px; }
+
+  h1 { font-size: 28px; font-weight: 800; letter-spacing: -.01em; margin-bottom: 4px; }
+  .subtitle { color: var(--muted); font-size: 15px; margin-bottom: 36px; }
+
+  .section { margin-top: 48px; }
+  .section-title { font-size: 20px; font-weight: 700; padding-bottom: 8px; margin-bottom: 20px; border-bottom: 2px solid var(--line); }
+  .section-lead { color: var(--muted); font-size: 14px; margin-bottom: 18px; }
+
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-sm); }
+  .card-pad { padding: 22px 24px; }
+
+  /* tags */
+  .tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; letter-spacing: .03em; text-transform: uppercase; }
+  .tag-geo { background: var(--geo-soft); color: var(--geo); }
+  .tag-aero { background: var(--aero-soft); color: var(--aero); }
+  .tag-struct { background: var(--struct-soft); color: var(--struct); }
+  .tag-opt { background: var(--opt-soft); color: var(--opt); }
+  .tag-teach { background: var(--teach-soft); color: var(--teach); }
+  .tag-artifact { background: var(--artifact-soft); color: var(--artifact); }
+  .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 3px; background: var(--line-light); color: var(--muted); }
+  .badge-warn { background: #fff4e5; color: #b85c00; }
+
+  /* ── Goals + Users ── */
+  .goals-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  @media (max-width: 800px) { .goals-grid { grid-template-columns: 1fr; } }
+  .goal-card { padding: 22px 24px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--surface); }
+  .goal-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .goal-card .icon { font-size: 20px; margin-bottom: 6px; }
+  .goal-card p { font-size: 13px; color: var(--muted); line-height: 1.65; }
+  .goal-card ul { font-size: 13px; color: var(--muted); margin: 6px 0 0; padding-left: 18px; line-height: 1.7; }
+
+  /* ── Scope ── */
+  .scope-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 700px) { .scope-grid { grid-template-columns: 1fr; } }
+  .scope-box { padding: 18px 20px; border-radius: var(--radius); font-size: 13px; line-height: 1.7; }
+  .scope-in { background: #e7f5eb; border: 1px solid #b8dcc8; }
+  .scope-in h4 { color: var(--teach); font-size: 14px; margin-bottom: 8px; }
+  .scope-out { background: #ffeded; border: 1px solid #f5c4c4; }
+  .scope-out h4 { color: #a43b3b; font-size: 14px; margin-bottom: 8px; }
+
+  /* ── Scenario grid ── */
+  .scenario-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+  .scenario-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-sm); padding: 20px 22px; transition: box-shadow .15s; }
+  .scenario-card:hover { box-shadow: var(--shadow); }
+  .scenario-card .num { font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+  .scenario-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+  .scenario-card .flow { font-size: 13px; color: var(--muted); line-height: 1.55; }
+  .scenario-card .flow span { color: var(--ink); font-weight: 600; }
+  .scenario-card .tag-row { margin-top: 12px; display: flex; gap: 6px; flex-wrap: wrap; }
+
+  /* ── Tables ── */
+  .tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .tbl th, .tbl td { text-align: left; padding: 10px 14px; vertical-align: top; }
+  .tbl th { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); border-bottom: 2px solid var(--line); }
+  .tbl td { border-bottom: 1px solid var(--line-light); }
+  .tbl tr:last-child td { border-bottom: none; }
+  .method { font-family: var(--mono); font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 4px; display: inline-block; }
+  .method-get { background: #e6f4f1; color: var(--geo); }
+  .method-post { background: #e9f2ff; color: var(--aero); }
+  .path { font-family: var(--mono); font-size: 13px; font-weight: 600; }
+
+  /* ── Code ── */
+  pre { background: #1a1e2b; color: #e1e4ed; font-family: var(--mono); font-size: 12.5px; line-height: 1.55; padding: 16px 18px; border-radius: var(--radius); overflow-x: auto; white-space: pre; tab-size: 2; }
+  .code-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+  .code-label .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .dot-py { background: #c792ea; }
+  .dot-json { background: #f7a670; }
+
+  /* ── API detail panels ── */
+  .api-detail { margin-bottom: 20px; }
+  .api-detail .header { display: flex; align-items: center; gap: 10px; padding: 14px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius) var(--radius) 0 0; cursor: pointer; font-weight: 700; font-size: 15px; user-select: none; }
+  .api-detail .header .arrow { color: var(--muted); font-family: var(--mono); margin-right: 4px; transition: transform .15s; }
+  .api-detail.open .header .arrow { transform: rotate(90deg); }
+  .api-detail .body { display: none; border: 1px solid var(--line); border-top: none; border-radius: 0 0 var(--radius) var(--radius); padding: 20px 22px; background: var(--surface); }
+  .api-detail.open .body { display: block; }
+  .api-detail .body .cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  @media (max-width: 900px) { .api-detail .body .cols { grid-template-columns: 1fr; } }
+  .api-detail .body .col h5 { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+  .api-detail .body .notes { margin-top: 14px; padding: 12px 14px; background: #f8fbfa; border-radius: 6px; font-size: 13px; color: var(--muted); line-height: 1.65; }
+  .api-detail .body .notes strong { color: var(--ink); }
+
+  .highlight-box { background: #fffdf5; border: 1px solid #e8dca0; border-radius: 6px; padding: 12px 14px; font-size: 13px; margin-top: 12px; }
+  .highlight-box strong { color: #8b6f00; }
+
+  /* ── Data model cards ── */
+  .model-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+  .model-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 22px; box-shadow: var(--shadow-sm); overflow: hidden; min-width: 0; }
+  .model-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .model-card .field-tbl { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; overflow-wrap: break-word; }
+  .model-card .field-tbl td { padding: 7px 8px; vertical-align: top; border-bottom: 1px solid var(--line-light); }
+  .model-card .field-tbl td:first-child { font-family: var(--mono); font-size: 12px; font-weight: 600; }
+  .model-card .field-tbl td:nth-child(2) { font-family: var(--mono); font-size: 11px; color: var(--muted); width: 72px; }
+  .model-card .field-tbl td:nth-child(3) { color: var(--muted); font-size: 12px; }
+  .model-card .field-tbl tr:last-child td { border-bottom: none; }
+  .model-card .field-tbl td { overflow-wrap: break-word; word-break: break-word; }
+  .model-card .notes { word-break: break-word; overflow-wrap: break-word; }
+  .model-card .highlight-box { word-break: break-word; overflow-wrap: break-word; }
+
+  /* ── Architecture diagram ── */
+  .arch-wrap { display: flex; flex-direction: column; gap: 0; }
+  .arch-layer { display: flex; align-items: stretch; min-height: 52px; }
+  .arch-layer .label {
+    width: 150px; min-width: 150px; display: flex; align-items: center;
+    font-size: 12px; font-weight: 700; padding: 8px 14px;
+    border-radius: 6px 0 0 6px; color: #fff;
+  }
+  .arch-layer .content {
+    flex: 1; display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+    padding: 8px 14px; border: 1px solid var(--line); border-left: none;
+    background: var(--surface); font-size: 12px; border-radius: 0 6px 6px 0;
+  }
+  .arch-layer .content .item {
+    font-family: var(--mono); font-size: 11px; padding: 2px 8px;
+    border-radius: 4px; white-space: nowrap;
+    border: 1px solid var(--line-light); background: #fafbfc;
+  }
+  .arch-layer .content .sep { color: var(--line); font-size: 14px; }
+  .arch-arrow {
+    display: flex; align-items: center; padding: 2px 0 2px 150px;
+    font-size: 11px; color: var(--muted);
+  }
+  .arch-arrow::before { content: "↑ 调用"; margin-right: 8px; font-weight: 600; color: #999; }
+
+  /* layer colors */
+  .lbl-api { background: #2563a8; }
+  .lbl-contracts { background: #4a7db0; }
+  .lbl-services { background: #0f766e; }
+  .lbl-core { background: #237047; }
+  .lbl-models { background: #9334a6; }
+  .lbl-opt { background: #c2410c; }
+  .lbl-artifacts { background: #5b4a3f; }
+  .lbl-config { background: #6b7280; }
+  .lbl-infra { background: #4b5563; }
+
+  /* ── Two-col ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* ── Risk ── */
+  .risk-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 10px; }
+  .risk-item { font-size: 13px; padding: 8px 12px; background: #fffbf0; border: 1px solid #f0e2bf; border-radius: 6px; }
+
+  /* ── Footer ── */
+  .footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; display: flex; justify-content: space-between; }
+
+  /* ── Flow diagram ── */
+  .flow-diagram { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 13px; padding: 14px 18px; background: #fafbfc; border-radius: 8px; border: 1px solid var(--line-light); margin-bottom: 14px; }
+  .flow-diagram .step { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; font-weight: 600; }
+  .flow-diagram .arrow-step { color: var(--muted); font-size: 16px; }
+
+  /* wire-format note */
+  .wire-note { font-size: 12px; color: var(--muted); margin-top: 4px; padding: 8px 12px; background: #f0f4ff; border-radius: 6px; border-left: 3px solid var(--aero); }
+  .wire-note code { font-size: 12px; background: #e8ecf4; padding: 1px 4px; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <span class="logo">Airfoil Platform MVP</span>
+  <a href="#goals">项目目标</a>
+  <a href="#scenarios">场景与使用路径</a>
+  <a href="#api">API 契约</a>
+  <a href="#data-models">数据模型</a>
+  <a href="#artifacts">Artifact 策略</a>
+  <a href="#architecture">架构与目录</a>
+  <a href="#risks">风险点</a>
+  <a href="#tasks">任务拆分</a>
+</nav>
+
+<div class="wrap">
+
+<!-- ════════════ HEADER ════════════ -->
+<h1>翼型气动与强度智能设计平台</h1>
+<p class="subtitle">
+  后端 MVP Spec v0.1 &nbsp;·&nbsp; 2026-05-27 &nbsp;·&nbsp;
+  FastAPI + Pydantic + TDD &nbsp;·&nbsp; 全部占位算法
+</p>
+
+<!-- ════════════ 1. PROJECT GOALS ════════════ -->
+<div id="goals" class="section">
+  <h2 class="section-title">项目目标 & 目标用户</h2>
+
+  <div class="goals-grid">
+    <div class="goal-card">
+      <div class="icon">🎯</div>
+      <h3>长期愿景</h3>
+      <p>面向学生和翼型设计工程师的智能设计平台，支持翼型生成、气动预测、强度预测、优化设计和智能体调度，帮助用户快速上手并高效完成翼型设计迭代。</p>
+    </div>
+    <div class="goal-card" style="border-left: 3px solid var(--geo);">
+      <div class="icon">🚀</div>
+      <h3>第一版目标</h3>
+      <p>构建 FastAPI 后端 MVP，用<strong>占位算法</strong>打通全部数据流，明确输入输出契约、artifact 策略、目录结构和测试工作流，为后续接入真实模型、前端可视化和智能体调度打基础。</p>
+    </div>
+    <div class="goal-card" style="border-left: 3px solid #a43b3b;">
+      <div class="icon">🚫</div>
+      <h3>第一版不做</h3>
+      <ul>
+        <li>前端页面 / 可视化渲染</li>
+        <li>真实神经网络模型 (PyTorch/ONNX)</li>
+        <li>真实遗传算法</li>
+        <li>LangGraph 智能体 / DeepSeek API</li>
+        <li>用户登录 / 数据库 / 对象存储</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="two-col" style="margin-top: 16px;">
+    <div class="card card-pad">
+      <h4 style="font-size:14px;margin-bottom:8px;">学生 / 教学用户</h4>
+      <ul style="font-size:13px;color:var(--muted);margin:0;padding-left:18px;line-height:1.8;">
+        <li>CST 参数如何生成二维翼型</li>
+        <li>中弧线、厚度分布如何影响翼型形状</li>
+        <li>已知翼型坐标如何反推 CST 参数</li>
+        <li>气动/强度预测结果与输入参数的关系</li>
+      </ul>
+    </div>
+    <div class="card card-pad">
+      <h4 style="font-size:14px;margin-bottom:8px;">工程师 / 研究人员</h4>
+      <ul style="font-size:13px;color:var(--muted);margin:0;padding-left:18px;line-height:1.8;">
+        <li>输入翼型参数 + 工况参数</li>
+        <li>快速得到气动性能、压力场、速度场、强度和重量</li>
+        <li>对气动、强度或耦合目标做优化</li>
+        <li>拿到优化前后的参数和性能对比</li>
+      </ul>
+    </div>
+  </div>
+  <p style="margin-top:12px;font-size:13px;color:var(--muted);">
+    <strong>第一版实际使用者：</strong>后端调用者、测试人员、未来前端、未来智能体工具封装层。
+  </p>
+</div>
+
+<!-- ════════════ 2. MVP SCOPE ════════════ -->
+<div class="section">
+  <h2 class="section-title">MVP 范围</h2>
+  <div class="scope-grid">
+    <div class="scope-box scope-in">
+      <h4>第一版包含</h4>
+      <ul style="margin:0;padding-left:18px;">
+        <li>FastAPI 项目骨架 + /health</li>
+        <li>二维/三维翼型生成（占位）</li>
+        <li>气动预测 — 升阻比、Cp、压力场、速度场（占位）</li>
+        <li>强度预测 — 应力极值、重量（占位）</li>
+        <li>单一气动/强度/耦合优化（占位）</li>
+        <li>教学翼型生成 & CST 反推（占位）</li>
+        <li>HDF5 artifact 存储 + JSON sidecar</li>
+        <li>Pydantic contracts + TDD 测试</li>
+      </ul>
+    </div>
+    <div class="scope-box scope-out">
+      <h4>第一版不做</h4>
+      <ul style="margin:0;padding-left:18px;">
+        <li>前端页面 / 可视化渲染</li>
+        <li>真实神经网络模型（PyTorch/ONNX）</li>
+        <li>真实遗传算法</li>
+        <li>LangGraph 智能体 / DeepSeek API</li>
+        <li>数据库 / 对象存储 / 文件上传下载</li>
+        <li>任务队列 / 异步化 / 用户权限</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ 3. SCENARIOS ════════════ -->
+<div id="scenarios" class="section">
+  <h2 class="section-title">场景与使用路径</h2>
+  <p class="section-lead">
+    第一版共 9 个可运行的使用路径。每个路径描述一次完整的请求→处理→响应闭环。
+    所有算法均为占位实现，目标是保证数据流和契约正确。
+  </p>
+
+  <div class="scenario-grid">
+
+    <div class="scenario-card">
+      <div class="num">场景 1</div>
+      <h3>二维翼型生成</h3>
+      <div class="flow"><span>12 个 CST 参数</span> → 占位生成 → <span>200 个二维翼型 {x,y} 点</span></div>
+      <div class="tag-row"><span class="tag tag-geo">Geometry 2D</span><span class="badge">POST /geometry/airfoil-2d</span></div>
+    </div>
+
+    <div class="scenario-card">
+      <div class="num">场景 2</div>
+      <h3>气动预测</h3>
+      <div class="flow"><span>12 CST + 工况 (mach, aoa)</span> → 占位预测 → 升阻比 + 200 Cp 点 + <span>压力场/速度场 → HDF5</span></div>
+      <div class="tag-row"><span class="tag tag-aero">Aero</span><span class="badge">POST /aerodynamics/predict</span><span class="badge">GET /artifacts/{id}</span></div>
+    </div>
+
+    <div class="scenario-card">
+      <div class="num">场景 3</div>
+      <h3>单一气动优化</h3>
+      <div class="flow"><span>12 CST + 工况 + 目标提升比</span> → 占位优化循环 → <span>优化前后 CST 参数 & 升阻比对比</span></div>
+      <div class="tag-row"><span class="tag tag-opt">Optimization</span><span class="badge">POST /optimization/aerodynamic</span></div>
+    </div>
+
+    <div class="scenario-card">
+      <div class="num">场景 4</div>
+      <h3>三维机翼生成</h3>
+      <div class="flow"><span>12 CST + 平面参数 + 结构设计参数</span> → 占位生成 → <span>1000 个三维 {x,y,z} 点</span></div>
+      <div class="tag-row"><span class="tag tag-geo">Geometry 3D</span><span class="badge">POST /geometry/wing-3d</span></div>
+    </div>
+
+    <div class="scenario-card">
+      <div class="num">场景 5</div>
+      <h3>强度预测</h3>
+      <div class="flow"><span>12 CST + 工况 + 平面 + 结构 + 材料</span> → 占位预测 → <span>max_stress (Pa) + weight (N)</span></div>
+      <div class="tag-row"><span class="tag tag-struct">Structure</span><span class="badge">POST /structure/predict</span></div>
+    </div>
+
+    <div class="scenario-card">
+      <div class="num">场景 6</div>
+      <h3>单一强度优化</h3>
+      <div class="flow"><span>完整结构输入 + 目标减重比</span> → 占位优化 → <span>仅优化 spar_thickness & rib_spacing</span></div>
+      <div class="tag-row"><span class="tag tag-opt">Optimization</span><span class="badge">POST /optimization/structural</span></div>
+    </div>
+
+    <div class="scenario-card">
+      <div class="num">场景 7</div>
+      <h3>气动强度耦合优化</h3>
+      <div class="flow"><span>全量输入 + 目标提升比</span> → 占位耦合 GA → <span>fitness = lift_drag_ratio / weight</span></div>
+      <div class="tag-row"><span class="tag tag-opt">Optimization</span><span class="badge">POST /optimization/coupled</span></div>
+    </div>
+
+    <div class="scenario-card">
+      <div class="num">场景 8</div>
+      <h3>辅助教学 — 翼型生成</h3>
+      <div class="flow"><span>2 中弧线控制点 + 2 厚度控制点</span> → 占位教学逻辑 → <span>200 个 {x,y} 翼型点</span></div>
+      <div class="tag-row"><span class="tag tag-teach">Teaching</span><span class="badge">POST /teaching/airfoil-from-control-points</span></div>
+    </div>
+
+    <div class="scenario-card">
+      <div class="num">场景 9</div>
+      <h3>辅助教学 — CST 反推</h3>
+      <div class="flow"><span>200 个 {x,y} 翼型点</span> → 占位反推 → <span>12 个 CST 参数</span></div>
+      <div class="tag-row"><span class="tag tag-teach">Teaching</span><span class="badge">POST /teaching/cst-from-airfoil</span></div>
+    </div>
+
+    <div class="scenario-card" style="opacity:0.5;border-style:dashed;">
+      <div class="num">场景 10（长期/不进入 MVP）</div>
+      <h3>智能体调度</h3>
+      <div class="flow">LangGraph + DeepSeek API → ReAct 模式自动调用上述工具</div>
+      <div class="tag-row"><span class="badge badge-warn">不进入 MVP</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════ 4. API CONTRACTS ════════════ -->
+<div id="api" class="section">
+  <h2 class="section-title">API 契约</h2>
+
+  <!-- ── Concrete Pydantic + FastAPI walkthrough ── -->
+  <div class="card card-pad" style="margin-bottom:24px;border-left:3px solid var(--aero);">
+    <h4 style="font-size:14px;margin-bottom:14px;">理解 Pydantic BaseModel 与 FastAPI 的数据流转</h4>
+
+    <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">
+      <strong>一句话：</strong><code>BaseModel</code> 是 Pydantic 提供的<strong>数据类</strong>，你用它定义"这个接口收什么字段、回什么字段"，
+      然后像普通 Python 类一样 <code>return 响应模型(字段=值, ...)</code>，FastAPI 自动帮你转成 JSON 发给客户端。
+    </p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;font-size:13px;">
+      <div>
+        <div style="background:#f0f4ff;border-radius:6px;padding:12px 14px;margin-bottom:10px;">
+          <strong>第 1 步 — 定义数据结构</strong><br>
+          <span style="color:var(--muted);">写一个 Python 类，继承 <code>BaseModel</code>，声明字段和类型。这就是"数据契约"。</span>
+        </div>
+<pre style="font-size:11px;">from pydantic import BaseModel
+
+class Point2D(BaseModel):
+    x: float
+    y: float
+
+class Airfoil2DResponse(BaseModel):
+    points: list[Point2D]
+    is_stub: bool
+    model_version: str</pre>
+      </div>
+      <div>
+        <div style="background:#f0f4ff;border-radius:6px;padding:12px 14px;margin-bottom:10px;">
+          <strong>第 2 步 — 路由函数中 return</strong><br>
+          <span style="color:var(--muted);">像普通 Python 类一样创建实例，<code>return</code> 出去。这不是 JSON，是一个 Python 对象。</span>
+        </div>
+<pre style="font-size:11px;">@router.post("/geometry/airfoil-2d")
+def generate_airfoil_2d(
+    req: Airfoil2DRequest
+) -> Airfoil2DResponse:
+    pts = [Point2D(x=..., y=...) for _ in range(200)]
+    return Airfoil2DResponse(
+        points=pts,
+        is_stub=True,
+        model_version="stub-v0"
+    )</pre>
+      </div>
+      <div>
+        <div style="background:#f0f4ff;border-radius:6px;padding:12px 14px;margin-bottom:10px;">
+          <strong>第 3 步 — FastAPI 自动转 JSON</strong><br>
+          <span style="color:var(--muted);">你 return 的 Python 对象被 FastAPI 自动序列化为下面的 JSON 字符串，通过 HTTP 返回给客户端。</span>
+        </div>
+<pre style="font-size:11px;">// 客户端收到的 HTTP Response Body:
+{
+  "points": [
+    {"x":1.0, "y":0.0},
+    {"x":0.998, "y":0.005},
+    ... 共 200 个点 ...
+  ],
+  "is_stub": true,
+  "model_version": "stub-v0"
+}</pre>
+      </div>
+    </div>
+
+    <div class="wire-note" style="margin-top:14px;">
+      <strong>简单理解：</strong><br>
+      &bull; <code>BaseModel</code> = 一个 Python 类，定义了"这个数据结构里有哪些字段、各自什么类型"。作用类似 C 语言的 struct。<br>
+      &bull; <code>return Airfoil2DResponse(points=..., is_stub=True, ...)</code> = 创建一个该类的实例（Python 对象），和 <code>return SomeClass(arg=val)</code> 一样。<br>
+      &bull; FastAPI 看到你 return 了一个 BaseModel 实例，自动调用 <code>.model_dump()</code> 转成 dict，再 <code>json.dumps()</code> 变成 JSON 字符串返回。<br>
+      &bull; 同理，客户端发来的 JSON 字符串，FastAPI 自动解析成你声明的 BaseModel 实例（如 <code>req: Airfoil2DRequest</code>），你可以直接 <code>req.cst_params</code> 访问字段。
+    </div>
+  </div>
+
+  <!-- ── Overview table ── -->
+  <div class="card" style="overflow-x:auto;margin-bottom:24px;">
+  <table class="tbl">
+    <thead><tr><th>方法</th><th>路径</th><th>输入（HTTP Request JSON）</th><th>输出（HTTP Response JSON）</th><th>领域</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="method method-get">GET</span></td><td class="path">/health</td>
+        <td style="color:var(--muted)">—</td><td>status, version</td>
+        <td><span class="badge">Health</span></td>
+      </tr>
+      <tr>
+        <td><span class="method method-post">POST</span></td><td class="path">/geometry/airfoil-2d</td>
+        <td>cst_params: float[12]</td>
+        <td>points: {x,y}[200], is_stub, model_version</td>
+        <td><span class="tag tag-geo">Geo</span></td>
+      </tr>
+      <tr>
+        <td><span class="method method-post">POST</span></td><td class="path">/geometry/wing-3d</td>
+        <td>cst_params[12], wing_planform, structure_design</td>
+        <td>points: {x,y,z}[1000], is_stub, model_version</td>
+        <td><span class="tag tag-geo">Geo</span></td>
+      </tr>
+      <tr>
+        <td><span class="method method-post">POST</span></td><td class="path">/aerodynamics/predict</td>
+        <td>cst_params[12], condition{mach, aoa}</td>
+        <td>lift_drag_ratio, cp_distribution[200], field_artifact, is_stub</td>
+        <td><span class="tag tag-aero">Aero</span></td>
+      </tr>
+      <tr>
+        <td><span class="method method-post">POST</span></td><td class="path">/structure/predict</td>
+        <td>cst_params[12], condition, wing_planform, structure_design, material_properties</td>
+        <td>max_stress (Pa), weight (N), is_stub</td>
+        <td><span class="tag tag-struct">Struct</span></td>
+      </tr>
+      <tr>
+        <td><span class="method method-post">POST</span></td><td class="path">/optimization/aerodynamic</td>
+        <td>cst_params[12], condition, target_improvement_ratio</td>
+        <td>original{...}, optimized{...}, actual_improvement_ratio, is_stub</td>
+        <td><span class="tag tag-opt">Opt</span></td>
+      </tr>
+      <tr>
+        <td><span class="method method-post">POST</span></td><td class="path">/optimization/structural</td>
+        <td>cst_params[12], condition, wing_planform, structure_design, material_properties, target_reduction_ratio</td>
+        <td>original{...weight}, optimized{...weight}, actual_reduction_ratio, is_stub</td>
+        <td><span class="tag tag-opt">Opt</span></td>
+      </tr>
+      <tr>
+        <td><span class="method method-post">POST</span></td><td class="path">/optimization/coupled</td>
+        <td>cst_params[12], condition, wing_planform, structure_design, material_properties, target_improvement_ratio</td>
+        <td>original{...fitness}, optimized{...fitness}, actual_improvement_ratio, is_stub</td>
+        <td><span class="tag tag-opt">Opt</span></td>
+      </tr>
+      <tr>
+        <td><span class="method method-post">POST</span></td><td class="path">/teaching/airfoil-from-control-points</td>
+        <td>camber_control_points[2], thickness_control_points[2]</td>
+        <td>points: {x,y}[200], is_stub</td>
+        <td><span class="tag tag-teach">Teach</span></td>
+      </tr>
+      <tr>
+        <td><span class="method method-post">POST</span></td><td class="path">/teaching/cst-from-airfoil</td>
+        <td>points: {x,y}[200]</td>
+        <td>cst_params: float[12], is_stub</td>
+        <td><span class="tag tag-teach">Teach</span></td>
+      </tr>
+      <tr>
+        <td><span class="method method-get">GET</span></td><td class="path">/artifacts/{artifact_id}</td>
+        <td style="color:var(--muted)">artifact_id (URL 路径参数)</td>
+        <td>artifact_id, status, format, path, datasets</td>
+        <td><span class="tag tag-artifact">Artifact</span></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p style="font-size:13px;color:var(--muted);margin-bottom:24px;">
+    所有 POST 响应统一携带 <code>is_stub: true</code> 和 <code>model_version: "stub-v0"</code>。
+    比例字段统一使用小数（10% = 0.10，范围 0 &lt; ratio &le; 1）。
+  </p>
+
+  <!-- ═══ DETAILED API: 2D Geometry ═══ -->
+  <div class="api-detail" id="api-detail-geo2d">
+    <div class="header" onclick="this.parentElement.classList.toggle('open')">
+      <span class="arrow">▶</span>
+      <span class="tag tag-geo">Geo</span>
+      POST /geometry/airfoil-2d — 二维翼型生成
+    </div>
+    <div class="body">
+      <div class="cols">
+        <div class="col">
+          <h5>1. Pydantic 请求模型 (Python)</h5>
+<pre>from pydantic import BaseModel, Field
+
+class Airfoil2DRequest(BaseModel):
+    cst_params: list[float] = Field(
+        min_length=12, max_length=12
+    )</pre>
+          <h5 style="margin-top:12px;">HTTP Request Body (JSON)</h5>
+<pre>{
+  "cst_params": [0.1,0.2,0.3,0.1,0.2,0.3,
+                  -0.1,-0.2,-0.3,-0.1,-0.2,-0.3]
+}</pre>
+        </div>
+        <div class="col">
+          <h5>2. 各层函数与返回值 (Python)</h5>
+<pre># ═══ core/geometry.py — 纯领域逻辑 ═══
+# 返回：普通 Python 数据（list[dict]）
+def generate_airfoil_2d_points(
+    cst_params: list[float]
+) -> list[dict]:
+    points = []
+    for i in range(200):
+        # ... 占位计算 ...
+        points.append({"x": x_val, "y": y_val})
+    return points  # ← list[dict]，不是 Pydantic
+
+# ═══ services/geometry_service.py — 业务编排 ═══
+# 返回：普通 Python 数据（透传，也可以加日志/校验）
+def generate_2d(
+    cst_params: list[float]
+) -> list[dict]:
+    return generate_airfoil_2d_points(cst_params)
+    # ← 同样返回 list[dict]，不是 Pydantic
+
+# ═══ api/geometry.py — 路由层 ═══
+# 返回：Pydantic 响应模型 ← 只有这层返回 BaseModel！
+@router.post("/geometry/airfoil-2d")
+async def generate_airfoil_2d(
+    req: Airfoil2DRequest
+) -> Airfoil2DResponse:
+    raw = geometry_service.generate_2d(req.cst_params)
+    # raw 是 list[dict]，需转成 Pydantic 对象列表
+    pts = [Point2D(**d) for d in raw]
+    return Airfoil2DResponse(
+        points=pts,
+        is_stub=True,
+        model_version="stub-v0"
+    )  # ← 返回 Pydantic 实例，FastAPI 自动转 JSON</pre>
+          <div class="wire-note" style="margin-top:8px;">
+            <strong>规则：</strong>只有 <code>api/</code> 路由函数需要返回 <strong>Pydantic BaseModel</strong>（FastAPI 据此生成 JSON）。
+            <code>services/</code> 和 <code>core/</code> 返回<strong>普通 Python 数据</strong>（dict / list / dataclass / 基本类型），
+            不依赖 FastAPI，方便单独测试和复用。
+          </div>
+        </div>
+        <div class="col">
+          <h5>3. Pydantic 响应模型 (Python)</h5>
+<pre>class Point2D(BaseModel):
+    x: float
+    y: float
+
+class Airfoil2DResponse(BaseModel):
+    points: list[Point2D]  # 200 个
+    is_stub: bool
+    model_version: str</pre>
+          <h5 style="margin-top:12px;">HTTP Response Body (JSON)</h5>
+<pre>{
+  "points": [
+    {"x":1.0,"y":0.0},
+    {"x":0.998,"y":0.005},
+    ...200 个点...
+    {"x":1.0,"y":0.0}
+  ],
+  "is_stub": true,
+  "model_version": "stub-v0"
+}</pre>
+        </div>
+      </div>
+      <div class="notes">
+        <strong>约定：</strong>points 按闭合翼型轮廓顺序排列。points[0:100] 为上表面（前缘→后缘），points[100:200] 为下表面（后缘→前缘）。不额外重复第一个点，前端如需闭合自行连接首尾。
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DETAILED API: Aerodynamics Predict ═══ -->
+  <div class="api-detail" id="api-detail-aero">
+    <div class="header" onclick="this.parentElement.classList.toggle('open')">
+      <span class="arrow">▶</span>
+      <span class="tag tag-aero">Aero</span>
+      POST /aerodynamics/predict — 气动预测
+    </div>
+    <div class="body">
+      <div class="cols">
+        <div class="col">
+          <h5>1. Pydantic 请求模型 (Python)</h5>
+<pre>class Condition(BaseModel):
+    mach: float
+    angle_of_attack: float
+
+class AeroPredictRequest(BaseModel):
+    cst_params: list[float] = Field(
+        min_length=12, max_length=12
+    )
+    condition: Condition</pre>
+          <h5 style="margin-top:12px;">HTTP Request Body (JSON)</h5>
+<pre>{
+  "cst_params": [0.1,0.2,...],
+  "condition": {
+    "mach": 0.5,
+    "angle_of_attack": 3.0
+  }
+}</pre>
+        </div>
+        <div class="col">
+          <h5>2. 各层函数与返回值</h5>
+<pre># ═══ core/ + services/ — 返回普通 Python 数据 ═══
+# aerodynamic_service.predict() 返回一个简单对象：
+#   svc.ld_ratio      → float
+#   svc.cp             → list[dict]  (200 个 {x,y,cp})
+#   svc.artifact_meta  → dict        (artifact 元信息)
+# 这些都是普通 Python 数据，不是 Pydantic BaseModel
+
+# ═══ api/ — 路由层，包装成 Pydantic 响应 ═══
+@router.post("/aerodynamics/predict")
+async def predict_aerodynamics(
+    req: AeroPredictRequest
+) -> AeroPredictResponse:
+    svc = aerodynamic_service.predict(req)
+    # 把普通数据包装成 Pydantic 模型返回
+    return AeroPredictResponse(
+        lift_drag_ratio=svc.ld_ratio,
+        cp_distribution=[CpPoint(**d) for d in svc.cp],
+        field_artifact=FieldArtifactMeta(**svc.artifact_meta),
+        is_stub=True,
+        model_version="stub-v0"
+    )  # ← 只有这层返回 Pydantic BaseModel</pre>
+        </div>
+        <div class="col">
+          <h5>3. Pydantic 响应模型 (Python)</h5>
+<pre>class CpPoint(BaseModel):
+    x: float; y: float; cp: float
+
+class FieldArtifactMeta(BaseModel):
+    artifact_id: str; status: str
+    format: str; path: str
+    datasets: dict[str,str]
+
+class AeroPredictResponse(BaseModel):
+    lift_drag_ratio: float
+    cp_distribution: list[CpPoint]  # 200
+    field_artifact: FieldArtifactMeta
+    is_stub: bool
+    model_version: str</pre>
+          <h5 style="margin-top:12px;">HTTP Response Body (JSON)</h5>
+<pre>{
+  "lift_drag_ratio": 15.3,
+  "cp_distribution": [
+    {"x":1.0,"y":0.0,"cp":-0.5},
+    ...200 个...
+  ],
+  "field_artifact": {
+    "artifact_id":"abc-123",
+    "status":"ready","format":"hdf5",
+    "path":"runtime_artifacts/aerodynamic/abc-123.h5",
+    "datasets":{
+      "coordinates":"/coordinates",
+      "pressure_field":"/fields/pressure",
+      "velocity_field":"/fields/velocity"
+    }
+  },
+  "is_stub":true,
+  "model_version":"stub-v0"
+}</pre>
+        </div>
+      </div>
+      <div class="notes">
+        <strong>压力场和速度场不直接通过 JSON 返回。</strong>预测完成后，后端将 1000 个三维坐标点 + 压力场 (1000 个 scalar, Pa) + 速度场 (1000 个 scalar, m/s) 写入 HDF5 文件，同时生成同名 JSON sidecar。JSON 响应中只包含 HDF5 artifact 的元信息（artifact_id / path / datasets 列表），客户端需要场数据时通过 <code>GET /artifacts/{artifact_id}</code> 查询路径后自行读取 HDF5 文件。
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DETAILED API: Structure Predict ═══ -->
+  <div class="api-detail" id="api-detail-struct">
+    <div class="header" onclick="this.parentElement.classList.toggle('open')">
+      <span class="arrow">▶</span>
+      <span class="tag tag-struct">Struct</span>
+      POST /structure/predict — 强度预测
+    </div>
+    <div class="body">
+      <div class="cols">
+        <div class="col">
+          <h5>Pydantic 请求模型</h5>
+<pre>class WingPlanform(BaseModel):
+    span: float | None = None
+    chord: float | None = None
+
+class StructureDesign(BaseModel):
+    spar_thickness: float
+    skin_thickness: float
+    rib_spacing: float
+
+class MaterialProperties(BaseModel):
+    elastic_modulus: float | None = None
+    material_density: float | None = None
+
+class StructurePredictRequest(BaseModel):
+    cst_params: list[float] = Field(
+        min_length=12, max_length=12)
+    condition: Condition
+    wing_planform: WingPlanform
+    structure_design: StructureDesign
+    material_properties: MaterialProperties</pre>
+        </div>
+        <div class="col">
+          <h5>Pydantic 响应模型</h5>
+<pre>class StructurePredictResponse(BaseModel):
+    max_stress: float    # 单位: Pa
+    weight: float        # 单位: N
+    is_stub: bool
+    model_version: str</pre>
+          <h5 style="margin-top:12px;">HTTP Response Body (JSON)</h5>
+<pre>{
+  "max_stress": 250000000.0,
+  "weight": 9800.0,
+  "is_stub": true,
+  "model_version": "stub-v0"
+}</pre>
+        </div>
+        <div class="col">
+          <h5>关键约束</h5>
+          <div class="highlight-box">
+            <strong>weight (N) vs mass (kg)：</strong><br>
+            API 只暴露 <code>weight</code>（重量，单位 N）。<br>
+            若未来模型输出质量 <code>mass</code> (kg)，<br>
+            模型适配层内部转换：<br>
+            <code>weight = mass × 9.80665</code><br>
+            第一版占位模型直接输出 weight (N)。
+          </div>
+          <div class="highlight-box" style="margin-top:8px;">
+            <strong>可选字段默认值：</strong><br>
+            <code>span</code> / <code>chord</code> / <code>elastic_modulus</code> /
+            <code>material_density</code> 均可选。<br>
+            默认值统一由 <code>config/settings.py</code> 管理。
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DETAILED API: Aerodynamic Optimization ═══ -->
+  <div class="api-detail" id="api-detail-opt-aero">
+    <div class="header" onclick="this.parentElement.classList.toggle('open')">
+      <span class="arrow">▶</span>
+      <span class="tag tag-opt">Opt</span>
+      POST /optimization/aerodynamic — 单一气动优化
+    </div>
+    <div class="body">
+      <div class="cols">
+        <div class="col">
+          <h5>Pydantic 请求模型</h5>
+<pre>class AeroOptRequest(BaseModel):
+    cst_params: list[float] = Field(
+        min_length=12, max_length=12)
+    condition: Condition
+    target_improvement_ratio: float = Field(
+        gt=0, le=1
+    )</pre>
+        </div>
+        <div class="col">
+          <h5>Pydantic 响应模型</h5>
+<pre>class AeroOptSnapshot(BaseModel):
+    cst_params: list[float]
+    condition: Condition
+    lift_drag_ratio: float
+
+class AeroOptResponse(BaseModel):
+    original: AeroOptSnapshot
+    optimized: AeroOptSnapshot
+    actual_improvement_ratio: float
+    is_stub: bool
+    model_version: str</pre>
+        </div>
+        <div class="col">
+          <h5>约束</h5>
+          <div class="highlight-box">
+            只优化 <code>cst_params</code>，不改变 <code>condition</code>。<br>
+            <code>target_improvement_ratio</code> 使用小数（10% = 0.10），范围 (0, 1]。
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DETAILED API: Structural Optimization ═══ -->
+  <div class="api-detail" id="api-detail-opt-struct">
+    <div class="header" onclick="this.parentElement.classList.toggle('open')">
+      <span class="arrow">▶</span>
+      <span class="tag tag-opt">Opt</span>
+      POST /optimization/structural — 单一强度优化
+    </div>
+    <div class="body">
+      <div class="two-col">
+        <div>
+          <h5 style="font-size:13px;font-weight:700;margin-bottom:8px;">优化变量（可改变）</h5>
+          <table class="tbl">
+            <tr><td style="font-family:var(--mono);font-weight:600;color:var(--struct);">spar_thickness</td><td>梁厚度，单位 m</td></tr>
+            <tr><td style="font-family:var(--mono);font-weight:600;color:var(--struct);">rib_spacing</td><td>肋间距，单位 m</td></tr>
+          </table>
+        </div>
+        <div>
+          <h5 style="font-size:13px;font-weight:700;margin-bottom:8px;">不改变的字段</h5>
+          <table class="tbl">
+            <tr><td style="font-family:var(--mono);">cst_params</td><td>不涉及气动外形</td></tr>
+            <tr><td style="font-family:var(--mono);">condition</td><td>工况是评估条件</td></tr>
+            <tr><td style="font-family:var(--mono);">wing_planform</td><td>机翼平面形状不变</td></tr>
+            <tr><td style="font-family:var(--mono);">skin_thickness</td><td>蒙皮厚度不在优化变量中</td></tr>
+            <tr><td style="font-family:var(--mono);">material_properties</td><td>材料属性不变</td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="notes" style="margin-top:12px;">
+        <strong>关键区分：</strong>结构设计参数 (structure_design) 包含 spar_thickness, skin_thickness, rib_spacing 三个字段，
+        但结构优化变量只包含 spar_thickness 和 rib_spacing 两个。skin_thickness 属于设计参数但不是优化变量，优化过程中不改变。
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DETAILED API: Coupled Optimization ═══ -->
+  <div class="api-detail" id="api-detail-opt-coupled">
+    <div class="header" onclick="this.parentElement.classList.toggle('open')">
+      <span class="arrow">▶</span>
+      <span class="tag tag-opt">Opt</span>
+      POST /optimization/coupled — 气动强度耦合优化
+    </div>
+    <div class="body">
+      <p style="font-size:14px;margin-bottom:14px;">
+        <strong>耦合适应度：</strong>
+        <code style="background:var(--opt-soft);padding:3px 10px;border-radius:4px;font-weight:700;">fitness = lift_drag_ratio / weight</code>
+        &nbsp;（升阻比无量纲，weight 单位 N，由 config/settings.py 管理 g 值）
+      </p>
+      <div class="two-col">
+        <div>
+          <h5 style="font-size:13px;font-weight:700;margin-bottom:6px;">可改变</h5>
+          <ul style="font-size:13px;margin:0;padding-left:18px;">
+            <li>cst_params（气动外形）</li>
+            <li>structure_design.spar_thickness</li>
+            <li>structure_design.rib_spacing</li>
+          </ul>
+        </div>
+        <div>
+          <h5 style="font-size:13px;font-weight:700;margin-bottom:6px;">不改变</h5>
+          <ul style="font-size:13px;margin:0;padding-left:18px;">
+            <li>structure_design.skin_thickness</li>
+            <li>condition</li>
+            <li>wing_planform</li>
+            <li>material_properties</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DETAILED API: Teaching ═══ -->
+  <div class="api-detail" id="api-detail-teach">
+    <div class="header" onclick="this.parentElement.classList.toggle('open')">
+      <span class="arrow">▶</span>
+      <span class="tag tag-teach">Teach</span>
+      POST /teaching/airfoil-from-control-points & POST /teaching/cst-from-airfoil
+    </div>
+    <div class="body">
+      <div class="two-col">
+        <div>
+          <h5 style="font-size:13px;font-weight:700;margin-bottom:8px;">翼型生成（教学控制点 → 翼型点）</h5>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:8px;">TeachingControlPoint: 归一化平面点 (x∈[0,1])，表达中弧线或厚度分布趋势，不是 Bezier/B-spline 控制点。</p>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:4px;">Request JSON:</p>
+<pre>{
+  "camber_control_points": [
+    {"x":0.0,"y":0.0}, {"x":1.0,"y":0.0}
+  ],
+  "thickness_control_points": [
+    {"x":0.0,"y":0.0}, {"x":0.3,"y":0.12}
+  ]
+}</pre>
+          <p style="font-size:12px;color:var(--muted);margin:8px 0 4px;">Response JSON: <code>{"points":[...200 个 {x,y}...], "is_stub":true, "model_version":"stub-v0"}</code></p>
+        </div>
+        <div>
+          <h5 style="font-size:13px;font-weight:700;margin-bottom:8px;">CST 参数反推（翼型点 → CST）</h5>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:4px;">Request JSON:</p>
+<pre>{
+  "points": [
+    {"x":1.0,"y":0.0}, ...200 个...
+  ]
+}</pre>
+          <p style="font-size:12px;color:var(--muted);margin:8px 0 4px;">Response JSON:</p>
+<pre>{
+  "cst_params": [
+    0.1,0.2,0.3,0.1,0.2,0.3,
+    -0.1,-0.2,-0.3,-0.1,-0.2,-0.3
+  ],
+  "is_stub": true,
+  "model_version": "stub-v0"
+}</pre>
+        </div>
+      </div>
+      <div class="notes" style="margin-top:12px;">
+        <strong>教学接口与工程接口分属不同边界，不能混用。</strong>教学接口用于帮助学生理解翼型设计原理，第一版不承诺真实曲线算法。
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════ 5. DATA MODELS ════════════ -->
+<div id="data-models" class="section">
+  <h2 class="section-title">核心数据模型</h2>
+  <p class="section-lead">所有字段均通过 Pydantic 定义，自动校验类型和约束。HTTP 线路上以 JSON 传输。</p>
+
+  <div class="model-grid">
+
+    <!-- CST -->
+    <div class="model-card">
+      <h4><span class="tag tag-geo">CST</span> CST 参数（翼型外形参数化）</h4>
+      <table class="field-tbl">
+        <tr><td>cst_params</td><td>float[12]</td><td>12 个 CST 系数，控制翼型几何外形</td></tr>
+        <tr><td colspan="3" style="color:var(--muted);font-size:11px;">
+          前 6 个 = 上表面系数（upper_0..upper_5）<br>
+          后 6 个 = 下表面系数（lower_0..lower_5）<br>
+          约束：必须正好 12 个；第一版不强制物理范围
+        </td></tr>
+      </table>
+    </div>
+
+    <!-- Condition -->
+    <div class="model-card">
+      <h4><span class="tag tag-aero">Cond</span> 工况参数（来流条件）</h4>
+      <table class="field-tbl">
+        <tr><td>mach</td><td>float</td><td>马赫数（无量纲），飞行速度与当地音速之比</td></tr>
+        <tr><td>angle_of_attack</td><td>float</td><td>攻角（单位 degree），翼型弦线与来流方向的夹角</td></tr>
+      </table>
+      <div class="notes" style="margin-top:8px;">工况是预测和优化的评估条件。优化算法接收工况参数以调用模型计算升阻比/应力/重量，但<strong>不改变工况参数</strong>。</div>
+    </div>
+
+    <!-- Wing Planform -->
+    <div class="model-card">
+      <h4><span class="tag tag-geo">Plane</span> 机翼平面参数</h4>
+      <table class="field-tbl">
+        <tr><td>span</td><td>float?</td><td>翼展（单位 m），机翼左右两端之间的展向长度</td></tr>
+        <tr><td>chord</td><td>float?</td><td>弦长（单位 m），机翼剖面前缘到后缘的弦向长度</td></tr>
+      </table>
+      <div class="notes" style="margin-top:8px;"><code>cst_params</code> 只定义二维翼型截面形状；三维机翼需要 <code>span</code>（翼展）和 <code>chord</code>（弦长）确定空间尺度。可选字段，未传时使用 config/settings.py 中的默认值。</div>
+    </div>
+
+    <!-- Structure Design -->
+    <div class="model-card">
+      <h4><span class="tag tag-struct">Struct</span> 结构设计参数</h4>
+      <table class="field-tbl">
+        <tr><td>spar_thickness</td><td>float</td><td>梁厚度（单位 m），机翼主承力梁的厚度</td></tr>
+        <tr><td>skin_thickness</td><td>float</td><td>蒙皮厚度（单位 m），机翼表面蒙皮的厚度</td></tr>
+        <tr><td>rib_spacing</td><td>float</td><td>肋间距（单位 m），相邻翼肋之间的展向距离</td></tr>
+      </table>
+      <div class="highlight-box" style="margin-top:8px;">
+        <strong>⚠ 结构设计参数 ≠ 结构优化变量：</strong>第一版优化只改变 <code>spar_thickness</code> 和 <code>rib_spacing</code>，<code>skin_thickness</code> 参与强度计算但优化过程不改变它。
+      </div>
+    </div>
+
+    <!-- Material -->
+    <div class="model-card">
+      <h4><span class="tag tag-struct">Mat</span> 材料属性</h4>
+      <table class="field-tbl">
+        <tr><td>elastic_modulus</td><td>float?</td><td>弹性模量（单位 Pa），材料抵抗弹性变形的能力，默认 70 GPa（铝合金）</td></tr>
+        <tr><td>material_density</td><td>float?</td><td>材料密度（单位 kg/m³），默认 2700（铝合金）</td></tr>
+      </table>
+      <div class="notes" style="margin-top:8px;">材料属性参与强度和重量预测但不作为结构几何。可选字段，默认值由 config/settings.py 管理。业务代码不得在 service/model/core 中硬编码。</div>
+    </div>
+
+    <!-- Point types -->
+    <div class="model-card">
+      <h4><span class="tag tag-geo">Pt</span> 点类型 & 坐标系</h4>
+      <table class="field-tbl">
+        <tr><td colspan="3" style="font-weight:700;">坐标系：x = 弦向（前缘→后缘），y = 厚度方向，z = 展向</td></tr>
+        <tr><td>Point2D</td><td>{x,y}</td><td>二维翼型点，200 个/翼型</td></tr>
+        <tr><td>Point3D</td><td>{x,y,z}</td><td>三维机翼点，1000 个/机翼</td></tr>
+        <tr><td>CpPoint</td><td>{x,y,cp}</td><td>Cp（压力系数）分布点，无量纲，与翼型点一一对应</td></tr>
+        <tr><td>PressurePoint</td><td>{x,y,z,pressure}</td><td>压力场点，单位 Pa（走 HDF5，不走 JSON）</td></tr>
+        <tr><td>VelocityPoint</td><td>{x,y,z,velocity}</td><td>速度场点，单位 m/s，第一版标量（不走 JSON）</td></tr>
+      </table>
+    </div>
+
+    <!-- Meta -->
+    <div class="model-card">
+      <h4><span class="badge">Meta</span> 结果元信息（所有响应共用）</h4>
+      <table class="field-tbl">
+        <tr><td>is_stub</td><td>bool</td><td>是否为占位结果。第一版固定 true，未来真实模型改为 false</td></tr>
+        <tr><td>model_version</td><td>str</td><td>模型版本标识。第一版固定 "stub-v0"，未来如 "aero-ld-v1.2"</td></tr>
+      </table>
+      <div class="notes" style="margin-top:8px;">这两个字段<strong>长期保留</strong>，是结果可信度边界的一部分。不要移除 is_stub。</div>
+    </div>
+
+    <!-- Ratio -->
+    <div class="model-card">
+      <h4><span class="badge">Ratio</span> 比例字段规范</h4>
+      <table class="field-tbl">
+        <tr><td>target_improvement_ratio</td><td>float</td><td>目标提升比例（气动/耦合优化用），范围 (0,1]，如 10% → 0.10</td></tr>
+        <tr><td>target_reduction_ratio</td><td>float</td><td>目标降低比例（强度优化用），范围 (0,1]，如 10% → 0.10</td></tr>
+        <tr><td>actual_improvement_ratio</td><td>float</td><td>实际达到的提升比例</td></tr>
+        <tr><td>actual_reduction_ratio</td><td>float</td><td>实际达到的降低比例</td></tr>
+      </table>
+      <div class="notes" style="margin-top:8px;">统一使用小数表达，不使用百分数字符串。三种优化（气动/强度/耦合）的停止条件字段不能混用。</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════ 6. ARTIFACT STRATEGY ════════════ -->
+<div id="artifacts" class="section">
+  <h2 class="section-title">Artifact 策略：JSON vs HDF5 分工</h2>
+
+  <div class="two-col">
+    <div class="card card-pad">
+      <h4 style="font-size:14px;margin-bottom:10px;">通过 REST JSON 返回（小数据 & 元信息）</h4>
+      <ul style="font-size:13px;margin:0;padding-left:18px;color:var(--muted);line-height:1.9;">
+        <li>标量预测结果（升阻比、max_stress、weight）</li>
+        <li>200 个二维翼型点</li>
+        <li>200 个 Cp 分布点</li>
+        <li>优化前后参数对比</li>
+        <li>Artifact 元信息（artifact_id, path, datasets 列表）</li>
+      </ul>
+    </div>
+    <div class="card card-pad" style="border-left:3px solid var(--artifact);">
+      <h4 style="font-size:14px;margin-bottom:10px;">通过 HDF5 文件存储（全场数据）</h4>
+      <ul style="font-size:13px;margin:0;padding-left:18px;color:var(--muted);line-height:1.9;">
+        <li>压力场 — 1000 个 scalar，单位 Pa</li>
+        <li>速度场 — 1000 个 scalar，单位 m/s（标量）</li>
+        <li>三维坐标 — 1000×3 (x,y,z)</li>
+        <li>后续更大的三维场数据</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px;padding:20px 24px;">
+    <h4 style="font-size:14px;margin-bottom:12px;">HDF5 文件内部布局 & 同名 JSON Sidecar</h4>
+    <div class="two-col">
+      <div>
+        <p style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;">HDF5 内部 Dataset 结构</p>
+<pre>/coordinates       shape: (1000, 3)   columns: [x, y, z]
+/fields/pressure   shape: (1000,)     unit: Pa
+/fields/velocity   shape: (1000,)     unit: m/s</pre>
+        <p style="font-size:13px;color:var(--muted);margin-top:8px;">
+          /fields/pressure[i] 和 /fields/velocity[i] 对应 /coordinates[i]。
+          每个 artifact 保存<strong>自己的坐标数据</strong>，不依赖全局默认坐标。
+        </p>
+      </div>
+      <div>
+        <p style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;">同名 JSON Sidecar（元信息文件，必须存在）</p>
+<pre>{
+  "artifact_id": "abc-123",
+  "format": "hdf5",
+  "path": "runtime_artifacts/aerodynamic/abc-123.h5",
+  "status": "ready",
+  "datasets": {
+    "coordinates": "/coordinates",
+    "pressure_field": "/fields/pressure",
+    "velocity_field": "/fields/velocity"
+  }
+}</pre>
+      </div>
+    </div>
+    <div class="notes" style="margin-top:12px;">
+      <strong>输出目录：</strong><code>backend/runtime_artifacts/aerodynamic/</code>（由 .gitignore 忽略）。<br>
+      <strong>写入策略：</strong>第一版同步写入（调用预测接口后 artifact 立即可查询，status=ready）。<br>
+      <strong>范围：</strong>第一版 artifact 只保存单个设计样本的全场数据，不保存优化迭代历史。<br>
+      <strong>查询：</strong><code>GET /artifacts/{artifact_id}</code> 读取 JSON sidecar 返回元信息，不存数据库。
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ 7. ARCHITECTURE ════════════ -->
+<div id="architecture" class="section">
+  <h2 class="section-title">架构分层 & 目录结构</h2>
+  <p class="section-lead">
+    分层架构，上层调用下层，下层不感知上层。每个目录有明确的职责边界。
+  </p>
+
+  <!-- Visual layer diagram -->
+  <div class="arch-wrap" style="margin-bottom:14px;">
+    <div class="arch-layer">
+      <div class="label lbl-api">api/ 路由层</div>
+      <div class="content">
+        <span class="item">health.py</span> <span class="item">geometry.py</span> <span class="item">aerodynamics.py</span>
+        <span class="item">structure.py</span> <span class="item">optimization.py</span> <span class="item">teaching.py</span>
+        <span class="item">artifacts.py</span>
+      </div>
+    </div>
+    <div class="arch-arrow">调用</div>
+    <div class="arch-layer">
+      <div class="label lbl-contracts">contracts/ 数据契约</div>
+      <div class="content">
+        <span class="item">common.py</span> <span class="item">geometry.py</span> <span class="item">aerodynamics.py</span>
+        <span class="item">structure.py</span> <span class="item">optimization.py</span> <span class="item">teaching.py</span>
+        <span class="item">artifacts.py</span>
+        <span style="font-size:11px;color:var(--muted);margin-left:8px;">Pydantic BaseModel 定义，字段校验</span>
+      </div>
+    </div>
+    <div class="arch-arrow">调用</div>
+    <div class="arch-layer">
+      <div class="label lbl-services">services/ 业务编排</div>
+      <div class="content">
+        <span class="item">geometry_service.py</span> <span class="item">aerodynamic_service.py</span>
+        <span class="item">structure_service.py</span> <span class="item">optimization_service.py</span>
+        <span class="item">teaching_service.py</span> <span class="item">artifact_service.py</span>
+        <span style="font-size:11px;color:var(--muted);margin-left:8px;">工作流编排，调用 core + models</span>
+      </div>
+    </div>
+    <div class="arch-arrow">调用</div>
+    <div class="arch-layer">
+      <div class="label lbl-core">core/ 领域逻辑</div>
+      <div class="content">
+        <span class="item">geometry.py</span> <span class="item">aerodynamics.py</span> <span class="item">structure.py</span>
+        <span class="item">optimization.py</span> <span class="item">teaching.py</span>
+        <span style="font-size:11px;color:var(--muted);margin-left:8px;">纯函数，不依赖 FastAPI</span>
+      </div>
+    </div>
+    <div class="arch-arrow" style="padding-left:150px;">调用（横向模块）</div>
+    <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap;">
+      <div class="arch-layer" style="flex:1;min-width:200px;">
+        <div class="label lbl-models">models/</div>
+        <div class="content" style="font-size:11px;">ML 模型适配层<br>（第一版 stub）</div>
+      </div>
+      <div class="arch-layer" style="flex:1;min-width:200px;">
+        <div class="label lbl-opt">optimization/</div>
+        <div class="content" style="font-size:11px;">遗传算法、目标函数<br>（第一版 stub）</div>
+      </div>
+      <div class="arch-layer" style="flex:1;min-width:200px;">
+        <div class="label lbl-artifacts">artifacts/</div>
+        <div class="content" style="font-size:11px;">HDF5 读写<br>+ artifact registry</div>
+      </div>
+      <div class="arch-layer" style="flex:1;min-width:200px;">
+        <div class="label lbl-artifacts" style="background:#4a6a5b;">serialization/</div>
+        <div class="content" style="font-size:11px;">MessagePack<br>/ numpy bytes</div>
+      </div>
+    </div>
+    <div class="arch-arrow" style="padding-left:150px;">底层支撑（被所有层依赖）</div>
+    <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap;">
+      <div class="arch-layer" style="flex:1;min-width:200px;">
+        <div class="label lbl-config">config/</div>
+        <div class="content" style="font-size:11px;">settings.py — 默认值事实源<br>（材料属性、重力加速度、路径、stub 模式）</div>
+      </div>
+      <div class="arch-layer" style="flex:1;min-width:200px;">
+        <div class="label lbl-config" style="background:#556270;">lib/</div>
+        <div class="content" style="font-size:11px;">通用工具（ids, paths, numeric）<br>脱离翼型业务亦可用</div>
+      </div>
+    </div>
+  </div>
+
+  <p style="font-size:12px;color:var(--muted);margin:8px 0 20px;text-align:center;">
+    ↑ 调用方向：api → contracts(校验) → services(编排) → core(逻辑) + models + optimization + artifacts，所有层可依赖 config 和 lib
+  </p>
+
+  <!-- Full directory tree as compact table -->
+  <div class="card" style="overflow-x:auto;">
+  <table class="tbl">
+    <thead><tr><th>路径</th><th>职责</th></tr></thead>
+    <tbody>
+      <tr><td style="font-family:var(--mono);font-size:13px;">backend/</td><td>项目根目录</td></tr>
+      <tr><td style="font-family:var(--mono);font-size:13px;">&emsp;pyproject.toml</td><td>Python 项目配置 & 依赖</td></tr>
+      <tr><td style="font-family:var(--mono);font-size:13px;">&emsp;docs/spec.md, api-contracts.md, adr/</td><td>项目文档 & 架构决策记录</td></tr>
+      <tr><td style="font-family:var(--mono);font-size:13px;">&emsp;tests/</td><td>API 行为测试 (TestClient) + service/core 单元测试</td></tr>
+      <tr><td style="font-family:var(--mono);font-size:13px;">&emsp;runtime_artifacts/</td><td>HDF5 运行时输出（.gitignore 忽略）</td></tr>
+      <tr><td style="font-family:var(--mono);font-size:13px;">&emsp;src/airfoil_platform/</td><td>应用源码</td></tr>
+      <tr><td style="font-family:var(--mono);font-size:13px;">&emsp;&emsp;main.py</td><td>FastAPI app 入口</td></tr>
+      <tr><td style="font-family:var(--mono);font-size:13px;">&emsp;&emsp;api/</td><td>路由层 — 只做请求/响应和调用 service，不含业务逻辑</td></tr>
+      <tr><td style="font-family:var(--mono);font-size:13px;">&emsp;&emsp;contracts/</td><td>Pydantic 数据契约 — 请求模型、响应模型、字段校验</td></tr>
+      <tr><td style="font-family:var(--mono);font-size:13px;">&emsp;&emsp;services/</td><td>业务工作流编排 — 调用 core + models + artifacts</td></tr>
+      <tr><td style="font-family:var(--mono);font-size:13px;">&emsp;&emsp;core/</td><td>纯领域逻辑 — 翼型/气动/强度/优化算法，不依赖 FastAPI</td></tr>
+      <tr><td style="font-family:var(--mono);font-size:13px;">&emsp;&emsp;models/</td><td>ML 模型适配层 — 第一版为 stub（占位）</td></tr>
+      <tr><td style="font-family:var(--mono);font-size:13px;">&emsp;&emsp;optimization/</td><td>遗传算法、目标函数、停止条件 — 第一版为 stub</td></tr>
+      <tr><td style="font-family:var(--mono);font-size:13px;">&emsp;&emsp;artifacts/</td><td>HDF5 artifact 读写 + registry</td></tr>
+      <tr><td style="font-family:var(--mono);font-size:13px;">&emsp;&emsp;serialization/</td><td>MessagePack / numpy bytes 编解码（高频数据通道预留）</td></tr>
+      <tr><td style="font-family:var(--mono);font-size:13px;">&emsp;&emsp;config/</td><td>默认值事实源 — 材料属性、重力加速度 g、artifact 根目录、stub 模式</td></tr>
+      <tr><td style="font-family:var(--mono);font-size:13px;">&emsp;&emsp;lib/</td><td>通用基础工具 — ids, paths, numeric（脱离翼型业务亦可用）</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <!-- Responsibility boundaries -->
+  <div class="two-col" style="margin-top:16px;">
+    <div class="card card-pad">
+      <h4 style="font-size:14px;margin-bottom:10px;">关键职责边界</h4>
+      <table class="tbl">
+        <tr><td style="font-family:var(--mono);font-size:12px;">contracts/ vs models/</td><td>contracts = API 数据契约 (Pydantic)；models = ML 模型适配层。名字相似，职责完全不同。</td></tr>
+        <tr><td style="font-family:var(--mono);font-size:12px;">结构设计参数 vs 优化变量</td><td>skin_thickness 是结构设计参数但不是优化变量。设计参数有 3 个，优化变量只有 2 个。</td></tr>
+        <tr><td style="font-family:var(--mono);font-size:12px;">weight vs mass</td><td>API 只暴露 weight (N)，不暴露 mass (kg)。若未来模型输出质量，模型适配层须内部转换。</td></tr>
+        <tr><td style="font-family:var(--mono);font-size:12px;">教学 vs 工程</td><td>教学接口 (/teaching/*) 和工程接口 (/geometry/*, /aerodynamics/*, /structure/*, /optimization/*) 分属不同边界。</td></tr>
+        <tr><td style="font-family:var(--mono);font-size:12px;">JSON vs HDF5</td><td>小数据 (&le;200 点) 走 JSON；全场数据 (1000+ 点) 走 HDF5。</td></tr>
+        <tr><td style="font-family:var(--mono);font-size:12px;">config 事实源</td><td>所有默认值（材料属性、重力加速度 g、artifact 根目录、stub 模式）统一从 config/settings.py 读取，不得散落硬编码。</td></tr>
+      </table>
+    </div>
+    <div class="card card-pad">
+      <h4 style="font-size:14px;margin-bottom:10px;">后续变化点（不进入第一版）</h4>
+      <table class="tbl">
+        <tr><td style="font-size:12px;">真实模型框架</td><td>PyTorch、ONNX、TensorRT 等替换 stub</td></tr>
+        <tr><td style="font-size:12px;">优化算法</td><td>真实遗传算法、贝叶斯优化、多目标优化</td></tr>
+        <tr><td style="font-size:12px;">可视化</td><td>前端实时渲染 / 后端生成图片 / 导出文件</td></tr>
+        <tr><td style="font-size:12px;">数据存储</td><td>SQLite / PostgreSQL / 对象存储 / NAS</td></tr>
+        <tr><td style="font-size:12px;">智能体调度</td><td>LangGraph + DeepSeek，ReAct 模式</td></tr>
+        <tr><td style="font-size:12px;">异步化</td><td>长耗时任务可能改为异步任务队列</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ 8. RISKS ════════════ -->
+<div id="risks" class="section">
+  <h2 class="section-title">风险点（需测试保护）</h2>
+  <div class="risk-grid">
+    <div class="risk-item">cst_params 必须正好 12 个，顺序固定（前 6 = 上表面系数，后 6 = 下表面系数）</div>
+    <div class="risk-item">工况参数单位固定：mach 无量纲，angle_of_attack 为 degree</div>
+    <div class="risk-item">三维机翼强度相关接口必须显式处理 wing_planform 或使用配置默认机翼尺度</div>
+    <div class="risk-item">结构设计参数 ≠ 材料属性，skin_thickness 属于结构设计参数而非材料属性</div>
+    <div class="risk-item">结构设计参数 ≠ 结构优化变量：第一版仅优化 spar_thickness + rib_spacing</div>
+    <div class="risk-item">weight 统一表示重量 (N)，API 不暴露 mass；若未来模型输出 kg 须在适配层转换</div>
+    <div class="risk-item">默认材料属性、重力加速度 g、artifact 根目录、stub 模式统一从 config/settings.py 读取</div>
+    <div class="risk-item">速度场第一版是标量 velocity，不是 u/v/w 三分量</div>
+    <div class="risk-item">压力场和速度场不能误走 JSON，必须写入 HDF5 artifact</div>
+    <div class="risk-item">所有生成/预测/优化响应必须长期保留 is_stub + model_version</div>
+    <div class="risk-item">HDF5 artifact 必须有同名 JSON sidecar 保存元信息，不能只依赖内存 registry</div>
+    <div class="risk-item">HDF5 artifact 必须保存设计样本自己的 /coordinates，压力场和速度场不得依赖全局默认坐标</div>
+    <div class="risk-item">第一版 artifact 只保存单个设计样本的全场数据，不保存优化候选历史</div>
+    <div class="risk-item">坐标系固定：x = 弦向，y = 厚度方向，z = 展向</div>
+    <div class="risk-item">耦合适应度第一版固定为 fitness = lift_drag_ratio / weight</div>
+    <div class="risk-item">所有比例字段使用小数表达，输入范围 0 &lt; ratio &le; 1（10% = 0.10）</div>
+    <div class="risk-item">气动/强度/耦合优化的停止条件字段不能混用（improvement_ratio vs reduction_ratio）</div>
+    <div class="risk-item">教学接口和工程接口不能混在同一边界里</div>
+  </div>
+</div>
+
+<!-- ════════════ 9. TASKS ════════════ -->
+<div id="tasks" class="section">
+  <h2 class="section-title">任务拆分（Tracer Bullets）</h2>
+  <p class="section-lead">
+    TDD 策略：API 行为测试为主（FastAPI TestClient），service/core 纯函数测试为辅。
+    12 个 tracer bullet，每个是可独立验证的纵向切片，按推荐顺序执行。
+  </p>
+
+  <div class="card" style="overflow-x:auto;">
+  <table class="tbl">
+    <thead><tr><th>#</th><th>Bullet</th><th>目标</th><th>验收要点</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Backend Skeleton</td><td>FastAPI 骨架 + /health + pytest</td><td>GET /health 成功，pytest 命令可运行</td></tr>
+      <tr><td>2</td><td>Common Contracts</td><td>公共 Pydantic contracts</td><td>cst_params 长度、比例范围、默认值校验可测</td></tr>
+      <tr><td>3</td><td>Geometry 2D</td><td>POST /geometry/airfoil-2d</td><td>12 CST → 200 点，点序正确（上前缘→后缘，下后缘→前缘），含 is_stub</td></tr>
+      <tr><td>4</td><td>Aero + Artifact</td><td>POST /aerodynamics/predict + GET /artifacts/{id}</td><td>升阻比 + Cp + HDF5(/coordinates + /fields/*) + JSON sidecar</td></tr>
+      <tr><td>5</td><td>Geometry 3D</td><td>POST /geometry/wing-3d</td><td>CST + wing_planform + structure_design → 1000 三维点，坐标系正确</td></tr>
+      <tr><td>6</td><td>Structure Predict</td><td>POST /structure/predict</td><td>max_stress (Pa) + weight (N)，不暴露 mass</td></tr>
+      <tr><td>7</td><td>Aero Optimization</td><td>POST /optimization/aerodynamic</td><td>只改 cst_params，不改 condition，返回 actual_improvement_ratio</td></tr>
+      <tr><td>8</td><td>Structural Opt</td><td>POST /optimization/structural</td><td>只改 spar_thickness + rib_spacing，不改 skin_thickness</td></tr>
+      <tr><td>9</td><td>Coupled Opt</td><td>POST /optimization/coupled</td><td>fitness = ld_ratio / weight，可改 cst + spar + rib</td></tr>
+      <tr><td>10</td><td>Teaching Gen</td><td>POST /teaching/airfoil-from-control-points</td><td>2+2 教学控制点 → 200 翼型点</td></tr>
+      <tr><td>11</td><td>Teaching CST</td><td>POST /teaching/cst-from-airfoil</td><td>200 点 → 12 CST，顺序正确</td></tr>
+      <tr><td>12</td><td>Documentation</td><td>README / spec / ADR / .gitignore</td><td>文档完整，runtime_artifacts/ 被忽略</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="card" style="margin-top:16px;padding:16px 24px;font-size:13px;color:var(--muted);">
+    <strong style="color:var(--ink);">验证命令：</strong>
+    <code style="background:#eef1f5;padding:2px 8px;border-radius:4px;">cd backend && pytest</code>
+    &nbsp;&nbsp;
+    <strong style="color:var(--ink);">开发启动：</strong>
+    <code style="background:#eef1f5;padding:2px 8px;border-radius:4px;">cd backend && uvicorn airfoil_platform.main:app --reload</code>
+  </div>
+</div>
+
+<div class="footer">
+  <span>Airfoil Design Platform — Backend MVP Spec v0.1</span>
+  <span>2026-05-27 &nbsp;·&nbsp; FastAPI + Pydantic + TDD + HDF5</span>
+</div>
+
+</div>
+</body>
+</html>

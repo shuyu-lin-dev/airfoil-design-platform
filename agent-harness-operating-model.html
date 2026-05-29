@@ -1,0 +1,1747 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Harness Engineering 知识地图</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f7f4;
+      --surface: #ffffff;
+      --surface-soft: #f8fbfa;
+      --ink: #1c2830;
+      --muted: #64727d;
+      --line: #d7dedb;
+      --line-strong: #aebbb6;
+      --teal: #0f766e;
+      --teal-soft: #e2f4f1;
+      --blue: #2563a8;
+      --blue-soft: #e9f2ff;
+      --green: #237047;
+      --green-soft: #e7f5eb;
+      --amber: #a15c07;
+      --amber-soft: #fff2d8;
+      --rose: #a43b3b;
+      --rose-soft: #ffeded;
+      --plum: #6e4f8a;
+      --plum-soft: #f2edf7;
+      --shadow: 0 10px 22px rgba(28, 40, 48, 0.07);
+      --radius: 8px;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.62;
+    }
+
+    a {
+      color: var(--teal);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      min-height: 36px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--ink);
+      padding: 7px 10px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      border-color: var(--line-strong);
+      background: var(--surface-soft);
+    }
+
+    button.active {
+      border-color: var(--teal);
+      background: var(--teal-soft);
+      color: #0b554f;
+      font-weight: 750;
+    }
+
+    header {
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(15, 118, 110, 0.1) 0 28%, transparent 28%),
+        linear-gradient(90deg, rgba(37, 99, 168, 0.08) 0 54%, transparent 54%),
+        #fbfdfb;
+    }
+
+    .wrap {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 380px);
+      gap: 24px;
+      align-items: end;
+      min-height: 240px;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--teal);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      margin: 0 0 14px;
+      font-size: clamp(34px, 5vw, 58px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 830px;
+      margin: 0;
+      color: #41505a;
+      font-size: 18px;
+    }
+
+    .hero-panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.82);
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero-panel h2 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    .hero-panel p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface-soft);
+      padding: 10px;
+    }
+
+    .stat strong {
+      display: block;
+      color: var(--ink);
+      font-size: 23px;
+      line-height: 1;
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      border-bottom: 1px solid var(--line);
+      background: rgba(245, 247, 244, 0.96);
+      backdrop-filter: blur(12px);
+    }
+
+    .toolbar-inner {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 12px 24px;
+      display: grid;
+      grid-template-columns: minmax(240px, 1fr) auto auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .search {
+      width: 100%;
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+      padding: 0 12px;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .layout {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 22px 24px 42px;
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    aside {
+      position: sticky;
+      top: 76px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    aside h2 {
+      margin: 0;
+      padding: 14px 14px 10px;
+      font-size: 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .side-nav {
+      display: grid;
+      padding: 8px;
+      gap: 4px;
+    }
+
+    .side-nav a {
+      border-radius: 6px;
+      padding: 9px 10px;
+      color: var(--ink);
+      font-size: 13px;
+    }
+
+    .side-nav a:hover,
+    .side-nav a.active {
+      background: var(--teal-soft);
+      color: #0b554f;
+      text-decoration: none;
+    }
+
+    main {
+      min-width: 0;
+    }
+
+    section {
+      scroll-margin-top: 88px;
+      margin-bottom: 34px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: 25px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    .section-head p {
+      max-width: 740px;
+      margin: 6px 0 0;
+      color: var(--muted);
+    }
+
+    .source-note {
+      flex: 0 0 auto;
+      max-width: 420px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 8px 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .band {
+      border-top: 4px solid var(--teal);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.68);
+      padding: 16px;
+    }
+
+    .band.blue {
+      border-top-color: var(--blue);
+    }
+
+    .band.green {
+      border-top-color: var(--green);
+    }
+
+    .band.amber {
+      border-top-color: var(--amber);
+    }
+
+    .band.rose {
+      border-top-color: var(--rose);
+    }
+
+    .band.plum {
+      border-top-color: var(--plum);
+    }
+
+    .grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .grid.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .grid.four {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .card,
+    details,
+    .template-card,
+    .source-index {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .card,
+    .template-card,
+    .source-index {
+      padding: 15px;
+    }
+
+    .card h3,
+    .template-card h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      line-height: 1.3;
+    }
+
+    .card p,
+    .template-card p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .card ul,
+    .card ol,
+    .template-card ul {
+      margin: 9px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+
+    .mini-title {
+      display: block;
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 8px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      border-radius: 999px;
+      padding: 3px 8px;
+      background: #eef2ef;
+      color: #3a4b53;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .pill.teal {
+      background: var(--teal-soft);
+      color: #0b554f;
+    }
+
+    .pill.blue {
+      background: var(--blue-soft);
+      color: #184e86;
+    }
+
+    .pill.green {
+      background: var(--green-soft);
+      color: #185834;
+    }
+
+    .pill.amber {
+      background: var(--amber-soft);
+      color: #7a4106;
+    }
+
+    .pill.rose {
+      background: var(--rose-soft);
+      color: #822a2a;
+    }
+
+    .pill.plum {
+      background: var(--plum-soft);
+      color: #563b6d;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 9px;
+      align-items: stretch;
+    }
+
+    .flow.four {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .flow.six {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    .flow-step {
+      position: relative;
+      min-height: 118px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 12px;
+    }
+
+    .flow-step::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: -8px;
+      width: 14px;
+      height: 2px;
+      background: var(--line-strong);
+    }
+
+    .flow-step:last-child::after {
+      display: none;
+    }
+
+    .flow-step strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 1.28;
+    }
+
+    .flow-step span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .checklist li {
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 9px 10px 9px 32px;
+      color: #43515a;
+      font-size: 13px;
+    }
+
+    .checklist li::before {
+      content: "";
+      position: absolute;
+      top: 13px;
+      left: 12px;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--teal);
+    }
+
+    details {
+      margin-top: 14px;
+      overflow: hidden;
+    }
+
+    summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 13px 15px;
+      cursor: pointer;
+      list-style: none;
+      font-weight: 800;
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    summary::after {
+      content: "+";
+      flex: 0 0 auto;
+      width: 26px;
+      height: 26px;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      display: inline-grid;
+      place-items: center;
+      color: var(--teal);
+      font-weight: 900;
+    }
+
+    details[open] summary {
+      border-bottom: 1px solid var(--line);
+      background: var(--surface-soft);
+    }
+
+    details[open] summary::after {
+      content: "-";
+    }
+
+    .details-body {
+      padding: 15px;
+    }
+
+    .lecture-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .lecture-detail {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 14px;
+    }
+
+    .lecture-detail h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      line-height: 1.3;
+    }
+
+    .field {
+      display: grid;
+      grid-template-columns: 72px minmax(0, 1fr);
+      gap: 10px;
+      border-top: 1px solid #eef2ef;
+      padding-top: 9px;
+      margin-top: 9px;
+    }
+
+    .field strong {
+      color: var(--teal);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .field p {
+      margin: 0;
+      color: #45535c;
+      font-size: 13px;
+    }
+
+    .template-head {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    pre {
+      overflow: auto;
+      max-height: 440px;
+      margin: 12px 0 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #24313a;
+      color: #e9f2f3;
+      padding: 13px;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height: 1.55;
+      tab-size: 2;
+      white-space: pre;
+    }
+
+    code {
+      font-family: var(--mono);
+    }
+
+    :not(pre) > code {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #eff4f2;
+      padding: 1px 5px;
+      color: #21323a;
+      font-size: 0.92em;
+    }
+
+    .table-shell {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      min-width: 760px;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 11px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--surface-soft);
+      color: #39474f;
+      font-size: 13px;
+    }
+
+    td {
+      color: #4b5962;
+      font-size: 13px;
+    }
+
+    .source-index ol {
+      columns: 2;
+      column-gap: 28px;
+      margin: 10px 0 0;
+      padding-left: 20px;
+    }
+
+    .source-index li {
+      break-inside: avoid;
+      margin-bottom: 7px;
+      color: #4b5962;
+      font-size: 13px;
+    }
+
+    .empty {
+      display: none;
+      border: 1px dashed var(--line-strong);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 18px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 1100px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      aside {
+        position: static;
+      }
+
+      .side-nav {
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(170px, 1fr);
+        overflow-x: auto;
+      }
+
+      .toolbar-inner {
+        grid-template-columns: 1fr;
+      }
+
+      .chip-row {
+        justify-content: flex-start;
+      }
+
+      .hero,
+      .grid.three,
+      .grid.four,
+      .lecture-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .wrap,
+      .layout,
+      .toolbar-inner {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      header {
+        background: #fbfdfb;
+      }
+
+      .grid.two,
+      .flow,
+      .flow.four,
+      .flow.six,
+      .stat-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .flow-step::after {
+        display: none;
+      }
+
+      .section-head {
+        display: block;
+      }
+
+      .source-note {
+        margin-top: 10px;
+        max-width: none;
+      }
+
+      .field {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+
+      .source-index ol {
+        columns: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap hero">
+      <div>
+        <p class="eyebrow">AI Agent Harness 操作模型学习仪表盘</p>
+        <h1>Harness Engineering 知识地图</h1>
+        <p class="lead">把 Learn Harness Engineering 的课程内容重组为可应用的生命周期地图：从失败诊断、仓库事实源、指令路由，到任务控制、验证观测和清洁交接。页面不是原文复刻，而是给学生在真实 agent 项目里拿来执行的操作手册。</p>
+      </div>
+      <div class="hero-panel searchable" data-tags="概念 流程 来源" data-title="课程材料概览">
+        <h2>课程材料概览</h2>
+        <p>综合 `learn-harness-engineering-zh.md`、12 篇讲义和 `wiki/ai-workflows/agent-harness-operating-model.md`，保留来源路径，案例数字按课程材料中的案例表述。</p>
+        <div class="stat-grid">
+          <div class="stat">
+            <strong>13</strong>
+            <span>raw 课程源文件</span>
+          </div>
+          <div class="stat">
+            <strong>12</strong>
+            <span>讲义标题覆盖</span>
+          </div>
+          <div class="stat">
+            <strong>8</strong>
+            <span>生命周期模块</span>
+          </div>
+          <div class="stat">
+            <strong>8</strong>
+            <span>可复制模板</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <div class="toolbar-inner">
+      <input id="search" class="search" type="search" placeholder="搜索课程、概念、模板、源文件..." aria-label="全文搜索">
+      <div class="chip-row" aria-label="按任务意图筛选">
+        <button class="filter active" type="button" data-filter="all">全部</button>
+        <button class="filter" type="button" data-filter="概念">概念</button>
+        <button class="filter" type="button" data-filter="流程">流程</button>
+        <button class="filter" type="button" data-filter="模板">模板</button>
+        <button class="filter" type="button" data-filter="验证">验证</button>
+        <button class="filter" type="button" data-filter="风险">风险</button>
+        <button class="filter" type="button" data-filter="练习">练习</button>
+      </div>
+      <div class="chip-row" aria-label="讲义详情控制">
+        <button type="button" id="expandAll">展开详情</button>
+        <button type="button" id="collapseAll">收起详情</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside aria-label="课程地图导航">
+      <h2>课程地图</h2>
+      <nav class="side-nav" id="sideNav">
+        <a href="#overview">课程总览</a>
+        <a href="#failure">失败与 Harness</a>
+        <a href="#repo">仓库事实源</a>
+        <a href="#routing">指令路由</a>
+        <a href="#continuity">连续性与初始化</a>
+        <a href="#control">任务控制</a>
+        <a href="#verification">验证与观测</a>
+        <a href="#handoff">清洁交接</a>
+        <a href="#templates">模板集</a>
+        <a href="#sources">来源索引</a>
+      </nav>
+    </aside>
+
+    <main>
+      <section id="overview" class="searchable" data-tags="概念 流程 验证" data-title="课程总览 Learn Harness Engineering">
+        <div class="section-head">
+          <div>
+            <h2>课程总览</h2>
+            <p>课程的核心判断是：可靠 agent 不是只靠更强模型，而是靠指令、工具、环境、状态、反馈、验证和交接组成的闭环工作系统。</p>
+          </div>
+          <div class="source-note">来源：raw/ai-workflows/learn-harness-engineering-zh.md</div>
+        </div>
+        <div class="band">
+          <div class="grid three">
+            <article class="card">
+              <span class="mini-title">学习路径</span>
+              <h3>讲义、项目、资料库</h3>
+              <p>先理解失败模式和 harness 概念，再用项目练习搭建可读、可验证、可交接的 agent 工作环境，最后把模板迁移到自己的仓库。</p>
+            </article>
+            <article class="card">
+              <span class="mini-title">核心机制</span>
+              <h3>目标、初始化、执行、验证、交接</h3>
+              <p>从 `AGENTS.md` 明确目标，通过初始化检查建立前提，让 agent 执行任务，再用测试、QA 和进度文件形成反馈闭环。</p>
+            </article>
+            <article class="card">
+              <span class="mini-title">学生产出</span>
+              <h3>一套能落地的 Harness</h3>
+              <p>学生最终应能给一个真实项目补齐入口文件、进度状态、功能清单、验证命令、观测工件和退出检查。</p>
+            </article>
+          </div>
+          <div class="flow six" style="margin-top:12px">
+            <div class="flow-step"><strong>明确目标</strong><span>把任务、边界和验证标准写进仓库入口。</span></div>
+            <div class="flow-step"><strong>初始化检查</strong><span>确认依赖、启动命令、示例测试和任务清单。</span></div>
+            <div class="flow-step"><strong>运行任务</strong><span>一次只激活一个功能项，围绕完成证据推进。</span></div>
+            <div class="flow-step"><strong>运行反馈</strong><span>用日志、错误消息、健康检查指导修复。</span></div>
+            <div class="flow-step"><strong>验证评审</strong><span>静态、行为、系统和交接层都通过才完成。</span></div>
+            <div class="flow-step"><strong>清理交接</strong><span>记录进度，清理临时工件，留下可接手状态。</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="failure" class="searchable" data-tags="概念 流程 验证 风险 练习" data-title="失败与 Harness L01 L02 模型能力强 不等于执行可靠 Harness 到底是什么">
+        <div class="section-head">
+          <div>
+            <h2>失败与 Harness：L01-L02</h2>
+            <p>先把失败从“模型不行”改写成“哪一层 harness 缺失”。这一步决定学生后面是换模型、加提示词，还是系统性修补工作环境。</p>
+          </div>
+          <div class="source-note">来源：lecture-01-model-capability-vs-reliability.md；lecture-02-what-a-harness-is.md</div>
+        </div>
+        <div class="band rose">
+          <div class="grid three">
+            <article class="card">
+              <span class="mini-title">操作卡片</span>
+              <h3>失败先归因，不先换模型</h3>
+              <p>每次 agent 失败后，把问题归到任务规范、上下文供给、执行环境、验证反馈或状态管理，而不是笼统地判定模型能力不足。</p>
+              <div class="pill-row">
+                <span class="pill rose">诊断循环</span>
+                <span class="pill teal">五子系统</span>
+                <span class="pill amber">验证缺口</span>
+              </div>
+            </article>
+            <article class="card">
+              <span class="mini-title">检查清单</span>
+              <ul class="checklist">
+                <li>任务是否有显式完成定义，而不是一句宽泛需求？</li>
+                <li>agent 是否能找到技术栈、架构约束和验证命令？</li>
+                <li>环境能否启动，测试能否运行，失败信息能否指导修复？</li>
+                <li>跨会话状态是否写进仓库，而不是停在聊天记录里？</li>
+              </ul>
+            </article>
+            <article class="card">
+              <span class="mini-title">应用方式</span>
+              <h3>等模型对照实验</h3>
+              <p>保持模型和任务不变，逐个补齐 `AGENTS.md`、验证命令、进度文件等组件，观察成功率和重建成本变化，定位最该加强的子系统。</p>
+            </article>
+          </div>
+          <div class="flow" style="margin-top:12px">
+            <div class="flow-step"><strong>执行</strong><span>让 agent 做一个真实任务，记录输出和失败点。</span></div>
+            <div class="flow-step"><strong>观察失败</strong><span>不要先改 prompt，先看是哪种结构性缺口。</span></div>
+            <div class="flow-step"><strong>定位层级</strong><span>任务、上下文、环境、反馈、状态五层归因。</span></div>
+            <div class="flow-step"><strong>修补 Harness</strong><span>补文件、命令、测试、日志或状态工件。</span></div>
+            <div class="flow-step"><strong>重新执行</strong><span>同模型重跑，用结果衡量改进是否有效。</span></div>
+          </div>
+          <details>
+            <summary>讲义详情：失败诊断与五子系统</summary>
+            <div class="details-body lecture-grid">
+              <article class="lecture-detail">
+                <h3>第一讲. 模型能力强，不等于执行可靠</h3>
+                <div class="field"><strong>痛点</strong><p>真实项目有隐性约束、环境差异、没有现成测试和长会话记忆损耗；模型会写代码，不等于会可靠交付。</p></div>
+                <div class="field"><strong>概念</strong><p>能力鸿沟、Harness、Harness 诱导失败、验证缺口、诊断循环、完成定义。</p></div>
+                <div class="field"><strong>做法</strong><p>给每个任务写可执行完成标准；创建 `AGENTS.md`；把失败归到五层防御；记录任务成功率和失败层级。</p></div>
+                <div class="field"><strong>案例</strong><p>课程材料中的案例显示，同一模型在裸环境和完整 harness 中表现差异巨大；另一个 FastAPI 团队通过入口文件、验证命令和决策记录显著提高成功率。</p></div>
+                <div class="field"><strong>练习</strong><p>做一次“无 harness vs 最小 harness”对比实验，并测量 agent 声称完成但独立验证失败的比例。</p></div>
+                <div class="field"><strong>来源</strong><p>raw/ai-workflows/lecture-01-model-capability-vs-reliability.md</p></div>
+              </article>
+              <article class="lecture-detail">
+                <h3>第二讲. Harness 到底是什么</h3>
+                <div class="field"><strong>痛点</strong><p>很多团队把 harness 误解成一个 prompt 文件，缺少工具、环境、状态和反馈，导致 agent 把时间花在猜项目上。</p></div>
+                <div class="field"><strong>概念</strong><p>指令、工具、环境、状态、反馈五子系统；仓库是唯一事实来源；给地图，不给百科全书；约束而非微操。</p></div>
+                <div class="field"><strong>做法</strong><p>用 `AGENTS.md` 说明项目、命令和硬约束；开放最小必要工具；锁定运行时；用 `PROGRESS.md` 跟踪长任务；在入口写清验证命令。</p></div>
+                <div class="field"><strong>案例</strong><p>课程材料中的 TypeScript + React 团队从空仓库描述逐步增加入口文件、验证命令和状态文件，成功率随 harness 完整度提升。</p></div>
+                <div class="field"><strong>练习</strong><p>按五元组给自己的项目打分，最低分子系统先花 30 分钟补强，再用同一任务观察表现变化。</p></div>
+                <div class="field"><strong>来源</strong><p>raw/ai-workflows/lecture-02-what-a-harness-is.md</p></div>
+              </article>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <section id="repo" class="searchable" data-tags="概念 流程 风险 练习" data-title="仓库事实源 L03 让代码仓库成为唯一的事实来源 冷启动测试 ACID">
+        <div class="section-head">
+          <div>
+            <h2>仓库事实源：L03</h2>
+            <p>不在仓库里的知识，对 agent 来说就是不存在。仓库事实源模块把人脑、Slack、Confluence 和 Jira 中的关键约束迁移到 agent 可访问的位置。</p>
+          </div>
+          <div class="source-note">来源：lecture-03-repo-as-system-of-record.md</div>
+        </div>
+        <div class="band blue">
+          <div class="grid three">
+            <article class="card">
+              <span class="mini-title">操作卡片</span>
+              <h3>做一次冷启动测试</h3>
+              <p>开新会话，只给仓库内容，检查 agent 能否回答：这是什么系统、如何组织、如何启动、如何验证、当前做到哪里。</p>
+              <div class="pill-row">
+                <span class="pill blue">知识可见性</span>
+                <span class="pill teal">System of Record</span>
+                <span class="pill amber">发现成本</span>
+              </div>
+            </article>
+            <article class="card">
+              <span class="mini-title">仓库布局</span>
+              <ul>
+                <li>`AGENTS.md`：入口、命令、全局硬约束。</li>
+                <li>模块旁文档：`ARCHITECTURE.md`、`CONSTRAINTS.md`、`TESTING.md`。</li>
+                <li>`PROGRESS.md`：当前进度、阻塞、下一步。</li>
+                <li>`Makefile` 或 scripts：标准化操作路径。</li>
+              </ul>
+            </article>
+            <article class="card">
+              <span class="mini-title">风险雷达</span>
+              <h3>过时文档比没有文档更危险</h3>
+              <p>知识要靠近代码，并和代码一起更新。否则 agent 会遵循错误地图，错误还会显得很自信。</p>
+            </article>
+          </div>
+          <div class="flow" style="margin-top:12px">
+            <div class="flow-step"><strong>收集隐性知识</strong><span>团队约定、架构决策、运行命令、验证标准。</span></div>
+            <div class="flow-step"><strong>放进仓库</strong><span>入口文件放高频信息，细节靠近代码。</span></div>
+            <div class="flow-step"><strong>降低发现成本</strong><span>路径短、标题清楚、按任务主题组织。</span></div>
+            <div class="flow-step"><strong>冷启动测试</strong><span>用五个问题验证新会话能否接手。</span></div>
+            <div class="flow-step"><strong>随代码维护</strong><span>文档和变更同审查、同提交、同验证。</span></div>
+          </div>
+          <details>
+            <summary>讲义详情：仓库即事实源</summary>
+            <div class="details-body lecture-grid">
+              <article class="lecture-detail">
+                <h3>第三讲. 让代码仓库成为唯一的事实来源</h3>
+                <div class="field"><strong>痛点</strong><p>项目知识散落在仓库外，agent 无法访问，导致每次任务都要猜架构、命令、约束和当前进度。</p></div>
+                <div class="field"><strong>概念</strong><p>知识可见性缺口、系统记录、冷启动测试、发现成本、知识衰减率、ACID 类比。</p></div>
+                <div class="field"><strong>做法</strong><p>把关键知识写入仓库；入口文件标准化；模块规则靠近代码；用原子提交、一致性验证、并发隔离和持久状态管理 agent 工作。</p></div>
+                <div class="field"><strong>案例</strong><p>课程材料中的微服务团队把全局硬约束、服务架构和进度文件写入仓库后，同一 agent 冷启动时能回答关键问题，人工干预减少。</p></div>
+                <div class="field"><strong>练习</strong><p>列出项目关键决策，标注仓库内/仓库外，计算知识可见性缺口，并把冷启动五问答不上来的部分补齐。</p></div>
+                <div class="field"><strong>来源</strong><p>raw/ai-workflows/lecture-03-repo-as-system-of-record.md</p></div>
+              </article>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <section id="routing" class="searchable" data-tags="概念 流程 模板 风险 练习" data-title="指令路由 L04 把指令拆分到不同文件里 渐进式披露 AGENTS.md">
+        <div class="section-head">
+          <div>
+            <h2>指令路由：L04</h2>
+            <p>`AGENTS.md` 是路由器，不是百科全书。模块目标是让学生会拆分入口指令，避免“每次失败就加一条规则”的指令膨胀。</p>
+          </div>
+          <div class="source-note">来源：lecture-04-progressive-disclosure-instructions.md</div>
+        </div>
+        <div class="band amber">
+          <div class="grid three">
+            <article class="card">
+              <span class="mini-title">操作卡片</span>
+              <h3>入口文件 50-200 行</h3>
+              <p>只放项目概览、首次运行命令、全局硬约束和专题文档链接。安全、数据库、测试、部署等细节按需披露。</p>
+              <div class="pill-row">
+                <span class="pill amber">渐进式披露</span>
+                <span class="pill rose">中间迷失</span>
+                <span class="pill blue">信噪比</span>
+              </div>
+            </article>
+            <article class="card">
+              <span class="mini-title">拆分规则</span>
+              <ul class="checklist">
+                <li>硬约束放入口顶部，避免埋在长文件中部。</li>
+                <li>专题文档按任务触发条件命名。</li>
+                <li>历史教训优先转成测试或自动检查。</li>
+                <li>每条规则说明来源、适用条件和过期条件。</li>
+              </ul>
+            </article>
+            <article class="card">
+              <span class="mini-title">常见反模式</span>
+              <h3>巨型指令文件</h3>
+              <p>600 行入口文件会吃掉上下文预算、降低当前任务信噪比，并让关键安全约束被“中间迷失”稀释。</p>
+            </article>
+          </div>
+          <div class="flow four" style="margin-top:12px">
+            <div class="flow-step"><strong>审计指令</strong><span>按任务类型标注每条规则是否相关。</span></div>
+            <div class="flow-step"><strong>裁剪入口</strong><span>保留高频、全局、不可违反的信息。</span></div>
+            <div class="flow-step"><strong>拆到专题</strong><span>API、数据库、测试、部署分别建文档。</span></div>
+            <div class="flow-step"><strong>转成检查</strong><span>重复审查意见优先变成 lint、test 或脚本。</span></div>
+          </div>
+          <details>
+            <summary>讲义详情：指令文件架构</summary>
+            <div class="details-body lecture-grid">
+              <article class="lecture-detail">
+                <h3>第四讲. 把指令拆分到不同文件里</h3>
+                <div class="field"><strong>痛点</strong><p>每次失败都往入口文件加规则，最终上下文预算被低价值指令占用，关键约束被埋在文件中部，甚至互相矛盾。</p></div>
+                <div class="field"><strong>概念</strong><p>指令膨胀、中间迷失效应、指令信噪比、路由文件、渐进式披露、优先级模糊度。</p></div>
+                <div class="field"><strong>做法</strong><p>入口文件只保留概览、命令、少量硬约束和专题链接；专题文档 50-150 行；历史笔记转成测试或删除。</p></div>
+                <div class="field"><strong>案例</strong><p>课程材料中的 SaaS 团队把 600 行入口文件拆成 80 行路由文件和多个专题文档后，安全约束遵循率和任务成功率明显改善。</p></div>
+                <div class="field"><strong>练习</strong><p>给入口文件做信噪比审计，选择 5 类常见任务，找出大多数任务都用不上的规则并移到专题文档。</p></div>
+                <div class="field"><strong>来源</strong><p>raw/ai-workflows/lecture-04-progressive-disclosure-instructions.md</p></div>
+              </article>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <section id="continuity" class="searchable" data-tags="概念 流程 模板 验证 风险 练习" data-title="连续性与初始化 L05 L06 让跨会话任务保持上下文连续 让 agent 每次工作前先初始化">
+        <div class="section-head">
+          <div>
+            <h2>连续性与初始化：L05-L06</h2>
+            <p>长任务需要“会失忆的工程师”工作法：开工前先打地基，收工前写日记，让新会话能从仓库工件恢复，而不是重新侦探一遍。</p>
+          </div>
+          <div class="source-note">来源：lecture-05-long-running-task-continuity.md；lecture-06-agent-initialization-phase.md</div>
+        </div>
+        <div class="band green">
+          <div class="grid three">
+            <article class="card">
+              <span class="mini-title">操作卡片</span>
+              <h3>跨会话状态必须持久化</h3>
+              <p>`PROGRESS.md` 记录当前状态、已完成、进行中、已知问题和下一步；`DECISIONS.md` 记录关键选择及其原因。</p>
+              <div class="pill-row">
+                <span class="pill green">连续性工件</span>
+                <span class="pill amber">自举契约</span>
+                <span class="pill rose">上下文焦虑</span>
+              </div>
+            </article>
+            <article class="card">
+              <span class="mini-title">初始化验收</span>
+              <ul class="checklist">
+                <li>项目能从零安装并启动。</li>
+                <li>至少一个示例测试通过。</li>
+                <li>自举契约写清命令、状态和结构。</li>
+                <li>任务分解有明确验收标准。</li>
+                <li>初始化结束有干净检查点。</li>
+              </ul>
+            </article>
+            <article class="card">
+              <span class="mini-title">关键指标</span>
+              <h3>重建成本</h3>
+              <p>新会话恢复到可执行状态所需时间。好的 harness 目标是几分钟内完成重建，而不是每次重新探索 15-30 分钟。</p>
+            </article>
+          </div>
+          <div class="flow six" style="margin-top:12px">
+            <div class="flow-step"><strong>环境可运行</strong><span>依赖、运行时和服务路径清楚。</span></div>
+            <div class="flow-step"><strong>示例测试</strong><span>先证明测试框架本身有效。</span></div>
+            <div class="flow-step"><strong>自举契约</strong><span>启动、测试、项目结构和当前状态。</span></div>
+            <div class="flow-step"><strong>任务清单</strong><span>每项任务有验收标准。</span></div>
+            <div class="flow-step"><strong>进度决策</strong><span>会话结束写回状态和为什么。</span></div>
+            <div class="flow-step"><strong>检查点</strong><span>用提交或明确快照留下可恢复状态。</span></div>
+          </div>
+          <details>
+            <summary>讲义详情：跨会话连续性与初始化阶段</summary>
+            <div class="details-body lecture-grid">
+              <article class="lecture-detail">
+                <h3>第五讲. 让跨会话的任务保持上下文连续</h3>
+                <div class="field"><strong>痛点</strong><p>长任务跨会话后，agent 不知道上次做了什么、为什么这样做、测试状态如何，只能重新探索并可能产生漂移。</p></div>
+                <div class="field"><strong>概念</strong><p>上下文窗口、连续性工件、重建成本、漂移、上下文焦虑、压缩 vs 重置。</p></div>
+                <div class="field"><strong>做法</strong><p>维护 `PROGRESS.md`、`DECISIONS.md`、验证记录和 git 检查点；会话开始读状态，会话结束写回状态。</p></div>
+                <div class="field"><strong>案例</strong><p>课程材料中的博客系统对比显示，使用进度、决策、验证和检查点后，新会话重建成本和重复实现明显下降。</p></div>
+                <div class="field"><strong>练习</strong><p>设计最小交接模板：仓库状态、运行时状态、阻塞项、下一步行动，并让全新会话只凭模板恢复。</p></div>
+                <div class="field"><strong>来源</strong><p>raw/ai-workflows/lecture-05-long-running-task-continuity.md</p></div>
+              </article>
+              <article class="lecture-detail">
+                <h3>第六讲. 让 agent 每次工作前先初始化</h3>
+                <div class="field"><strong>痛点</strong><p>agent 一上来写功能，做到一半才发现环境、测试和项目结构没准备好，导致未验证代码累积。</p></div>
+                <div class="field"><strong>概念</strong><p>初始化阶段、自举契约、冷启动 vs 热启动、交接就绪性、首次验证时间、下游可用性。</p></div>
+                <div class="field"><strong>做法</strong><p>第一个会话只建立基础设施：可运行环境、示例测试、自举契约、任务分解和干净 checkpoint；后续会话再实现业务。</p></div>
+                <div class="field"><strong>案例</strong><p>课程材料中的 React 项目显示，独立初始化虽然前期多花时间，但后续会话能快速从任务列表开始，减少跨会话重建成本。</p></div>
+                <div class="field"><strong>练习</strong><p>为项目写自举契约，让新 agent 只看仓库启动项目、跑测试、理解进度，记录卡点并补齐契约。</p></div>
+                <div class="field"><strong>来源</strong><p>raw/ai-workflows/lecture-06-agent-initialization-phase.md</p></div>
+              </article>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <section id="control" class="searchable" data-tags="概念 流程 模板 验证 风险 练习" data-title="任务控制 L07 L08 给 agent 划清每次任务边界 用功能清单约束 agent 该做什么 WIP=1 feature list">
+        <div class="section-head">
+          <div>
+            <h2>任务控制：L07-L08</h2>
+            <p>agent 容易 overreach 和 under-finish：同时做很多事，却没有一个行为真正通过。任务控制模块把范围、状态和完成证据外部化。</p>
+          </div>
+          <div class="source-note">来源：lecture-07-task-boundaries.md；lecture-08-feature-lists-as-harness-primitives.md</div>
+        </div>
+        <div class="band plum">
+          <div class="grid three">
+            <article class="card">
+              <span class="mini-title">操作卡片</span>
+              <h3>WIP=1 是默认安全设置</h3>
+              <p>任何时刻只允许一个功能项处于 `active`。当前项的验证命令通过后，才能解锁下一个任务。</p>
+              <div class="pill-row">
+                <span class="pill plum">WIP 限制</span>
+                <span class="pill teal">功能清单</span>
+                <span class="pill green">完成证据</span>
+              </div>
+            </article>
+            <article class="card">
+              <span class="mini-title">功能项三元组</span>
+              <ul class="checklist">
+                <li>行为描述：外部可观察行为。</li>
+                <li>验证命令：如何证明行为成立。</li>
+                <li>当前状态：`not_started`、`active`、`blocked`、`passing`。</li>
+                <li>证据引用：commit、日志或测试输出。</li>
+              </ul>
+            </article>
+            <article class="card">
+              <span class="mini-title">状态规则</span>
+              <h3>agent 不能自己标 passing</h3>
+              <p>功能状态应由 harness 根据验证结果推进。agent 可以请求验证，但不能用“看起来完成”替代通过状态门控。</p>
+            </article>
+          </div>
+          <div class="flow" style="margin-top:12px">
+            <div class="flow-step"><strong>功能队列</strong><span>读取功能清单中的 `not_started`。</span></div>
+            <div class="flow-step"><strong>只选一个</strong><span>把当前任务置为 `active`。</span></div>
+            <div class="flow-step"><strong>实现行为</strong><span>不顺手改无关功能或重构。</span></div>
+            <div class="flow-step"><strong>运行验证</strong><span>执行该功能自己的验证命令。</span></div>
+            <div class="flow-step"><strong>状态转移</strong><span>通过变 `passing`，失败继续修，依赖缺失变 `blocked`。</span></div>
+          </div>
+          <details>
+            <summary>讲义详情：任务边界与功能清单</summary>
+            <div class="details-body lecture-grid">
+              <article class="lecture-detail">
+                <h3>第七讲. 给 agent 划清每次任务的边界</h3>
+                <div class="field"><strong>痛点</strong><p>宽泛任务会让 agent 同时改数据库、路由、前端和中间件，代码很多但端到端没有一个功能跑通。</p></div>
+                <div class="field"><strong>概念</strong><p>过度延伸、 不足完成、WIP 限制、完成证据、范围表面、完成压力。</p></div>
+                <div class="field"><strong>做法</strong><p>强制 WIP=1；每项任务定义可执行完成证据；范围表面外部化；用验证完成率监控是否允许启动新任务。</p></div>
+                <div class="field"><strong>案例</strong><p>课程材料中的 REST API 对比显示，无约束时多个功能半成品，WIP=1 时每个会话代码更少但有效完成率更高。</p></div>
+                <div class="field"><strong>练习</strong><p>把“实现用户管理系统”拆成至少 5 个原子工作单元，每个写行为、验证命令和依赖关系。</p></div>
+                <div class="field"><strong>来源</strong><p>raw/ai-workflows/lecture-07-task-boundaries.md</p></div>
+              </article>
+              <article class="lecture-detail">
+                <h3>第八讲. 用功能清单约束 agent 该做什么</h3>
+                <div class="field"><strong>痛点</strong><p>没有功能清单时，agent 用自己的隐式标准判断“做完”，新会话也无法知道“基本完成”到底意味着什么。</p></div>
+                <div class="field"><strong>概念</strong><p>功能清单是 harness 原语、三元组结构、状态机模型、通过状态门控、单一权威来源、反向压力。</p></div>
+                <div class="field"><strong>做法</strong><p>用 Markdown 或 JSON 记录功能项；调度器选任务，验证器决定状态，交接器从清单生成摘要。</p></div>
+                <div class="field"><strong>案例</strong><p>课程材料中的电商平台从非结构化进度笔记改为结构化功能清单后，新会话能几分钟内知道哪些功能 passing、active 或 not_started。</p></div>
+                <div class="field"><strong>练习</strong><p>定义最小 feature list schema，并用它描述 5 个真实功能；对比宽松验证和严格验证的假阳性率。</p></div>
+                <div class="field"><strong>来源</strong><p>raw/ai-workflows/lecture-08-feature-lists-as-harness-primitives.md</p></div>
+              </article>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <section id="verification" class="searchable" data-tags="概念 流程 模板 验证 风险 练习" data-title="验证与观测 L09 L10 L11 防止 agent 提前宣告完成 跑通完整流程 让 agent 的运行过程可观测">
+        <div class="section-head">
+          <div>
+            <h2>验证与观测：L09-L11</h2>
+            <p>完成不能由 agent 的信心判定。验证与观测模块把终止标准、端到端测试、错误反馈、运行时信号和过程工件都纳入 harness。</p>
+          </div>
+          <div class="source-note">来源：lecture-09-definition-of-done.md；lecture-10-end-to-end-testing.md；lecture-11-harness-observability.md</div>
+        </div>
+        <div class="band">
+          <div class="grid three">
+            <article class="card">
+              <span class="mini-title">操作卡片</span>
+              <h3>三层终止校验</h3>
+              <p>静态检查、运行时行为、系统级端到端都通过，才允许声明完成。核心功能没验证通过前，不进入重构或优化。</p>
+              <div class="pill-row">
+                <span class="pill teal">完成定义</span>
+                <span class="pill blue">端到端</span>
+                <span class="pill green">可观测性</span>
+              </div>
+            </article>
+            <article class="card">
+              <span class="mini-title">错误消息标准</span>
+              <ul class="checklist">
+                <li>说明什么出了问题。</li>
+                <li>说明为什么这是问题。</li>
+                <li>给出 agent 下一步应修改的位置或路径。</li>
+                <li>把重复审查意见升级成自动检查。</li>
+              </ul>
+            </article>
+            <article class="card">
+              <span class="mini-title">双层观测</span>
+              <h3>运行时 + 过程</h3>
+              <p>运行时信号回答系统做了什么；冲刺合同、评分标准和任务轨迹回答为什么这样做以及为什么接受或拒绝。</p>
+            </article>
+          </div>
+          <div class="flow six" style="margin-top:12px">
+            <div class="flow-step"><strong>冲刺合同</strong><span>范围、验证标准、排除项先写清。</span></div>
+            <div class="flow-step"><strong>静态检查</strong><span>lint、typecheck、格式和基础构建。</span></div>
+            <div class="flow-step"><strong>行为验证</strong><span>单元、集成、启动和关键路径。</span></div>
+            <div class="flow-step"><strong>端到端</strong><span>跨组件用户流程和真实边界。</span></div>
+            <div class="flow-step"><strong>评分评估</strong><span>按证据维度判断质量。</span></div>
+            <div class="flow-step"><strong>反馈闭环</strong><span>失败信息指向修复位置。</span></div>
+          </div>
+          <details>
+            <summary>讲义详情：完成定义、端到端测试与可观测性</summary>
+            <div class="details-body lecture-grid">
+              <article class="lecture-detail">
+                <h3>第九讲. 防止 agent 提前宣告完成</h3>
+                <div class="field"><strong>痛点</strong><p>agent 常把代码写完、单元测试绿了或看起来合理误判为完成，跳过系统级验证。</p></div>
+                <div class="field"><strong>概念</strong><p>过早完成声明、置信度校准偏差、终止标准、验证-确认双闸门、运行时反馈信号、完成优先级约束。</p></div>
+                <div class="field"><strong>做法</strong><p>外部化终止判定；构建三层校验；设计带修复指导的错误消息；捕获启动、关键路径、副作用和清理信号。</p></div>
+                <div class="field"><strong>案例</strong><p>课程材料中的密码重置任务表明，单测通过仍可能漏掉邮件服务配置、迁移一致性和完整流程问题。</p></div>
+                <div class="field"><strong>练习</strong><p>为数据库迁移和 API 修改任务设计完整终止校验，列出需要的运行时信号及通过/失败标准。</p></div>
+                <div class="field"><strong>来源</strong><p>raw/ai-workflows/lecture-09-definition-of-done.md</p></div>
+              </article>
+              <article class="lecture-detail">
+                <h3>第十讲. 跑通完整流程才算真正验证</h3>
+                <div class="field"><strong>痛点</strong><p>单元测试隔离依赖，会系统性漏掉接口不匹配、状态传播、资源生命周期和环境依赖问题。</p></div>
+                <div class="field"><strong>概念</strong><p>组件边界缺陷、测试充分性梯度、架构边界执行规则、审查反馈提升、面向 agent 的错误消息。</p></div>
+                <div class="field"><strong>做法</strong><p>把端到端层纳入完成条件；把架构规则转成 lint/test；错误消息写清问题、原因和修复路径；审查反馈持续提升 harness。</p></div>
+                <div class="field"><strong>案例</strong><p>课程材料中的 Electron 导出功能显示，各层单元测试都通过时，端到端测试仍能发现路径、IPC、句柄和权限等边界缺陷。</p></div>
+                <div class="field"><strong>练习</strong><p>选一个跨三组件修改，先跑单元测试再跑端到端测试，分析额外发现的缺陷属于哪类交互问题。</p></div>
+                <div class="field"><strong>来源</strong><p>raw/ai-workflows/lecture-10-end-to-end-testing.md</p></div>
+              </article>
+              <article class="lecture-detail">
+                <h3>第十一讲. 让 agent 的运行过程可观测</h3>
+                <div class="field"><strong>痛点</strong><p>没有仪表盘时，agent 无法区分正确和看似正确，重试变成盲猜，交接也退化为重新诊断。</p></div>
+                <div class="field"><strong>概念</strong><p>运行时可观测性、过程可观测性、任务轨迹、冲刺合同、评估评分标准、双层可观测性。</p></div>
+                <div class="field"><strong>做法</strong><p>自动采集应用生命周期、关键路径、数据流、资源利用和异常；任务前写冲刺合同；用评分标准统一验收。</p></div>
+                <div class="field"><strong>案例</strong><p>课程材料中的三 agent 架构把 planner、generator、evaluator 分工并记录成本、阶段和 QA 反馈，用证据驱动下一轮修复。</p></div>
+                <div class="field"><strong>练习</strong><p>审查当前 harness 的系统层和过程层观测缺口；为真实任务写冲刺合同并比较有无合同时的质量差异。</p></div>
+                <div class="field"><strong>来源</strong><p>raw/ai-workflows/lecture-11-harness-observability.md</p></div>
+              </article>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <section id="handoff" class="searchable" data-tags="概念 流程 模板 验证 风险 练习" data-title="清洁交接 L12 每次会话结束前都做好交接 清洁状态 会话退出检查清单">
+        <div class="section-head">
+          <div>
+            <h2>清洁交接：L12</h2>
+            <p>长期可靠性来自每次会话结束时的状态质量。清洁状态不是善后，而是完成定义的一部分。</p>
+          </div>
+          <div class="source-note">来源：lecture-12-clean-session-handoff.md</div>
+        </div>
+        <div class="band green">
+          <div class="grid three">
+            <article class="card">
+              <span class="mini-title">操作卡片</span>
+              <h3>会话完成 = 任务验证 + 清洁状态</h3>
+              <p>构建通过、测试通过、进度记录、临时工件清理、标准启动路径可用。缺一个，下个会话都会替上个会话付费。</p>
+              <div class="pill-row">
+                <span class="pill green">清洁状态</span>
+                <span class="pill blue">会话完整性</span>
+                <span class="pill amber">质量文档</span>
+              </div>
+            </article>
+            <article class="card">
+              <span class="mini-title">双模式清理</span>
+              <ul class="checklist">
+                <li>即时清理：每个会话结束前清理本次创建的临时状态。</li>
+                <li>定期清理：周期扫描结构性退化和质量评分。</li>
+                <li>幂等清理：同一清理脚本重复执行仍安全。</li>
+                <li>定期简化：禁用某个 harness 组件跑基准，验证是否还必要。</li>
+              </ul>
+            </article>
+            <article class="card">
+              <span class="mini-title">风险雷达</span>
+              <h3>“以后再清理”通常就是永远不清理</h3>
+              <p>agent 会复制已有模式。仓库越乱，新会话越倾向在混乱上继续堆代码，重建时间和缺陷逃逸都会上升。</p>
+            </article>
+          </div>
+          <div class="flow" style="margin-top:12px">
+            <div class="flow-step"><strong>构建</strong><span>标准 build 或 check 命令通过。</span></div>
+            <div class="flow-step"><strong>测试</strong><span>已有测试和新增验证不被破坏。</span></div>
+            <div class="flow-step"><strong>记录</strong><span>进度、功能清单、阻塞和下一步写回。</span></div>
+            <div class="flow-step"><strong>清理</strong><span>调试代码、临时文件、过期 TODO 移除或归档。</span></div>
+            <div class="flow-step"><strong>启动</strong><span>新会话按标准路径可继续工作。</span></div>
+          </div>
+          <details>
+            <summary>讲义详情：清洁状态与会话交接</summary>
+            <div class="details-body lecture-grid">
+              <article class="lecture-detail">
+                <h3>第十二讲. 每次会话结束前都做好交接</h3>
+                <div class="field"><strong>痛点</strong><p>会话结束时测试红、构建坏、临时文件和进度缺失，会让下个会话先花时间收拾状态而非继续交付。</p></div>
+                <div class="field"><strong>概念</strong><p>清洁状态、会话完整性、质量文档、清理循环、harness 简化、幂等清理。</p></div>
+                <div class="field"><strong>做法</strong><p>把退出检查清单写入 harness；每次即时清理，每周定期清理；维护质量文档；定期移除不再必要的约束。</p></div>
+                <div class="field"><strong>案例</strong><p>课程材料中的 12 周对比显示，有清洁策略的项目在构建通过率、测试通过率和新会话启动时间上更稳定。</p></div>
+                <div class="field"><strong>练习</strong><p>为代码库设计会话退出检查表，连续 5 个会话应用，记录构建、测试、进度、工件和启动路径的违反次数。</p></div>
+                <div class="field"><strong>来源</strong><p>raw/ai-workflows/lecture-12-clean-session-handoff.md</p></div>
+              </article>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <section id="templates" class="searchable" data-tags="模板 概念 流程 验证 风险" data-title="统一可复制模板集 AGENTS.md PROGRESS.md DECISIONS.md 初始化契约 功能清单 完成定义 冲刺合同 会话退出检查清单">
+        <div class="section-head">
+          <div>
+            <h2>模板集</h2>
+            <p>这些模板来自课程中的操作做法，整理成统一的可复制起点。复制后应按具体仓库命令、技术栈和验证路径裁剪。</p>
+          </div>
+          <div class="source-note">来源：12 篇讲义中的示例模板与 wiki 操作模型</div>
+        </div>
+        <div class="grid two">
+          <article class="template-card">
+            <div class="template-head">
+              <div>
+                <h3>`AGENTS.md` 路由文件</h3>
+                <p>入口文件只放高频信息和专题路由。</p>
+              </div>
+              <button type="button" class="copy">复制</button>
+            </div>
+            <pre><code># AGENTS.md
+
+## 项目概览
+一句话说明系统用途、主要用户和核心运行方式。
+
+## 快速开始
+- 安装依赖：`make setup`
+- 启动开发：`make dev`
+- 运行测试：`make test`
+- 完整验证：`make check`
+
+## 硬约束
+- 每次只做一个功能点，当前功能验证通过后才能开始下一个。
+- 涉及 API 变更必须更新对应测试。
+- 不要绕过既有架构边界；需要例外时先记录决策。
+
+## 专题文档
+- `docs/api-patterns.md`：添加或修改 API 时必读。
+- `docs/database-rules.md`：涉及数据模型或迁移时必读。
+- `docs/testing-standards.md`：新增验证和修复测试时参考。
+
+## 会话流程
+1. 开始前读 `PROGRESS.md`、`DECISIONS.md` 和功能清单。
+2. 执行当前 active 功能项。
+3. 结束前运行验证并更新交接工件。</code></pre>
+          </article>
+
+          <article class="template-card">
+            <div class="template-head">
+              <div>
+                <h3>`PROGRESS.md`</h3>
+                <p>跨会话恢复的最小进度日记。</p>
+              </div>
+              <button type="button" class="copy">复制</button>
+            </div>
+            <pre><code># 项目进度
+
+## 当前状态
+- 最新检查点：
+- 测试状态：
+- 构建状态：
+- 当前 active 功能项：
+
+## 已完成
+- [x]
+
+## 进行中
+- [ ]
+
+## 已知问题
+- 
+
+## 下一步
+1. 
+2. 
+3. 
+
+## 最近验证
+- 命令：
+- 结果：
+- 证据：</code></pre>
+          </article>
+
+          <article class="template-card">
+            <div class="template-head">
+              <div>
+                <h3>`DECISIONS.md`</h3>
+                <p>记录“为什么”，防止新会话改掉有意设计。</p>
+              </div>
+              <button type="button" class="copy">复制</button>
+            </div>
+            <pre><code># 设计决策
+
+## YYYY-MM-DD: 决策标题
+- 背景：
+- 决策：
+- 原因：
+- 否决方案：
+- 约束：
+- 后续检查：</code></pre>
+          </article>
+
+          <article class="template-card">
+            <div class="template-head">
+              <div>
+                <h3>初始化契约</h3>
+                <p>让全新 agent 会话无歧义地启动、测试和接手。</p>
+              </div>
+              <button type="button" class="copy">复制</button>
+            </div>
+            <pre><code># 初始化契约
+
+## 启动命令
+- 安装依赖：
+- 启动开发服务器：
+- 运行测试：
+- 完整验证：
+
+## 当前状态
+- 依赖状态：
+- 测试框架：
+- 示例测试：
+- Lint / 类型检查：
+
+## 项目结构
+- `src/`：
+- `tests/`：
+- `docs/`：
+
+## 初始化验收清单
+- [ ] 从零安装成功
+- [ ] 标准启动路径可用
+- [ ] 至少一个示例测试通过
+- [ ] 任务分解文件存在
+- [ ] 进度和决策工件存在</code></pre>
+          </article>
+
+          <article class="template-card">
+            <div class="template-head">
+              <div>
+                <h3>功能清单</h3>
+                <p>行为、验证和状态三元组。</p>
+              </div>
+              <button type="button" class="copy">复制</button>
+            </div>
+            <pre><code>[
+  {
+    "id": "F01",
+    "behavior": "用户可以完成目标行为",
+    "verification": "make test FEATURE=F01",
+    "state": "not_started",
+    "evidence": ""
+  },
+  {
+    "id": "F02",
+    "behavior": "另一个外部可观察行为",
+    "verification": "make test FEATURE=F02",
+    "state": "not_started",
+    "evidence": ""
+  }
+]</code></pre>
+          </article>
+
+          <article class="template-card">
+            <div class="template-head">
+              <div>
+                <h3>完成定义</h3>
+                <p>终止判定外部化，不接受 agent 自我感觉。</p>
+              </div>
+              <button type="button" class="copy">复制</button>
+            </div>
+            <pre><code>## 完成定义
+
+任务完成必须同时满足：
+- [ ] 范围内功能行为已实现
+- [ ] 静态检查通过：lint / typecheck / format
+- [ ] 行为验证通过：单元测试 / 集成测试 / 启动检查
+- [ ] 涉及跨组件修改时，端到端主流程通过
+- [ ] 功能清单状态和证据已更新
+- [ ] `PROGRESS.md` 已记录当前状态和下一步
+- [ ] 无临时调试代码、过期 TODO 或未说明的半成品</code></pre>
+          </article>
+
+          <article class="template-card">
+            <div class="template-head">
+              <div>
+                <h3>冲刺合同</h3>
+                <p>编码前先对齐范围、验证和排除项。</p>
+              </div>
+              <button type="button" class="copy">复制</button>
+            </div>
+            <pre><code># 冲刺合同：任务名称
+
+## 范围
+- 
+
+## 验证标准
+- 
+
+## 排除项
+- 
+
+## 观测信号
+- 日志：
+- 健康检查：
+- 任务轨迹：
+
+## 失败反馈格式
+- WHAT：
+- WHY：
+- FIX：</code></pre>
+          </article>
+
+          <article class="template-card">
+            <div class="template-head">
+              <div>
+                <h3>会话退出检查清单</h3>
+                <p>把清洁状态变成完成定义的一部分。</p>
+              </div>
+              <button type="button" class="copy">复制</button>
+            </div>
+            <pre><code>## 会话退出检查清单
+
+- [ ] 构建通过：`make build`
+- [ ] 测试通过：`make test`
+- [ ] 完整验证通过：`make check`
+- [ ] 功能清单已更新
+- [ ] `PROGRESS.md` 已更新
+- [ ] `DECISIONS.md` 已补充关键选择
+- [ ] 无调试代码残留：console.log / debugger / 临时脚本
+- [ ] 标准启动路径可用：`make dev`
+- [ ] 阻塞项和下一步已明确记录</code></pre>
+          </article>
+        </div>
+      </section>
+
+      <section id="sources" class="searchable" data-tags="来源 概念" data-title="来源索引 13 raw 文件 综合 wiki 页">
+        <div class="section-head">
+          <div>
+            <h2>来源索引</h2>
+            <p>HTML 是派生展示页，长期事实源仍是 `raw/` 与 `wiki/`。底部列出课程 raw 文件和综合 wiki 页，方便回溯。</p>
+          </div>
+          <div class="source-note">案例数字、成本和成功率按课程材料中的案例呈现，本页未重新核验。</div>
+        </div>
+        <div class="source-index">
+          <h3>13 个 raw 课程源文件</h3>
+          <ol>
+            <li>raw/ai-workflows/learn-harness-engineering-zh.md</li>
+            <li>raw/ai-workflows/lecture-01-model-capability-vs-reliability.md</li>
+            <li>raw/ai-workflows/lecture-02-what-a-harness-is.md</li>
+            <li>raw/ai-workflows/lecture-03-repo-as-system-of-record.md</li>
+            <li>raw/ai-workflows/lecture-04-progressive-disclosure-instructions.md</li>
+            <li>raw/ai-workflows/lecture-05-long-running-task-continuity.md</li>
+            <li>raw/ai-workflows/lecture-06-agent-initialization-phase.md</li>
+            <li>raw/ai-workflows/lecture-07-task-boundaries.md</li>
+            <li>raw/ai-workflows/lecture-08-feature-lists-as-harness-primitives.md</li>
+            <li>raw/ai-workflows/lecture-09-definition-of-done.md</li>
+            <li>raw/ai-workflows/lecture-10-end-to-end-testing.md</li>
+            <li>raw/ai-workflows/lecture-11-harness-observability.md</li>
+            <li>raw/ai-workflows/lecture-12-clean-session-handoff.md</li>
+          </ol>
+          <h3 style="margin-top:18px">综合 wiki 页</h3>
+          <ol>
+            <li>wiki/ai-workflows/agent-harness-operating-model.md</li>
+            <li>wiki/ai-workflows/harness-engineering-system-architecture.md</li>
+          </ol>
+        </div>
+      </section>
+
+      <div class="empty" id="empty">没有匹配的模块或模板。</div>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      const search = document.getElementById('search');
+      const filters = Array.from(document.querySelectorAll('.filter'));
+      const items = Array.from(document.querySelectorAll('.searchable'));
+      const empty = document.getElementById('empty');
+      const details = Array.from(document.querySelectorAll('details'));
+      let activeFilter = 'all';
+
+      function normalize(value) {
+        return (value || '').toLowerCase().trim();
+      }
+
+      function matchesFilter(item) {
+        if (activeFilter === 'all') return true;
+        return (item.dataset.tags || '').split(/\s+/).includes(activeFilter);
+      }
+
+      function matchesSearch(item, query) {
+        if (!query) return true;
+        const haystack = normalize([
+          item.dataset.title,
+          item.dataset.tags,
+          item.textContent
+        ].join(' '));
+        return haystack.includes(query);
+      }
+
+      function applyFilters() {
+        const query = normalize(search.value);
+        let visible = 0;
+        items.forEach(function (item) {
+          const show = matchesFilter(item) && matchesSearch(item, query);
+          item.classList.toggle('hidden', !show);
+          if (show) visible += 1;
+        });
+        empty.style.display = visible ? 'none' : 'block';
+      }
+
+      filters.forEach(function (button) {
+        button.addEventListener('click', function () {
+          activeFilter = button.dataset.filter;
+          filters.forEach(function (candidate) {
+            candidate.classList.toggle('active', candidate === button);
+          });
+          applyFilters();
+        });
+      });
+
+      search.addEventListener('input', applyFilters);
+
+      document.getElementById('expandAll').addEventListener('click', function () {
+        details.forEach(function (detail) {
+          detail.open = true;
+        });
+      });
+
+      document.getElementById('collapseAll').addEventListener('click', function () {
+        details.forEach(function (detail) {
+          detail.open = false;
+        });
+      });
+
+      document.querySelectorAll('.copy').forEach(function (button) {
+        button.addEventListener('click', async function () {
+          const card = button.closest('.template-card');
+          const code = card ? card.querySelector('pre code') : null;
+          if (!code) return;
+          const text = code.innerText;
+
+          async function fallbackCopy() {
+            const area = document.createElement('textarea');
+            area.value = text;
+            area.setAttribute('readonly', '');
+            area.style.position = 'fixed';
+            area.style.left = '-9999px';
+            document.body.appendChild(area);
+            area.select();
+            document.execCommand('copy');
+            document.body.removeChild(area);
+          }
+
+          try {
+            if (navigator.clipboard && window.isSecureContext) {
+              await navigator.clipboard.writeText(text);
+            } else {
+              await fallbackCopy();
+            }
+            const original = button.textContent;
+            button.textContent = '已复制';
+            window.setTimeout(function () {
+              button.textContent = original;
+            }, 1200);
+          } catch (error) {
+            button.textContent = '复制失败';
+            window.setTimeout(function () {
+              button.textContent = '复制';
+            }, 1400);
+          }
+        });
+      });
+
+      const navLinks = Array.from(document.querySelectorAll('.side-nav a'));
+      const sections = navLinks
+        .map(function (link) {
+          return document.querySelector(link.getAttribute('href'));
+        })
+        .filter(Boolean);
+
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (!entry.isIntersecting) return;
+            navLinks.forEach(function (link) {
+              link.classList.toggle('active', link.getAttribute('href') === '#' + entry.target.id);
+            });
+          });
+        }, { rootMargin: '-20% 0px -65% 0px', threshold: 0.01 });
+        sections.forEach(function (section) {
+          observer.observe(section);
+        });
+      }
+
+      applyFilters();
+    })();
+  </script>
+</body>
+</html>

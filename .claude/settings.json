@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rg -n \"^## \\(快速开始|必读顺序|工作规则|标准命令|硬约束|交接要求|会话流程\\)$\" AGENTS.md)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(git -C /home/lsy/workspace/dev/airfoil-design-platform log --oneline -20)"
+    ]
+  }
+}
