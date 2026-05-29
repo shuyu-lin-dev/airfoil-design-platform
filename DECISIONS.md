@@ -248,7 +248,17 @@
   2. **会话启动自检**：`AGENTS.md` 新增 Step 0（环境自检），确认 Python 版本、venv 激活、依赖安装后才进入任务流程。`agent-workflow.md` 同步更新。
 - 原因：将"被动文档"变为"主动流程"——agent 不需要跨 4 个文件自行拼凑完成定义，按单一协议的 9 步顺序执行即可。自检步骤在任务开始前就拦截环境类违规。
 - 否决方案：(1) 不做优化，继续依赖 agent 自觉——审计已证明不可行；(2) 引入完整 CI/CD pipeline 做自动化检查——当前 MVP 阶段过重。
-- 约束：完成协议是硬性流程，不可跳步；自检在每次会话开始时执行。P1（pre-commit 检查）和 P2（冲刺合同分级、规则一致性标注）留待后续实施。
+- 约束：完成协议是硬性流程，不可跳步；自检在每次会话开始时执行。
+
+## [decision] [verified] 2026-05-30: Harness P1 优化——pre-commit 自动检查 + tasks.yaml checklist
+
+- 背景：P0 优化解决了流程层面的跳步问题，但代码结构约束（文件 ≤200 行、函数 ≤50 行）和 harness 步骤确认仍靠 agent 自觉。审计中发现的 `core/geometry.py` 355 行超标和 `generate_wing_3d_step()` 62 行超标，在编码时完全未被察觉。
+- 决策（P1 两项）：
+  1. **pre-commit 自动检查**：新增 `.pre-commit-config.yaml` + `.harness/tool/pre-commit-check.py`，在每次 `git commit` 时自动检查暂存区中 `backend/src/` 和 `backend/tests/` 下的 Python 文件——文件行数 ≤200、函数长度 ≤50、无 `print()` 调试残留。违反时阻止提交。
+  2. **tasks.yaml checklist 字段**：`feature_schema.required_fields` 新增 `checklist`，`workflow` 新增 `default_checklist`（8 项：pytest/git commit/status更新/PROGRESS更新/DECISIONS补充/learnings写入/telemetry填写/working清理）。所有 16 个任务的 `checklist: default` 已填充。标记 passing 前必须逐项确认。
+- 原因：将"被动规则"变为"主动拦截"——pre-commit hook 在代码进入仓库前就阻止违规；checklist 把完成协议的 9 步绑定到每个任务定义上，agent 读取任务时就能看到该做什么。
+- 否决方案：(1) 在 CI 中做检查而非 pre-commit——CI 反馈太慢，违规代码已经 push；(2) 完全自动化 checklist 确认——大部分步骤（git commit、learnings 内容）仍需 agent 判断。
+- 约束：pre-commit hook 只检查 `backend/src/` 和 `backend/tests/` 下的 `.py` 文件。若任务需要正当超标（如 CAD kernel 初始化代码），需在 DECISIONS.md 中记录例外并说明原因。
 
 ## [decision] [draft] 2026-05-29: 多 Agent 并行化预留设计
 
