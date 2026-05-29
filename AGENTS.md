@@ -44,9 +44,11 @@
 
 ## 会话流程
 
-1. 开始前读 `PROGRESS.md`、`DECISIONS.md` 和 `tasks/tasks.yaml`。`CONTEXT.md` 按需查阅。
-2. 确认当前 `active` 任务；若无，从 `tasks/tasks.yaml` 选取下一个 `not_started` 任务。
-3. 阅读对应冲刺合同（`.harness/state/sprint-contracts/`），缺失则先创建。
+0. **环境自检**：确认 Python ≥3.11、`.venv/` 已激活、`fastapi` 可导入。任一不满足先搭建环境（见 `.harness/environment/environment.md`）。
+1. 读取 `PROGRESS.md`、`DECISIONS.md`、`tasks/tasks.yaml`。`CONTEXT.md` 按需查阅。
+2. 确认当前 `active` 任务；若无，选取下一个 `not_started` 任务。
+3. 阅读/创建对应冲刺合同（`.harness/state/sprint-contracts/`），缺失则先创建。
 4. 执行任务，遵守 `allowed_paths` 和 WIP=1。
-5. 运行验证命令，通过后更新 `tasks/tasks.yaml` 的 `status` 和 `evidence`。
-6. 结束前更新 `PROGRESS.md`，按 `.harness/feedback/session-exit-checklist.md` 做交接。
+5. 按 **任务完成协议** 收尾（详见 `.harness/instruction/rules/agent-workflow.md` § 任务完成协议）。
+
+**注意**：步骤 5 的"任务完成协议"是硬性流程——包含 git commit、tracking 更新、遥测记录和自检。不可跳过，不可批量补更。

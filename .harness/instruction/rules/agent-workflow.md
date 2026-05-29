@@ -53,17 +53,33 @@
 - `.gitkeep` 保留不动。
 - 下一个任务开始时，`.harness/state/working/` 应为空（除 `.gitkeep`）。
 
+## 任务完成协议（硬性，不可跳步）
+
+每完成一个任务，按以下顺序执行。任一步未完成，任务不得标记为 `passing`。这是唯一事实源——`definition-of-done.md` 和 `session-exit-checklist.md` 提供补充细节，但本协议定义完成流程。
+
+1. **验证**：运行 `validation.commands`（通常是 `cd backend && pytest`），确认全部通过。
+2. **提交**：`git add` + `git commit`，单任务单 commit，message 格式 `feat/fix: <标题> (T00X)`。
+3. **状态**：更新 `tasks/tasks.yaml` 中当前任务的 `status` 为 `passing`、`evidence` 为验证结果摘要。
+4. **进度**：更新 `PROGRESS.md` 的当前状态、已完成、最近验证和下一步。
+5. **决策**：若涉及新依赖、架构选择或用户纠正，补充 `DECISIONS.md`。
+6. **学习**：若发现新陷阱、反模式或规则冲突，写入 `.harness/state/runs/YYYY-MM-DD-learnings.md`。
+7. **遥测**：填写 `.harness/state/runs/telemetry.yaml` 的本次 run 记录。
+8. **清理**：清除 `.harness/state/working/` 中本任务的临时文件（`.gitkeep` 保留）。
+9. **自检**：对照 `.harness/feedback/session-exit-checklist.md` 确认无遗漏。
+
+若连续执行多任务，每个任务独立执行上述 9 步。禁止批量补更。
+
 ## 会话流程
 
-1. 读取 `CONTEXT.md`、`PROGRESS.md`、`DECISIONS.md` 和 `tasks/tasks.yaml`。
+0. **环境自检**：确认 `python --version`（≥3.11）、`.venv/` 存在且已激活、`pip list | grep fastapi` 有输出。任一不满足则先搭建环境。
+1. 读取 `PROGRESS.md`、`DECISIONS.md` 和 `tasks/tasks.yaml`；`CONTEXT.md` 按需查阅。
 2. 确认当前是否已有 `active` 任务。
 3. 阅读当前任务的冲刺合同；若缺失，先在 `.harness/state/sprint-contracts/` 创建。
-4. 执行任务时遵守 `allowed_paths`、代码结构约束和 `.harness/instruction/rules/io-hygiene.md`。
-5. 长任务或复杂任务先写 `.harness/state/working/plan.md` 再动手。
-6. 运行任务验证命令。
-7. 更新任务证据、进度和必要决策。
-8. 清理 `.harness/state/working/` 中本任务的临时文件。
-9. 按 `.harness/feedback/session-exit-checklist.md` 做交接。
+   - 复杂任务（>3 新文件或涉及外部 kernel）：写完整合同（范围/验证/排除/观测信号/失败格式）。
+   - 简单任务（≤3 新文件，纯 stub/CRUD）：写轻量合同（仅 task ID + 一句话范围 + 验证命令）。
+4. 执行任务时遵守 `allowed_paths`、代码结构约束（文件 ≤200 行、函数 ≤50 行）和 `.harness/instruction/rules/io-hygiene.md`。
+5. 复杂任务（>3 新文件或涉及外部 kernel）必须先写 `.harness/state/working/plan.md` 再动手。
+6. 按 **任务完成协议** 逐步收尾。
 
 ## 会话交接
 
