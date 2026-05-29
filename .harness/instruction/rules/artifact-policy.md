@@ -51,8 +51,8 @@ Artifact 文件内容通过 `GET /artifacts/{artifact_id}/download` 下载。
 
 ```text
 /coordinates
-  shape: (1000, 3)
-  columns: [x, y, z]
+  shape: (1000, 2)
+  columns: [x, y]
 
 /fields/pressure
   shape: (1000,)

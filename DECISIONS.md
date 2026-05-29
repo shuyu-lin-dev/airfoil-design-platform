@@ -163,6 +163,83 @@
   4. 若任务无实际文件变更（纯文档/配置任务），仍需 commit tracking 文件的更新。
 - 约束：此规则即刻生效。后续所有任务必须按此粒度提交，不做例外。
 
+## [pitfall] [verified] 2026-05-30: Harness 全量审计——13 项违规/遗漏
+
+2026-05-30 对 2026-05-29 会话进行全量 harness 合规审计，逐条对照 6 个规则文件 + 3 个反馈文件 + 环境声明 + 工具清单 + 模板符合性检查 + 知识索引。以下为发现的全部违规和遗漏（已发现的 3 条 pitfall 不计入）。
+
+### 一、代码结构约束违规（agent-workflow.md § 代码结构约束）
+
+| # | 违规 | 规则 | 现状 |
+|---|------|------|------|
+| 1 | `core/geometry.py` 355 行 | 单文件 ≤200 行 | 超标 77%，17 个函数挤在一个文件 |
+| 2 | `generate_wing_3d_step()` 63 行 | 函数 ≤50 行 | 超标 26%，内含 CAD 生成全流程 |
+
+**纠正**：将 `core/geometry.py` 拆分为 `core/geometry_2d.py`（CST 参数化）+ `core/geometry_3d.py`（CadQuery CAD 生成）。将 `generate_wing_3d_step()` 拆分为编排函数 + 独立步骤函数。
+
+### 二、工作状态管理违规（agent-workflow.md § 工作状态管理）
+
+| # | 违规 | 规则 | 现状 |
+|---|------|------|------|
+| 3 | 从未写 `plan.md` | "长任务或复杂任务先写 plan.md 再动手" | T008（三维 CAD 生成）是 MVP 最复杂任务，直接上手写代码，无分步计划 |
+| 4 | 从未使用 `.harness/state/working/` | "中间产物应放入 working/" | 整个会话的调试输出、CAD 测试脚本全部直接跑在终端，未落盘 |
+| 5 | session 结束未清理 working | "任务 passing 后清理本任务临时文件" | working 目录虽为空（因从未使用），但清理步骤被跳过了 |
+
+### 三、会话退出检查清单违规（session-exit-checklist.md）
+
+| # | 违规 | 规则 | 现状 |
+|---|------|------|------|
+| 6 | 未执行 session-exit-checklist | "无论普通结束还是 50% 主动交接，均执行" | 清单中 12 项检查完全未执行 |
+| 7 | 未记录运行遥测 | "复制 telemetry.yaml 模板，填写本次会话 run 记录" | `telemetry.yaml` 仍为初始模板，无本次会话记录 |
+
+### 四、环境声明违规（environment.md）
+
+| # | 违规 | 规则 | 现状 |
+|---|------|------|------|
+| 8 | 未创建 venv | "虚拟环境：venv（项目本地 .venv/）" | 直接 `pip install --user`，未隔离环境 |
+| 9 | Python 版本不符 | "Python：3.11+" | 实际运行 Python 3.10.12 |
+
+### 五、冲刺合同缺口（agent-workflow.md § 会话流程 Step 3）
+
+| # | 违规 | 规则 | 现状 |
+|---|------|------|------|
+| 10 | 15 个任务中仅 3 个有冲刺合同 | "阅读当前任务的冲刺合同；若缺失，先在 sprint-contracts/ 创建" | 仅 T001/T008/T009 有，T002-T007, T010-T015 共 12 个任务缺失 |
+
+### 六、依赖引入未确认（agent-workflow.md § 代码结构约束）
+
+| # | 违规 | 规则 | 现状 |
+|---|------|------|------|
+| 11 | CadQuery 安装未确认 | "新增第三方依赖必须先经用户确认" | T007 直接 `pip install cadquery`，未询问用户 |
+
+### 七、完成定义违规（definition-of-done.md）
+
+| # | 违规 | 规则 | 现状 |
+|---|------|------|------|
+| 12 | 无静态检查 | "静态检查通过：lint/typecheck/format（阶段未定义时在 PROGRESS.md 说明）" | 项目无 lint/typecheck 配置，PROGRESS.md 也未说明原因 |
+
+### 八、规则文件内部冲突
+
+| # | 冲突 | 涉及文件 | 现状 |
+|---|------|----------|------|
+| 13 | `/coordinates` shape 不一致 | `artifact-policy.md` 写 `(1000, 3)` columns `[x,y,z]`；`spec.md` 和 `backend-mvp-full-spec.md` 写 `(1000, 2)` | 实现按 spec 使用 `(1000, 2)`，但 artifact-policy.md 未修正 |
+
+### 根因分析
+
+以上 13 项可归为三类根因：
+
+1. **"任务完成"定义过窄**（#1-5, #7, #10, #12）：把完成等同于"测试通过"，忽略了计划、工作状态管理、环境合规、冲刺合同和退出检查清单。
+2. **环境搭建跳过规范**（#8, #9, #11）：直接使用系统 Python + --user 安装，未按 environment.md 创建 venv；引入新库未确认。
+3. **规则文件维护滞后**（#13）：实现过程中发现了 spec 与规则文件的冲突但未回溯修正规则文件。
+
+### 纠正措施
+
+1. 复杂任务（>3 个新文件或涉及外部 kernel）必须先写 `.harness/state/working/plan.md`，至少包含实现步骤、关键 API 调用和风险点。
+2. 每个任务完成后，对照 `definition-of-done.md` 和 `session-exit-checklist.md` 逐项自检。
+3. 后续新任务开始前必须先创建冲刺合同，不可跳过。
+4. 环境搭建必须按 `environment.md` 执行：`python -m venv .venv && source .venv/bin/activate && pip install -e ".[dev]"`。
+5. 新增第三方依赖前必须经用户确认，无论是 pip install 还是写入 pyproject.toml。
+6. 每次会话结束必须填写 `telemetry.yaml`。
+7. 发现规则文件与实际实现不一致时，立即修正规则文件并记录到 DECISIONS.md。
+
 ## [decision] [draft] 2026-05-29: 多 Agent 并行化预留设计
 
 - 背景：Wiki 多智能体 Git 协作模式提供了 worktree 隔离 + 任务分支 + integration branch 的完整模式。当前项目有意推迟多 Agent（WIP=1），但任务依赖图和路径隔离设计应提前预留并行化接口，避免后续重构。
