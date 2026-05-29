@@ -123,6 +123,46 @@
 - 约束：所有字段均为人工估算值，不追求 API 调用级精度。token_estimate 从对话轮数和文件读取量粗略估算。累积统计每次运行后滚动更新。
 - 后续检查：T004 完成后复盘遥测数据是否足以支撑"平均 token 趋势"和"任务难度校准"两个基本分析。
 
+## [pitfall] [verified] 2026-05-29: 任务完成后必须同步更新 tracking 文件
+
+- 背景：2026-05-29 会话中，连续执行 T001-T006 六个任务时，只专注于代码实现而忽略了 `tasks/tasks.yaml` 和 `PROGRESS.md` 的同步更新。用户在第六个任务完成后发现并指出该问题，agent 才批量补更。这违反了 harness 的工作流规则（"每次任务结束必须更新 tasks.tasks[].evidence 和 PROGRESS.md"）。
+- 教训：代码变更（implementation）和跟踪更新（tracking）是一个原子操作——任务完成 = 代码通过验证 + status 设为 passing + evidence 填写 + PROGRESS.md 更新。不能先做完所有代码再回过头补 tracking。
+- 根本原因：agent 把"完成任务"理解为"通过 pytest"，而 harness 定义的"完成"包括 status、evidence 和 PROGRESS.md 的更新。这是对完成定义的理解偏差，不是疏忽。
+- 纠正措施：
+  1. 每个任务的最后一步永远是更新 `tasks/tasks.yaml` 和 `PROGRESS.md`，在运行 `pytest` 验证通过后立即执行。
+  2. 使用 TodoWrite 跟踪任务时，最后一个 todo item 始终是"更新 tracking 文件"。
+  3. 禁止连续执行多个任务后才批量补更 tracking——每完成一个任务就更新。
+  4. 若用户明确指出 tracking 未更新，立即停止当前任务，补更后再继续。
+- 约束：此规则适用于所有后续任务，不做例外。若未来引入自动化脚本更新 tracking，仍需 agent 确认更新内容正确。
+
+## [pitfall] [verified] 2026-05-29: 违反 AGENTS.md 会话流程——跳步执行
+
+- 背景：2026-05-29 会话中，agent 接到"开始执行任务，完成项目第一版构建"指令后，直接跳入 T001 代码实现，完全忽略了 AGENTS.md 定义的 6 步会话流程。用户在 T006 完成时首次指出 tracking 未更新，在 T008 执行中再次指出冲刺合同未创建、harness 状态和反馈未记录。
+- 具体违规：
+  1. **Step 1 跳步**：未先读 PROGRESS.md、DECISIONS.md、tasks.yaml 确认当前状态（直接凭 spec.md 开始写代码）
+  2. **Step 3 跳步**：每个任务开始前未阅读对应冲刺合同（`.harness/state/sprint-contracts/`），缺失时也未创建——T002-T007 共 6 个任务均无冲刺合同
+  3. **Step 5 跳步**：T001-T006 连续执行后才批量补更 tasks.yaml 的 status 和 evidence，违反了"每次任务结束必须更新"
+  4. **Step 6 跳步**：PROGRESS.md 只在 T006 后被用户指出后才更新，session-exit-checklist 完全未执行
+- 根本原因：agent 把"执行任务"理解为"写代码 + 跑测试"，但 harness 定义的"执行任务"是一个包含状态准备（Steps 1-3）和状态同步（Steps 5-6）的完整闭环。这不是疏忽，是对 harness 工作流的根本性误解。
+- 纠正措施（强制性，不可跳步）：
+  1. **任务前**：先读 PROGRESS.md → DECISIONS.md → tasks.yaml 确认当前 active 任务 → 读/创建对应冲刺合同
+  2. **任务中**：遵守 WIP=1 和 allowed_paths
+  3. **任务后**（pytest 通过后立即执行）：更新 tasks.yaml status + evidence → 更新 PROGRESS.md → 检查 session-exit-checklist 是否需要交接
+  4. **绝不**：连续执行多个任务后才批量补 tracking
+- 约束：此 pitfall 等级高于普通操作失误——它是工作流层面的系统性违规。后续所有会话必须严格遵循 AGENTS.md 的 6 步流程，不做任何例外或"先做再补"。
+
+## [pitfall] [verified] 2026-05-30: 整个会话零 git 提交
+
+- 背景：2026-05-29 会话完成了 T001-T015 共 15 个任务的代码实现（104 tests pass, ~50 个文件），但全程未执行任何 git commit。用户在次日打开项目后发现 git status 显示所有文件均为未跟踪/未暂存状态。
+- 具体违规：从 T001 开始创建 `backend/` 目录到 T015 文档完成，每个任务都产生了大量文件变更，但 agent 从未将其提交到 git。所有工作成果处于 uncommitted 状态，丢失风险高，也无法按任务粒度回溯变更历史。
+- 根本原因：agent 把"完成任务"定义缩小为"代码通过 pytest + tracking 文件更新"，完全忽略了 git commit 是任务完成的一个必要组成部分。虽然 AGENTS.md 和 harness 规则中未明确列出 commit 步骤，但任务原子化天然意味着每个任务应对应一个可独立回溯的 commit。
+- 纠正措施：
+  1. 每个任务完成后、更新 tracking 文件前，必须执行 `git add` + `git commit`。
+  2. Commit message 格式：`feat: <任务标题> (T00X)`，body 引用 evidence。
+  3. 禁止跨任务批量 commit——一个任务一个 commit。若单任务改动过大可在任务内拆分，但至少保证任务边界有 commit。
+  4. 若任务无实际文件变更（纯文档/配置任务），仍需 commit tracking 文件的更新。
+- 约束：此规则即刻生效。后续所有任务必须按此粒度提交，不做例外。
+
 ## [decision] [draft] 2026-05-29: 多 Agent 并行化预留设计
 
 - 背景：Wiki 多智能体 Git 协作模式提供了 worktree 隔离 + 任务分支 + integration branch 的完整模式。当前项目有意推迟多 Agent（WIP=1），但任务依赖图和路径隔离设计应提前预留并行化接口，避免后续重构。
