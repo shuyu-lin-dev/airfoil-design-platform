@@ -13,6 +13,7 @@ workflow:
     - 任务只能修改 allowed_paths 中列出的路径。
     - 只有 validation.commands 通过后，任务才能标记为 passing。
     - 每次任务结束必须更新 tasks.tasks[].evidence 和 PROGRESS.md。
+    - 任务必须原子化：每个任务只承担一个可独立验证的关注点，单次会话内可完成。
 feature_schema:
   required_fields:
     - id
@@ -21,7 +22,10 @@ feature_schema:
     - status
     - evidence
     - validation.commands
-  note: 每个任务同时是功能清单项，必须能回答行为、验证、状态和证据四件事。
+  optional_fields:
+    - parallelizable_group
+  note: 每个任务同时是功能清单项，必须能回答行为、验证、状态和证据四件事。任务描述应能用一句话概括，且那句话里不能有"和"。
+  parallelizable_group_note: 同一 group 内的任务具有相同的 depends_on 且 allowed_paths 互不相交，可在独立 worktree 中并行执行。当前 WIP=1 约束针对单 agent 会话；多 agent 场景下，同一 group 的任务可由不同 agent 并行处理，通过 integration branch 汇合。
 
 tasks:
   - id: T000
@@ -96,7 +100,9 @@ tasks:
     expected_outputs:
       - backend/README.md
       - backend/pyproject.toml
+      - backend/src/airfoil_platform/__init__.py
       - backend/src/airfoil_platform/main.py
+      - backend/tests/__init__.py
       - backend/tests/test_health.py
     acceptance_criteria:
       - FastAPI 应用可以被 TestClient 加载。
@@ -107,7 +113,7 @@ tasks:
         - cd backend && pytest
 
   - id: T002
-    title: Common contracts
+    title: Common contracts and config
     behavior: 后端具备公共请求响应契约和配置默认值，能拒绝核心非法输入。
     status: not_started
     evidence: ""
@@ -120,12 +126,17 @@ tasks:
       - PROGRESS.md
       - tasks/tasks.yaml
     expected_outputs:
+      - backend/src/airfoil_platform/contracts/__init__.py
       - backend/src/airfoil_platform/contracts/common.py
+      - backend/src/airfoil_platform/config/__init__.py
       - backend/src/airfoil_platform/config/settings.py
     acceptance_criteria:
       - cst_params 必须正好 12 个数。
       - 比例字段必须满足 0 < ratio <= 1。
-      - 默认材料属性、重力加速度、artifact 根目录和 stub 模式来自 settings。
+      - wing_planform 可选字段 span 和 chord 单位均为 m，默认值和硬校验范围来自 settings。
+      - 结构设计参数包含 rear_spar_web_thickness、rib_thickness 和 rib_spacing，单位均为 m，且满足硬校验范围。
+      - material_properties 区分 skin 和 internal_structure，出现的材料组必须同时提供 elastic_modulus 和 material_density。
+      - 默认机翼平面参数、默认蒙皮材料、默认内部结构材料、重力加速度、artifact 根目录和 stub 模式来自 settings。
       - 公共结果元信息包含 is_stub 和 model_version。
     validation:
       commands:
@@ -138,12 +149,13 @@ tasks:
     evidence: ""
     depends_on:
       - T002
+    parallelizable_group: post-t002
     allowed_paths:
-      - backend/src/airfoil_platform/api/**
-      - backend/src/airfoil_platform/contracts/**
-      - backend/src/airfoil_platform/core/**
-      - backend/src/airfoil_platform/services/**
-      - backend/tests/**
+      - backend/src/airfoil_platform/api/geometry.py
+      - backend/src/airfoil_platform/contracts/geometry.py
+      - backend/src/airfoil_platform/core/geometry.py
+      - backend/src/airfoil_platform/services/geometry_service.py
+      - backend/tests/test_geometry_api.py
       - PROGRESS.md
       - tasks/tasks.yaml
     expected_outputs:
@@ -162,114 +174,215 @@ tasks:
         - cd backend && pytest
 
   - id: T004
-    title: Aerodynamic artifact API
-    behavior: 后端调用者提交 CST 参数和工况参数后，可以获得气动标量、Cp 分布和可查询的 HDF5 场数据 artifact。
+    title: Artifact infrastructure with HDF5 store
+    behavior: 后端具备格式无关的 artifact 注册中心，支持 HDF5 文件写入、JSON sidecar 落盘和元信息查询。
     status: not_started
     evidence: ""
     depends_on:
-      - T003
+      - T002
+    parallelizable_group: post-t002
     allowed_paths:
-      - backend/src/airfoil_platform/api/**
-      - backend/src/airfoil_platform/contracts/**
-      - backend/src/airfoil_platform/core/**
-      - backend/src/airfoil_platform/services/**
-      - backend/src/airfoil_platform/models/**
       - backend/src/airfoil_platform/artifacts/**
-      - backend/src/airfoil_platform/lib/**
       - backend/tests/**
       - PROGRESS.md
       - tasks/tasks.yaml
     expected_outputs:
-      - backend/src/airfoil_platform/api/aerodynamics.py
-      - backend/src/airfoil_platform/api/artifacts.py
-      - backend/src/airfoil_platform/artifacts/hdf5_store.py
+      - backend/src/airfoil_platform/artifacts/__init__.py
       - backend/src/airfoil_platform/artifacts/artifact_registry.py
-      - backend/tests/test_aerodynamics_api.py
-      - backend/tests/test_artifacts_api.py
+      - backend/src/airfoil_platform/artifacts/hdf5_store.py
     acceptance_criteria:
-      - POST /aerodynamics/predict 返回 lift_drag_ratio、200 个 Cp 点和 field_artifact。
-      - 压力场和速度场写入 HDF5，不直接通过 JSON 返回。
-      - HDF5 包含 /coordinates、/fields/pressure、/fields/velocity。
-      - 同名 JSON sidecar 存在。
-      - GET /artifacts/{artifact_id} 可读取 sidecar 元信息。
+      - artifact_id 由输入参数的规范化 JSON 序列化后取 SHA-256 前 12 字符生成。
+      - HDF5 文件可写入 runtime_artifacts/aerodynamic/<id>.h5。
+      - 同名 JSON sidecar 同步落盘，包含 artifact_id、format、role、path、status、datasets。
+      - artifact_registry 可通过 artifact_id 查询已注册 artifact 的元信息。
+      - HDF5 dataset 布局包含 /coordinates (1000,2)、/fields/pressure (1000,)、/fields/velocity (1000,)。
+      - 测试不依赖任何 HTTP API，纯 Python 测试验证存储层。
     validation:
       commands:
         - cd backend && pytest
 
   - id: T005
-    title: Geometry 3D API
-    behavior: 后端调用者提交翼型、机翼平面和结构设计输入后，可以获得 1000 个三维机翼几何点。
+    title: Artifact query and download API
+    behavior: 后端调用者可通过 artifact_id 查询 artifact 元信息和下载 artifact 文件内容。
     status: not_started
     evidence: ""
     depends_on:
-      - T002
+      - T004
+    parallelizable_group: post-t004
     allowed_paths:
-      - backend/src/airfoil_platform/api/**
-      - backend/src/airfoil_platform/contracts/**
-      - backend/src/airfoil_platform/core/**
-      - backend/src/airfoil_platform/services/**
-      - backend/tests/**
+      - backend/src/airfoil_platform/api/artifacts.py
+      - backend/src/airfoil_platform/contracts/artifacts.py
+      - backend/tests/test_artifacts_api.py
       - PROGRESS.md
       - tasks/tasks.yaml
     expected_outputs:
-      - backend/tests/test_geometry_api.py
+      - backend/src/airfoil_platform/api/artifacts.py
+      - backend/src/airfoil_platform/contracts/artifacts.py
+      - backend/tests/test_artifacts_api.py
     acceptance_criteria:
-      - POST /geometry/wing-3d 接收 CST 参数、机翼平面参数和完整结构设计参数。
-      - 返回 1000 个三维机翼几何点。
-      - 坐标系固定为 x = 弦向、y = 厚度方向、z = 展向。
+      - GET /artifacts/{artifact_id} 从 JSON sidecar 读取并返回元信息，不依赖内存 registry。
+      - GET /artifacts/{artifact_id}/download 返回 artifact 文件内容。
+      - 元信息查询和文件下载分离。
+      - 测试通过 TestClient 验证，使用 T004 的 HDF5 store 预创建测试 artifact。
     validation:
       commands:
         - cd backend && pytest
 
   - id: T006
-    title: Structure prediction API
-    behavior: 后端调用者提交三维机翼相关输入后，可以获得应力极值和重量结果。
+    title: Aerodynamic prediction API
+    behavior: 后端调用者提交 CST 参数和工况参数后，可以获得气动标量、Cp 分布和 HDF5 场数据 artifact。
     status: not_started
     evidence: ""
     depends_on:
-      - T005
+      - T004
+    parallelizable_group: post-t004
     allowed_paths:
-      - backend/src/airfoil_platform/api/**
-      - backend/src/airfoil_platform/contracts/**
-      - backend/src/airfoil_platform/core/**
-      - backend/src/airfoil_platform/services/**
-      - backend/src/airfoil_platform/models/**
-      - backend/tests/**
+      - backend/src/airfoil_platform/api/aerodynamics.py
+      - backend/src/airfoil_platform/contracts/aerodynamics.py
+      - backend/src/airfoil_platform/core/aerodynamics.py
+      - backend/src/airfoil_platform/services/aerodynamic_service.py
+      - backend/tests/test_aerodynamics_api.py
       - PROGRESS.md
       - tasks/tasks.yaml
     expected_outputs:
-      - backend/src/airfoil_platform/api/structure.py
-      - backend/src/airfoil_platform/contracts/structure.py
-      - backend/src/airfoil_platform/services/structure_service.py
-      - backend/tests/test_structure_api.py
+      - backend/src/airfoil_platform/api/aerodynamics.py
+      - backend/src/airfoil_platform/contracts/aerodynamics.py
+      - backend/src/airfoil_platform/core/aerodynamics.py
+      - backend/src/airfoil_platform/services/aerodynamic_service.py
+      - backend/tests/test_aerodynamics_api.py
     acceptance_criteria:
-      - POST /structure/predict 返回 max_stress 和 weight。
-      - weight 单位为 N。
-      - API 不暴露 mass。
-      - 可选材料属性缺省时使用 settings 默认值。
+      - POST /aerodynamics/predict 返回 lift_drag_ratio、200 个 Cp 点和 field_artifact。
+      - lift_drag_ratio 表示二维翼型升阻比。
+      - Cp 分布与二维翼型点按索引一一对应。
+      - 压力场和速度场写入 HDF5，不直接通过 JSON 返回。
+      - HDF5 包含 /coordinates、/fields/pressure、/fields/velocity。
+      - 同名 JSON sidecar 存在。
+      - 响应包含 is_stub true 和 model_version stub-v0。
     validation:
       commands:
         - cd backend && pytest
 
   - id: T007
+    title: STEP artifact store
+    behavior: artifact 系统支持 STEP 格式文件的写入、JSON sidecar 落盘和注册，不涉及几何生成逻辑。
+    status: not_started
+    evidence: ""
+    depends_on:
+      - T004
+    parallelizable_group: post-t004
+    allowed_paths:
+      - backend/src/airfoil_platform/artifacts/step_store.py
+      - backend/tests/test_step_store.py
+      - PROGRESS.md
+      - tasks/tasks.yaml
+    expected_outputs:
+      - backend/src/airfoil_platform/artifacts/step_store.py
+      - backend/tests/test_step_store.py
+    acceptance_criteria:
+      - STEP 文件可写入 runtime_artifacts/geometry/<id>.step。
+      - 同名 JSON sidecar 同步落盘，包含 artifact_id、format、role、path、status、components。
+      - artifact_registry 可查询 STEP artifact 的元信息和组件列表。
+      - 测试使用简单 CAD 实体（如 CadQuery 方盒）验证存储层，不涉及翼型几何。
+      - 测试不依赖任何 HTTP API。
+    validation:
+      commands:
+        - cd backend && pytest
+
+  - id: T008
+    title: Geometry 3D API
+    behavior: 后端调用者提交翼型、机翼平面和结构设计输入后，可以获得结构 STEP artifact。
+    status: not_started
+    evidence: ""
+    depends_on:
+      - T007
+      - T003
+    allowed_paths:
+      - backend/src/airfoil_platform/api/geometry.py
+      - backend/src/airfoil_platform/contracts/geometry.py
+      - backend/src/airfoil_platform/core/geometry.py
+      - backend/src/airfoil_platform/services/geometry_service.py
+      - backend/tests/test_geometry_api.py
+      - backend/pyproject.toml
+      - PROGRESS.md
+      - tasks/tasks.yaml
+    expected_outputs:
+      - backend/src/airfoil_platform/api/geometry.py（追加 wing-3d 路由）
+      - backend/src/airfoil_platform/contracts/geometry.py（追加 wing-3d 契约）
+      - backend/src/airfoil_platform/core/geometry.py（追加三维 CAD 生成逻辑）
+      - backend/src/airfoil_platform/services/geometry_service.py（追加三维编排逻辑）
+      - backend/tests/test_geometry_api.py（追加 wing-3d 测试）
+    notes:
+      - 本任务扩展 T003 已创建的文件，而非新建文件。
+      - 实现顺序：CAD kernel 环境搭建 → 蒙皮实体生成 → 梁/肋生成与裁剪 → 结构装配导出与回读验证 → 翼肋数量与外包盒检查。
+      - 梁/肋与蒙皮内表面精确贴合是几何生成目标，不作为自动测试硬门槛。
+    acceptance_criteria:
+      - POST /geometry/wing-3d 接收 CST 参数、机翼平面参数和完整结构设计参数。
+      - 返回 format 为 step、role 为 structural_step 的 geometry_artifact。
+      - STEP artifact 文件和同名 JSON sidecar 存在。
+      - STEP 覆盖 skin、front_spar、rear_spar 和 ribs 组件。
+      - STEP 可被 CAD kernel 回读，组件几何非空。
+      - STEP 表示右半翼多组件结构装配，span 为全展长，chord 为恒定弦长。
+      - 整体外包盒符合 chord 和 span / 2，翼肋数量符合 rib_spacing 推导规则。
+      - 蒙皮外表面保持 CST 截面，结构件裁剪在蒙皮内部并接触蒙皮内表面。
+      - 不返回 1000 个三维点云。
+      - 坐标系固定为 x = 弦向、y = 厚度方向、z = 展向。
+    validation:
+      commands:
+        - cd backend && pytest
+
+  - id: T009
+    title: Structure prediction API
+    behavior: 后端调用者提交三维机翼相关输入后，可以获得应力极值和重量结果。
+    status: not_started
+    evidence: ""
+    depends_on:
+      - T002
+    parallelizable_group: post-t002
+    allowed_paths:
+      - backend/src/airfoil_platform/api/structure.py
+      - backend/src/airfoil_platform/contracts/structure.py
+      - backend/src/airfoil_platform/core/structure.py
+      - backend/src/airfoil_platform/services/structure_service.py
+      - backend/tests/test_structure_api.py
+      - PROGRESS.md
+      - tasks/tasks.yaml
+    expected_outputs:
+      - backend/src/airfoil_platform/api/structure.py
+      - backend/src/airfoil_platform/contracts/structure.py
+      - backend/src/airfoil_platform/core/structure.py
+      - backend/src/airfoil_platform/services/structure_service.py
+      - backend/tests/test_structure_api.py
+    acceptance_criteria:
+      - POST /structure/predict 返回 max_stress 和 weight。
+      - max_stress 表示整个结构装配的最大等效应力，单位 Pa。
+      - weight 表示全翼结构重量，单位 N，只包含蒙皮、前梁、后梁和翼肋。
+      - API 不暴露 mass。
+      - 可选材料属性缺省时使用 settings 中的蒙皮铝合金和内部结构钢默认值。
+      - 强度预测不依赖 structural_step artifact。
+    validation:
+      commands:
+        - cd backend && pytest
+
+  - id: T010
     title: Aerodynamic optimization API
     behavior: 后端调用者提交气动优化请求后，可以获得原始与优化后的 CST 参数和升阻比对比。
     status: not_started
     evidence: ""
     depends_on:
-      - T004
+      - T002
+    parallelizable_group: post-t002
     allowed_paths:
-      - backend/src/airfoil_platform/api/**
-      - backend/src/airfoil_platform/contracts/**
-      - backend/src/airfoil_platform/core/**
-      - backend/src/airfoil_platform/services/**
-      - backend/src/airfoil_platform/optimization/**
-      - backend/tests/**
+      - backend/src/airfoil_platform/api/optimization.py
+      - backend/src/airfoil_platform/contracts/optimization.py
+      - backend/src/airfoil_platform/core/optimization.py
+      - backend/src/airfoil_platform/services/optimization_service.py
+      - backend/tests/test_optimization_api.py
       - PROGRESS.md
       - tasks/tasks.yaml
     expected_outputs:
       - backend/src/airfoil_platform/api/optimization.py
       - backend/src/airfoil_platform/contracts/optimization.py
+      - backend/src/airfoil_platform/core/optimization.py
       - backend/src/airfoil_platform/services/optimization_service.py
       - backend/tests/test_optimization_api.py
     acceptance_criteria:
@@ -277,66 +390,71 @@ tasks:
       - condition 不改变。
       - 返回 original、optimized 和 actual_improvement_ratio。
       - target_improvement_ratio 使用小数表达。
+      - stub 行为：optimized_cst_params[i] = cst_params[i] * (1 + 0.05 * (i + 1) / 12)，升阻比按比例提升。
     validation:
       commands:
         - cd backend && pytest
 
-  - id: T008
+  - id: T011
     title: Structural optimization API
     behavior: 后端调用者提交强度优化请求后，可以获得只改变结构优化变量的重量减轻结果。
     status: not_started
     evidence: ""
     depends_on:
-      - T006
+      - T002
     allowed_paths:
-      - backend/src/airfoil_platform/api/**
-      - backend/src/airfoil_platform/contracts/**
-      - backend/src/airfoil_platform/core/**
-      - backend/src/airfoil_platform/services/**
-      - backend/src/airfoil_platform/optimization/**
-      - backend/tests/**
+      - backend/src/airfoil_platform/api/optimization.py
+      - backend/src/airfoil_platform/contracts/optimization.py
+      - backend/src/airfoil_platform/core/optimization.py
+      - backend/src/airfoil_platform/services/optimization_service.py
+      - backend/tests/test_optimization_api.py
       - PROGRESS.md
       - tasks/tasks.yaml
     expected_outputs:
-      - backend/tests/test_optimization_api.py
+      - backend/tests/test_optimization_api.py（追加结构优化测试）
+    notes:
+      - 本任务扩展 T010 已创建的 optimization 模块文件，而非新建文件。
     acceptance_criteria:
-      - POST /optimization/structural 只改变 spar_thickness 和 rib_spacing。
-      - 不改变 skin_thickness、condition、wing_planform 和 material_properties。
+      - POST /optimization/structural 只改变 rear_spar_web_thickness、rib_thickness 和 rib_spacing。
+      - 优化后的结构设计参数仍满足硬校验范围。
+      - 不改变 condition、wing_planform 和 material_properties。
       - 返回 original、optimized 和 actual_reduction_ratio。
       - target_reduction_ratio 使用小数表达。
     validation:
       commands:
         - cd backend && pytest
 
-  - id: T009
+  - id: T012
     title: Coupled optimization API
     behavior: 后端调用者提交耦合优化请求后，可以获得气动与强度耦合适应度提升结果。
     status: not_started
     evidence: ""
     depends_on:
-      - T007
-      - T008
+      - T010
+      - T011
     allowed_paths:
-      - backend/src/airfoil_platform/api/**
-      - backend/src/airfoil_platform/contracts/**
-      - backend/src/airfoil_platform/core/**
-      - backend/src/airfoil_platform/services/**
-      - backend/src/airfoil_platform/optimization/**
-      - backend/tests/**
+      - backend/src/airfoil_platform/api/optimization.py
+      - backend/src/airfoil_platform/contracts/optimization.py
+      - backend/src/airfoil_platform/core/optimization.py
+      - backend/src/airfoil_platform/services/optimization_service.py
+      - backend/tests/test_optimization_api.py
       - PROGRESS.md
       - tasks/tasks.yaml
     expected_outputs:
-      - backend/tests/test_optimization_api.py
+      - backend/tests/test_optimization_api.py（追加耦合优化测试）
+    notes:
+      - 本任务扩展 T010/T011 已创建的 optimization 模块文件。
     acceptance_criteria:
-      - POST /optimization/coupled 可改变 cst_params、spar_thickness 和 rib_spacing。
-      - 不改变 skin_thickness、condition、wing_planform 和 material_properties。
-      - fitness 固定为 lift_drag_ratio / weight。
+      - POST /optimization/coupled 可改变 cst_params、rear_spar_web_thickness、rib_thickness 和 rib_spacing。
+      - 优化后的结构设计参数仍满足硬校验范围。
+      - 不改变 condition、wing_planform 和 material_properties。
+      - fitness 固定为 wing_lift_drag_ratio / weight，其中 wing_lift_drag_ratio 是展向积分后的三维机翼升阻比（第一版矩形等截面直翼假设下退化为恒等映射），weight 是全翼结构重量。
       - 返回 original、optimized 和 actual_improvement_ratio。
     validation:
       commands:
         - cd backend && pytest
 
-  - id: T010
+  - id: T013
     title: Teaching airfoil generation API
     behavior: 教学调用者提交中弧线和厚度趋势控制点后，可以获得 200 个二维翼型点。
     status: not_started
@@ -344,16 +462,17 @@ tasks:
     depends_on:
       - T003
     allowed_paths:
-      - backend/src/airfoil_platform/api/**
-      - backend/src/airfoil_platform/contracts/**
-      - backend/src/airfoil_platform/core/**
-      - backend/src/airfoil_platform/services/**
-      - backend/tests/**
+      - backend/src/airfoil_platform/api/teaching.py
+      - backend/src/airfoil_platform/contracts/teaching.py
+      - backend/src/airfoil_platform/core/teaching.py
+      - backend/src/airfoil_platform/services/teaching_service.py
+      - backend/tests/test_teaching_api.py
       - PROGRESS.md
       - tasks/tasks.yaml
     expected_outputs:
       - backend/src/airfoil_platform/api/teaching.py
       - backend/src/airfoil_platform/contracts/teaching.py
+      - backend/src/airfoil_platform/core/teaching.py
       - backend/src/airfoil_platform/services/teaching_service.py
       - backend/tests/test_teaching_api.py
     acceptance_criteria:
@@ -364,23 +483,25 @@ tasks:
       commands:
         - cd backend && pytest
 
-  - id: T011
+  - id: T014
     title: Teaching CST inverse API
     behavior: 教学调用者提交 200 个二维翼型点后，可以获得 12 个 CST 参数。
     status: not_started
     evidence: ""
     depends_on:
-      - T010
+      - T013
     allowed_paths:
-      - backend/src/airfoil_platform/api/**
-      - backend/src/airfoil_platform/contracts/**
-      - backend/src/airfoil_platform/core/**
-      - backend/src/airfoil_platform/services/**
-      - backend/tests/**
+      - backend/src/airfoil_platform/api/teaching.py
+      - backend/src/airfoil_platform/contracts/teaching.py
+      - backend/src/airfoil_platform/core/teaching.py
+      - backend/src/airfoil_platform/services/teaching_service.py
+      - backend/tests/test_teaching_api.py
       - PROGRESS.md
       - tasks/tasks.yaml
     expected_outputs:
-      - backend/tests/test_teaching_api.py
+      - backend/tests/test_teaching_api.py（追加 CST 反推测试）
+    notes:
+      - 本任务扩展 T013 已创建的 teaching 模块文件。
     acceptance_criteria:
       - POST /teaching/cst-from-airfoil 接收 200 个二维翼型点。
       - 返回 12 个 CST 参数。
@@ -389,14 +510,14 @@ tasks:
       commands:
         - cd backend && pytest
 
-  - id: T012
+  - id: T015
     title: Documentation pass
     behavior: 后续维护者可以通过 README 和 docs 理解目标、非目标、运行测试命令、字段单位和 artifact 策略。
     status: not_started
     evidence: ""
     depends_on:
-      - T009
-      - T011
+      - T012
+      - T014
     allowed_paths:
       - backend/README.md
       - backend/.gitignore
@@ -410,7 +531,7 @@ tasks:
       - backend/docs/spec.md
       - backend/docs/api-contracts.md
     acceptance_criteria:
-      - 文档说明目标、非目标、字段单位、目录边界、artifact 策略、运行命令和测试命令。
+      - 文档说明目标、非目标、字段单位、目录边界、HDF5/STEP artifact 策略、运行命令和测试命令。
       - backend/runtime_artifacts/ 被忽略。
       - docs 与实现保持一致。
     validation:

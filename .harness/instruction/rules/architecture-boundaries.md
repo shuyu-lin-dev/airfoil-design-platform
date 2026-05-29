@@ -33,7 +33,7 @@ backend/
 - `services/`：业务工作流编排。
 - `models/`：机器学习模型适配层，第一版为 stub。
 - `optimization/`：遗传算法、目标函数和停止条件，第一版为 stub。
-- `artifacts/`：HDF5 artifact 代码。
+- `artifacts/`：HDF5 与 STEP artifact 代码。
 - `serialization/`：MessagePack / numpy bytes 编解码边界。
 - `config/`：默认值和路径配置。
 - `lib/`：通用基础工具，只放脱离翼型业务也有意义的代码。
@@ -58,5 +58,4 @@ lib -> 不依赖业务层
 - `api` 不写业务逻辑。
 - `services` 不依赖 FastAPI 路由对象。
 - `lib` 不 import `services` 或 `api`。
-- 默认材料属性、重力加速度、artifact 根目录和 stub 模式统一来自 `config/settings.py`。
-
+- 默认机翼平面参数、默认蒙皮材料、默认内部结构材料、重力加速度、artifact 根目录和 stub 模式统一来自 `config/settings.py`。

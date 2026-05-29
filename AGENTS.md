@@ -4,7 +4,7 @@
 
 ## 项目概览
 
-"翼型气动与强度智能设计平台"后端 MVP。第一版用 FastAPI + 占位算法打通翼型生成、气动预测、强度预测、优化设计、教学接口和 HDF5 artifact 存储的数据流。
+"翼型气动与强度智能设计平台"后端 MVP。第一版用 FastAPI + 占位算法打通翼型生成、气动预测、强度预测、优化设计、教学接口和 HDF5/STEP artifact 存储的数据流。
 
 ## 快速开始
 
@@ -21,17 +21,18 @@
 
 以下规则分布在 `.harness/instruction/rules/` 中，按需读取：
 
-- `.harness/instruction/rules/agent-workflow.md`：WIP=1，一次只做一个功能点，验证通过才能标记完成。
+- `.harness/instruction/rules/agent-workflow.md`：WIP=1、代码结构约束、工作状态管理和交接规则。
+- `.harness/instruction/rules/io-hygiene.md`：工具输出截断、抽帧、落盘规则，防止上下文窗口被长输出污染。
 - `.harness/instruction/rules/domain-constraints.md`：CST 参数顺序、比例字段小数表达、重量单位 N 等领域硬约束。
 - `.harness/instruction/rules/testing.md`：TDD、API 行为测试、`cd backend && pytest` 标准验证命令。
-- `.harness/instruction/rules/artifact-policy.md`：HDF5 存储、JSON sidecar、同步写入异步语义。
+- `.harness/instruction/rules/artifact-policy.md`：HDF5/STEP 存储、JSON sidecar、同步写入异步语义和下载接口。
 - `.harness/instruction/rules/architecture-boundaries.md`：目录职责和依赖方向，`api` 不写业务逻辑，`lib` 不依赖业务层。
 
 涉及 API 变更必须更新对应测试。不要绕过既有架构边界；需要例外时先在 `DECISIONS.md` 记录决策。
 
 ## 专题文档
 
-- `CONTEXT.md`：领域语言、字段边界和已解决歧义——**会话冷启动必读**。
+- `CONTEXT.md`：领域语言、字段边界和已解决歧义——**按需读取**，遇到不认识的术语时查阅。
 - `docs/spec.md`：后端 MVP 规格摘要。
 - `docs/api-contracts.md`：API 输入输出契约摘要。
 - `docs/backend-mvp-full-spec.md`：完整后端 MVP 原始规格。
@@ -43,7 +44,7 @@
 
 ## 会话流程
 
-1. 开始前读 `CONTEXT.md`、`PROGRESS.md`、`DECISIONS.md` 和 `tasks/tasks.yaml`。
+1. 开始前读 `PROGRESS.md`、`DECISIONS.md` 和 `tasks/tasks.yaml`。`CONTEXT.md` 按需查阅。
 2. 确认当前 `active` 任务；若无，从 `tasks/tasks.yaml` 选取下一个 `not_started` 任务。
 3. 阅读对应冲刺合同（`.harness/state/sprint-contracts/`），缺失则先创建。
 4. 执行任务，遵守 `allowed_paths` 和 WIP=1。
