@@ -49,6 +49,9 @@ Artifact 文件内容通过 `GET /artifacts/{artifact_id}/download` 下载。
 
 ## Dataset 布局
 
+<!-- FACT-SOURCE: docs/backend-mvp-full-spec.md §7 (HDF5 全场数据) -->
+<!-- FACT-SOURCE: docs/spec.md lines 96-107 -->
+
 ```text
 /coordinates
   shape: (1000, 2)

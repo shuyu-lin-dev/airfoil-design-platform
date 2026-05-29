@@ -258,7 +258,17 @@
   2. **tasks.yaml checklist 字段**：`feature_schema.required_fields` 新增 `checklist`，`workflow` 新增 `default_checklist`（8 项：pytest/git commit/status更新/PROGRESS更新/DECISIONS补充/learnings写入/telemetry填写/working清理）。所有 16 个任务的 `checklist: default` 已填充。标记 passing 前必须逐项确认。
 - 原因：将"被动规则"变为"主动拦截"——pre-commit hook 在代码进入仓库前就阻止违规；checklist 把完成协议的 9 步绑定到每个任务定义上，agent 读取任务时就能看到该做什么。
 - 否决方案：(1) 在 CI 中做检查而非 pre-commit——CI 反馈太慢，违规代码已经 push；(2) 完全自动化 checklist 确认——大部分步骤（git commit、learnings 内容）仍需 agent 判断。
-- 约束：pre-commit hook 只检查 `backend/src/` 和 `backend/tests/` 下的 `.py` 文件。若任务需要正当超标（如 CAD kernel 初始化代码），需在 DECISIONS.md 中记录例外并说明原因。
+- 约束：pre-commit hook 只检查 `backend/src/` 和 `backend/tests/` 下的 `.py` 文件。若任务需要正当超标，需在 DECISIONS.md 中记录例外并说明原因。
+
+## [decision] [verified] 2026-05-30: Harness P2 优化——冲刺合同分级 + 规则一致性标注
+
+- 背景：审计发现 15 个任务中仅 3 个有冲刺合同（12 个缺失），原因是按 T001 的 37 行完整模板写合同太重。另外 artifact-policy.md 与 spec.md 的 coordinates shape 冲突直到审计才发现，说明跨文件约束一致性缺少检查机制。
+- 决策（P2 两项）：
+  1. **冲刺合同分级**：新增两级模板——`_TEMPLATE-full.md`（完整合同，复杂任务用）和 `_TEMPLATE-light.md`（5 行 YAML frontmatter，简单任务用）。复杂任务判定标准：新建文件 >3 个，或依赖 CAD kernel/外部系统，或跨 ≥3 个模块。`agent-workflow.md` Step 3 已更新分级规则。
+  2. **规则一致性标注**：在 `artifact-policy.md`（coordinates shape）、`domain-constraints.md`（fitness 公式）和 `config/settings.py`（所有硬编码值）中添加 `FACT-SOURCE:` 注释，指向 `docs/backend-mvp-full-spec.md` 或 `docs/spec.md` 的权威行号。修改规则文件时可交叉验证。
+- 原因：分级合同降低简单任务的流程负担（从 37 行降到 5 行）；FACT-SOURCE 标注让"这个数字从哪里来"可追溯，减少 spec 与规则文件的漂移。
+- 否决方案：(1) 全部用轻量合同——复杂任务需要明确排除项和观测信号；(2) 引入 JSON Schema 或结构化检查工具做一致性校验——当前阶段过重。
+- 约束：轻量合同仅用于简单任务；一旦任务涉及 CAD kernel、优化算法或多模块协调，必须用完整合同。FACT-SOURCE 标注是注释约定，不强制机器校验，但 agent 修改约束值时必须验证源头。若任务需要正当超标（如 CAD kernel 初始化代码），需在 DECISIONS.md 中记录例外并说明原因。
 
 ## [decision] [draft] 2026-05-29: 多 Agent 并行化预留设计
 

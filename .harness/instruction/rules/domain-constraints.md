@@ -60,6 +60,8 @@
 - `max_stress` 表示整个结构装配的最大等效应力，单位 Pa。
 - 第一版 API 不暴露 `mass`。
 - 若未来模型输出质量，需要在模型适配层转换为 `weight`。
+<!-- FACT-SOURCE: docs/spec.md line 72: fitness = wing_lift_drag_ratio / weight -->
+<!-- FACT-SOURCE: docs/backend-mvp-full-spec.md §7 (气动强度耦合优化): 第一版矩形等截面直翼假设下展向积分退化为恒等映射 wing_lift_drag_ratio = lift_drag_ratio -->
 - 耦合适应度第一版固定为 `fitness = lift_drag_ratio / weight`，是 MVP 排序指标。
 
 ## 结果元信息
