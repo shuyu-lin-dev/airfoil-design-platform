@@ -25,18 +25,36 @@
 #   notes: ""                # 可选：本次运行的显著事件
 
 # ── 运行记录 ──
-runs: []
+runs:
+  - run_id: 2026-05-30-selfcheck
+    task_id: maintenance    # 非功能开发任务，项目自检 + 目录修复
+    status: passing
+    duration_min: 25
+    model: deepseek-v4-pro
+    token_estimate: 30000
+    tool_calls:
+      total: 22
+      file_reads: 8
+      file_edits: 4
+      shell_commands: 8
+      tests_run: 1
+    failures:
+      test_failures: 0
+      validation_retries: 0
+      blocked_issues: 0
+    notes: "项目自检 + 删除空嵌套目录 backend/backend/；首次发现并记录 9 步协议 6 步遗漏违规"
 
 # ── 累积统计（每次运行后滚动更新） ──
 cumulative:
-  total_sessions: 0
+  total_sessions: 1
   total_tasks_completed: 0
-  total_duration_min: 0
-  total_tool_calls: 0
+  total_duration_min: 25
+  total_tool_calls: 22
   total_test_failures: 0
-  avg_token_per_session: 0
+  avg_token_per_session: 30000
   tasks_by_status:
     passing: 0
     blocked: 0
     abandoned: 0
-  model_usage: {}
+  model_usage:
+    deepseek-v4-pro: 1

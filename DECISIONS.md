@@ -278,3 +278,17 @@
 - 否决方案：(1) 现在就引入多 Agent 并行执行——违反 WIP=1 当前约束，且项目尚在骨架阶段，多 Agent 协调成本超过收益；(2) 不做任何预留，等到需要并行时再分析——会增加调度 agent 的推断负担和出错概率。
 - 约束：`parallelizable_group` 是声明性字段，不改变当前单 agent 执行流程。同一 group 内任务必须满足三个条件：相同依赖集、allowed_paths 互不相交、expected_outputs 无重叠文件。添加或修改任务时必须维护 group 标记的正确性。
 - 后续检查：首次启动多 Agent 并行执行前，验证 worktree 隔离是否生效、integration branch 汇合是否无冲突。
+
+## [pitfall] [verified] 2026-05-30: 项目自检暴露 9 步协议 6 步遗漏
+
+- 背景：用户在 T000-T015 全部 passing 后要求"使用 harness 开启新任务进行项目自检"。执行了 `backend/backend/` 空嵌套目录删除 + pytest 验证 + PROGRESS.md 更新后，直接宣告完成。用户指出未 git commit，暴露协议执行系统性遗漏。
+- 遗漏项（9 步中 6 步未执行）：git commit、tasks.yaml 状态更新、DECISIONS.md 检查、learnings 写入、telemetry.yaml 填写、session-exit-checklist 自检。另外未创建冲刺合同。
+- 根因：
+  1. **"验证通过 = 完成"的错误心智模型**——pytest 通过后心理上认为任务结束。
+  2. **自检/维护类活动无任务模板**——tasks.yaml 只建模功能开发任务，目录清理、环境自检等维护活动游离在任务模型外，导致"建不建任务条目"成为模糊地带。
+  3. **遥测从未被实际使用**——telemetry.yaml 自创建以来 runs 列表为空，沦为空骨架。
+- 改进：
+  1. 任何改动，验证通过后立即逐项对照 9 步协议，不跳步。
+  2. 非功能开发类活动（自检、修复、清理）若不需要创建新任务条目，必须在 PROGRESS.md 中明确标注为"非任务维护活动"并说明豁免原因。
+  3. 遥测：要么实际填充，要么在下次复盘时降级为可选。本次会话已填充 telemetry.yaml 作为示范。
+- 证据：`.harness/state/runs/2026-05-30-learnings.md` 详细记录。

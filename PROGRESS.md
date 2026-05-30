@@ -1,12 +1,13 @@
 # 项目进度
 
-> 更新日期：2026-05-29
+> 更新日期：2026-05-30
 
 ## 当前状态
 
-- 最新检查点：**MVP 第一版全部 15 个任务完成（T000-T015）**。
+- 最新检查点：**MVP 第一版全部 15 个任务完成（T000-T015）** + **项目自检（2026-05-30）**。
 - 测试状态：**104 passed**, 8 warnings（CadQuery FutureWarning + Starlette DeprecationWarning）。
 - 构建状态：FastAPI 应用可启动，所有 12 个 API 端点已注册。
+- 目录结构：已修复 `backend/backend/` 空嵌套目录问题。
 - 当前 active 功能项：无。
 
 ## 已完成
@@ -34,9 +35,11 @@
 
 ## 已知问题
 
+- ~~`backend/backend/` 空嵌套目录（已修复，2026-05-30 自检）~~
 - StarletteDeprecationWarning: httpx 应升级为 httpx2（不影响功能）
 - CadQuery FutureWarning: `save` will be removed in next release
 - 依赖安装需使用 Tsinghua 镜像（网络不稳定）
+- Python 3.10.12 低于环境声明 ≥3.11（pyproject.toml 写 ≥3.10，实际不阻塞）
 
 ## 下一步
 
@@ -49,4 +52,4 @@
 
 - 命令：`cd backend && pytest`
 - 结果：**104 passed**, 8 warnings
-- 证据：全部 15 个任务验收标准满足，T000-T015 status=passing
+- 证据：全部 15 个任务验收标准满足，T000-T015 status=passing；`backend/backend/` 空嵌套目录已删除，目录结构符合 architecture-boundaries.md 规范。
