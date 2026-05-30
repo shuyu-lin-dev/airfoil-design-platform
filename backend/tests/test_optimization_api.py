@@ -1,4 +1,4 @@
-"""Tests for optimization API endpoints (T010/T011/T012)."""
+"""Tests for optimization API — aerodynamic (T010) and structural (T011)."""
 
 from fastapi.testclient import TestClient
 
@@ -31,9 +31,7 @@ def test_aero_opt_only_changes_cst_params():
         "target_improvement_ratio": 0.1,
     })
     data = response.json()
-    # Condition should NOT change
     assert data["original"]["condition"] == data["optimized"]["condition"]
-    # CST params SHOULD change
     assert data["original"]["cst_params"] != data["optimized"]["cst_params"]
 
 
@@ -91,10 +89,8 @@ def test_struct_opt_only_changes_structure_design():
         "target_reduction_ratio": 0.1,
     })
     data = response.json()
-    # CST, condition, wing_planform, material should NOT change
     assert data["original"]["cst_params"] == data["optimized"]["cst_params"]
     assert data["original"]["condition"] == data["optimized"]["condition"]
-    # Structure design SHOULD change
     assert data["original"]["structure_design"] != data["optimized"]["structure_design"]
 
 
@@ -131,78 +127,3 @@ def test_struct_opt_weight_decreased():
     })
     data = response.json()
     assert data["optimized"]["weight"] < data["original"]["weight"]
-
-
-# ---- POST /optimization/coupled (T012) ----
-
-def test_coupled_opt_returns_fitness():
-    response = client.post("/optimization/coupled", json={
-        "cst_params": VALID_CST,
-        "condition": {"mach": 0.3, "angle_of_attack": 2.0},
-        "wing_planform": {},
-        "structure_design": {
-            "rear_spar_web_thickness": 0.005,
-            "rib_thickness": 0.003,
-            "rib_spacing": 0.5,
-        },
-        "target_improvement_ratio": 0.1,
-    })
-    assert response.status_code == 200
-    data = response.json()
-    assert "fitness" in data["original"]
-    assert "fitness" in data["optimized"]
-    assert "weight" in data["original"]
-    assert "lift_drag_ratio" in data["original"]
-
-
-def test_coupled_opt_fitness_increases():
-    response = client.post("/optimization/coupled", json={
-        "cst_params": VALID_CST,
-        "condition": {"mach": 0.3, "angle_of_attack": 2.0},
-        "wing_planform": {},
-        "structure_design": {
-            "rear_spar_web_thickness": 0.005,
-            "rib_thickness": 0.003,
-            "rib_spacing": 0.5,
-        },
-        "target_improvement_ratio": 0.1,
-    })
-    data = response.json()
-    assert data["optimized"]["fitness"] > data["original"]["fitness"]
-
-
-def test_coupled_opt_fitness_formula():
-    response = client.post("/optimization/coupled", json={
-        "cst_params": VALID_CST,
-        "condition": {"mach": 0.3, "angle_of_attack": 2.0},
-        "wing_planform": {},
-        "structure_design": {
-            "rear_spar_web_thickness": 0.005,
-            "rib_thickness": 0.003,
-            "rib_spacing": 0.5,
-        },
-        "target_improvement_ratio": 0.1,
-    })
-    data = response.json()
-    # fitness = lift_drag_ratio / weight
-    orig_f = data["original"]["lift_drag_ratio"] / data["original"]["weight"]
-    opt_f = data["optimized"]["lift_drag_ratio"] / data["optimized"]["weight"]
-    assert abs(data["original"]["fitness"] - orig_f) < 1e-6
-    assert abs(data["optimized"]["fitness"] - opt_f) < 1e-6
-
-
-def test_coupled_opt_does_not_change_condition():
-    response = client.post("/optimization/coupled", json={
-        "cst_params": VALID_CST,
-        "condition": {"mach": 0.3, "angle_of_attack": 2.0},
-        "wing_planform": {},
-        "structure_design": {
-            "rear_spar_web_thickness": 0.005,
-            "rib_thickness": 0.003,
-            "rib_spacing": 0.5,
-        },
-        "target_improvement_ratio": 0.1,
-    })
-    data = response.json()
-    assert data["original"]["condition"] == data["optimized"]["condition"]
-    assert data["original"]["wing_planform"] == data["optimized"]["wing_planform"]

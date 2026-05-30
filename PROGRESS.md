@@ -4,10 +4,11 @@
 
 ## 当前状态
 
-- 最新检查点：**MVP 第一版全部 15 个任务完成（T000-T015）** + **项目自检（2026-05-30）**。
+- 最新检查点：**MVP 第一版全部 15 个任务完成（T000-T015）** + **项目自检（2026-05-30 #1）** + **项目自检（2026-05-30 #2，代码结构修复 + 冲刺合同补建）**。
 - 测试状态：**104 passed**, 8 warnings（CadQuery FutureWarning + Starlette DeprecationWarning）。
 - 构建状态：FastAPI 应用可启动，所有 12 个 API 端点已注册。
-- 目录结构：已修复 `backend/backend/` 空嵌套目录问题。
+- 代码结构：**全部 ≤200 行/文件，≤50 行/函数**（pre-commit 检查零违规）。
+- 冲刺合同：**16/16 全覆盖**（T000-T015，含轻量模板）。
 - 当前 active 功能项：无。
 
 ## 已完成
@@ -35,11 +36,15 @@
 
 ## 已知问题
 
-- ~~`backend/backend/` 空嵌套目录（已修复，2026-05-30 自检）~~
+- ~~`backend/backend/` 空嵌套目录（已修复，2026-05-30 自检 #1）~~
+- ~~代码结构违规：`core/geometry.py` 355 行、`generate_wing_3d_step()` 62 行、`coupled_optimize()` 61 行、3 个测试文件 >200 行（已修复，2026-05-30 自检 #2）~~
+- ~~冲刺合同缺失：12/16 任务无合同（已补建，2026-05-30 自检 #2）~~
 - StarletteDeprecationWarning: httpx 应升级为 httpx2（不影响功能）
 - CadQuery FutureWarning: `save` will be removed in next release
-- 依赖安装需使用 Tsinghua 镜像（网络不稳定）
 - Python 3.10.12 低于环境声明 ≥3.11（pyproject.toml 写 ≥3.10，实际不阻塞）
+- 无 .venv 虚拟环境隔离（pip --user 全局安装）
+- `serialization/`、`models/`、`optimization/` 目录仅含 `__init__.py`，无实际实现
+- uvicorn 启动需先 `pip install -e .`（当前未安装 editable 模式）
 
 ## 下一步
 
@@ -52,4 +57,9 @@
 
 - 命令：`cd backend && pytest`
 - 结果：**104 passed**, 8 warnings
-- 证据：全部 15 个任务验收标准满足，T000-T015 status=passing；`backend/backend/` 空嵌套目录已删除，目录结构符合 architecture-boundaries.md 规范。
+- 证据：全部 15 个任务验收标准满足，T000-T015 status=passing；代码结构全部合规（pre-commit 零违规）；冲刺合同 16/16 全覆盖。
+- 自检 #2 修复内容：
+  - `core/geometry.py` 拆分为 `geometry_2d.py`（53 行）+ `geometry_3d.py`（74 行）+ `geometry_3d_builders.py`（192 行）+ 原文件为 re-export 兼容层
+  - `core/optimization.py` 提取 `_perturb_cst_params()` + `_perturb_structure_params()`，`coupled_optimize()` 从 62→48 行
+  - 测试文件拆分：`test_contracts.py`→`test_contracts_validate.py`+`test_contracts_models.py`；`test_geometry_api.py`→`test_geometry_2d_api.py`+`test_geometry_3d_api.py`；`test_optimization_coupled_api.py` 独立
+  - 补建 T002-T007、T010-T015 共 12 个轻量冲刺合同

@@ -292,3 +292,15 @@
   2. 非功能开发类活动（自检、修复、清理）若不需要创建新任务条目，必须在 PROGRESS.md 中明确标注为"非任务维护活动"并说明豁免原因。
   3. 遥测：要么实际填充，要么在下次复盘时降级为可选。本次会话已填充 telemetry.yaml 作为示范。
 - 证据：`.harness/state/runs/2026-05-30-learnings.md` 详细记录。
+
+## [decision] [verified] 2026-05-30: 自检 #2 — 代码结构合规拆分
+
+- 背景：2026-05-30 自检 #2 发现 4 个文件 >200 行、2 个函数 >50 行。这是 2026-05-30 全量审计中已知违规（#1-2）未修复的延续，且发现新增违规（`coupled_optimize()` 61 行、3 个测试文件超标）。
+- 决策：
+  1. `core/geometry.py`（355 行）拆分为 `geometry_2d.py`（CST 参数化，53 行）+ `geometry_3d.py`（CAD 编排，74 行）+ `geometry_3d_builders.py`（CAD 原语 + STEP 读取，192 行）。原 `geometry.py` 改为 re-export 兼容层，保持所有现有 import 不受影响。
+  2. `core/optimization.py` 提取 `_perturb_cst_params()` 和 `_perturb_structure_params()` 共享辅助函数，`coupled_optimize()` 从 62→48 行。
+  3. 测试文件拆分：`test_contracts.py`→验证 + 模型两文件；`test_geometry_api.py`→2D + 3D 两文件；`test_optimization_api.py`→气动/结构 + 耦合两文件。
+- 原因：代码结构约束是硬性上限（≤200 行/文件、≤50 行/函数），必须在进入下一阶段前清零所有违规。拆分原则：按领域边界拆分（2D vs 3D、编排 vs 原语），不按文件行数机械切割。
+- 否决方案：(1) 不做拆分，在 DECISIONS.md 记录例外——违反硬约束；(2) 更细粒度拆分（3D builders 再分成 skin/spar/rib 三文件）——当前 192 行在 200 行限制内，过度拆分增加模块通信成本。
+- 约束：`geometry.py` 作为 re-export 兼容层长期保留，不承载业务逻辑。后续涉及 CST 逻辑修改只动 `geometry_2d.py`，涉及 CAD 原语只动 `geometry_3d_builders.py`。
+- 后续检查：下一阶段（真实模型接入）时确认拆分边界是否依然合理，尤其是 `geometry_3d_builders.py` 是否会随 CAD 功能增加而再次超标。
