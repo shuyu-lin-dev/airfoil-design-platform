@@ -15,7 +15,7 @@
 
 - 默认 WIP=1，一次只激活一个任务。
 - 若已有 `active` 任务，继续该任务，不启动新任务。
-- 任务激活时（status 从 `not_started` 变为 `active`），必须同步更新 `PROGRESS.md` 的「当前 active 功能项」和「当前状态」字段，确保外部观测者可通过该文件感知当前 WIP。
+- 任务激活时（status 从 `not_started` 变为 `active`），必须同步更新 `PROGRESS.md` 的三个位置：「当前 active 功能项」、「当前状态」和「进行中」，确保外部观测者可通过该文件感知当前 WIP。
 - 任务只能修改 `allowed_paths` 中列出的路径。
 - 每个任务都必须有 `behavior`、`validation.commands`、`status` 和 `evidence`。
 - 只有验证命令通过后，任务才能标记为 `passing`。
