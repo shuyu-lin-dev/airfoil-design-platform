@@ -159,7 +159,7 @@ tasks:
   - id: T003
     title: Geometry 2D API
     behavior: 后端调用者提交 12 个 CST 参数后，可以获得 200 个二维翼型点和结果元信息。
-    status: not_started
+    status: active
     checklist: default
     evidence: ""
     depends_on:

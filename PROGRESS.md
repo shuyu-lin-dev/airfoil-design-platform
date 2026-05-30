@@ -5,11 +5,11 @@
 
 ## 当前状态
 
-- 最新检查点：**T002 Common contracts and config 完成**，公共 Pydantic 契约和配置就绪。
+- 最新检查点：**T003 Geometry 2D API 正在进行中**，实现 CST → 200 个二维翼型点 API。
 - 测试状态：41 passed（1 health + 40 contracts）。
 - 构建状态：后端包可编辑安装。
 - 代码结构：`contracts/` 和 `config/` 模块已创建。
-- 当前 active 功能项：无。
+- 当前 active 功能项：T003 Geometry 2D API。
 
 ## 已完成
 
@@ -19,7 +19,7 @@
 
 ## 进行中
 
-- 无。
+- T003 Geometry 2D API：创建 contracts/geometry.py、core/geometry.py、services/geometry_service.py、api/geometry.py、tests/test_geometry_api.py。
 
 ## 下一步
 
