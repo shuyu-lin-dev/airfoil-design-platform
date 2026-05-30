@@ -128,7 +128,7 @@ tasks:
   - id: T002
     title: Common contracts and config
     behavior: 后端具备公共请求响应契约和配置默认值，能拒绝核心非法输入。
-    status: not_started
+    status: active
     checklist: default
     evidence: ""
     depends_on:

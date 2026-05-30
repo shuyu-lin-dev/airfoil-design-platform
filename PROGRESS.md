@@ -9,7 +9,7 @@
 - 测试状态：1 passed（test_health_returns_ok）。
 - 构建状态：后端包可编辑安装。
 - 代码结构：`backend/` 已初始化，`src/airfoil_platform/` 和 `tests/` 结构就位。
-- 当前 active 功能项：无。
+- 当前 active 功能项：T002 Common contracts and config。
 
 ## 已完成
 
