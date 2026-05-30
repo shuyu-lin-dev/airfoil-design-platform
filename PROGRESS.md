@@ -5,15 +5,15 @@
 
 ## 当前状态
 
-- 最新检查点：**项目初始化，等待首任务**。
-- 测试状态：无。
-- 构建状态：未开始。
-- 代码结构：`backend/` 已清空（仅保留 `.venv/` 和 `.gitignore`）。
+- 最新检查点：**T001 Backend skeleton 完成**，FastAPI 应用骨架就绪。
+- 测试状态：1 passed（test_health_returns_ok）。
+- 构建状态：后端包可编辑安装。
+- 代码结构：`backend/` 已初始化，`src/airfoil_platform/` 和 `tests/` 结构就位。
 - 当前 active 功能项：无。
 
 ## 已完成
 
-- 无。
+- T001 Backend skeleton：FastAPI app + GET /health + pytest TestClient 验证通过。
 
 ## 进行中
 
@@ -21,9 +21,8 @@
 
 ## 下一步
 
-1. 创建 backend 项目骨架（FastAPI + /health + pytest）
-2. 按 `docs/spec.md` 和 `docs/backend-mvp-full-spec.md` 逐模块实现
+1. T002 Common contracts and config — 建立公共请求响应契约和配置默认值。
 
 ## 最近验证
 
-- 无。
+- `cd backend && pytest`：1 passed（test_health_returns_ok）。

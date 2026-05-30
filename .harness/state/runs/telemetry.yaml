@@ -1,42 +1,37 @@
-# 运行遥测模板
-#
-# 每次会话结束时，复制下方模板填充实际值，保存为 runs/YYYY-MM-DD-telemetry.yaml。
-# 字段均为人工估算值，不需要精确到 API 调用级——粗略的结构化记录足以支撑趋势分析。
-#
-# 累积统计在下方 cumulative 区块中滚动更新。
-
-# ── 模板（每次运行复制此块） ──
-# - run_id: YYYY-MM-DD-<task_id>
-#   task_id: T001
-#   status: passing          # passing | blocked | abandoned
-#   duration_min: 45         # 人工估算，含思考、编码和验证
-#   model: deepseek-v4-pro   # 本次会话使用的模型
-#   token_estimate: 80000    # 从对话轮数和文件读取量粗略估算（输入+输出）
-#   tool_calls:
-#     total: 34
-#     file_reads: 12
-#     file_edits: 8
-#     shell_commands: 10
-#     tests_run: 4
-#   failures:
-#     test_failures: 2
-#     validation_retries: 1
-#     blocked_issues: 0
-#   notes: ""                # 可选：本次运行的显著事件
+# 运行遥测
 
 # ── 运行记录 ──
-runs: []
+runs:
+  - run_id: 2026-05-30-T001
+    task_id: T001
+    status: passing
+    duration_min: 15
+    model: deepseek-v4-pro
+    token_estimate: 12000
+    tool_calls:
+      total: 18
+      file_reads: 10
+      file_edits: 2
+      file_writes: 8
+      shell_commands: 6
+      tests_run: 1
+    failures:
+      test_failures: 0
+      validation_retries: 1
+      blocked_issues: 0
+    notes: "pyproject.toml [project.scripts] 格式错误导致首次安装失败，移除后通过"
 
-# ── 累积统计（每次运行后滚动更新） ──
+# ── 累积统计 ──
 cumulative:
-  total_sessions: 0
-  total_tasks_completed: 0
-  total_duration_min: 0
-  total_tool_calls: 0
+  total_sessions: 1
+  total_tasks_completed: 1
+  total_duration_min: 15
+  total_tool_calls: 18
   total_test_failures: 0
-  avg_token_per_session: 0
+  avg_token_per_session: 12000
   tasks_by_status:
-    passing: 0
+    passing: 1
     blocked: 0
     abandoned: 0
-  model_usage: {}
+  model_usage:
+    deepseek-v4-pro: 1

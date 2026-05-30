@@ -100,9 +100,9 @@ tasks:
   - id: T001
     title: Backend skeleton
     behavior: 后端调用者可以通过 FastAPI TestClient 访问健康检查，并能运行最小测试命令。
-    status: active
+    status: passing
     checklist: default
-    evidence: ""
+    evidence: pytest 1 passed — test_health_returns_ok 通过 TestClient 验证 GET /health 返回 200、status=ok、version=0.2.0
     depends_on:
       - T000
     allowed_paths:
