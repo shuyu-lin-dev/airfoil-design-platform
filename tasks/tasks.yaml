@@ -611,7 +611,7 @@ tasks:
     behavior: backend/src/airfoil_platform/ 下无仅含 __init__.py 的无效包。
     status: passing
     checklist: default
-    evidence: "pytest 104 passed; serialization/ models/ optimization/ 三个空目录已删除；无 import 引用。"
+    evidence: "【已撤销】pytest 104 passed; 三目录为架构预留位（非死代码），误删已恢复。T018 判定错误，见 DECISIONS.md pitfall。"
     depends_on:
       - T017
     allowed_paths:

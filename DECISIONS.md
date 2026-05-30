@@ -335,6 +335,15 @@
 - 约束：此规则即刻生效。无 tasks.yaml 条目 = 无任务执行权。
 - 补充发现（同 session）：PROGRESS.md「进行中」在 T016-T018 整个执行期间始终为 `无`。该字段应在**任务开始时**更新为活动任务 ID，**任务完成时**移入「已完成」——它是跨会话断点定位的核心字段。措施：任务开始第一步 = 更新 PROGRESS.md 进行中 + tasks.yaml status→active；任务完成最后一步 = 更新 PROGRESS.md 进行中→已完成/无。
 
+## [pitfall] [verified] 2026-05-30: T018 误删架构预留目录
+
+- 背景：T018 将 `models/`、`optimization/`、`serialization/` 三个仅含 `__init__.py` 的目录判定为"空死目录"并删除。用户指出这三个是架构规划的预留位，`__init__.py` 是 Python 包的正常占位符，不应删除。
+- 根因：**将"暂无实现"等同于"死代码"**。`__init__.py` 是合法的最小 Python 包，表示该模块在架构中存在但尚未实现。空包 != 应删除。
+- 纠正措施：
+  1. 三目录已恢复。
+  2. 判定目录是否可删除的标准：必须有 `__init__.py` 以外的文件被 import 引用才能保留是错误的——正确标准是：该目录是否在 `architecture-boundaries.md` 或 `docs/spec.md` 中列为架构组件。若是，即使当前仅含 `__init__.py` 也不应删除。
+  3. 修复已知问题时应先确认问题是否真实存在，而非将表面现象（"无实现"）直接等同于 bug。
+
 ## [decision] [verified] 2026-05-30: ADR 目录从 .harness/instruction/adr/ 迁移到 docs/adr/
 
 - 背景：ADR（架构决策记录）之前放在 `.harness/instruction/adr/` 中，属于 harness 内部目录。用户指出 ADR 应放在 `docs/adr/` 便于查阅和决策追溯。
