@@ -304,3 +304,21 @@
 - 否决方案：(1) 不做拆分，在 DECISIONS.md 记录例外——违反硬约束；(2) 更细粒度拆分（3D builders 再分成 skin/spar/rib 三文件）——当前 192 行在 200 行限制内，过度拆分增加模块通信成本。
 - 约束：`geometry.py` 作为 re-export 兼容层长期保留，不承载业务逻辑。后续涉及 CST 逻辑修改只动 `geometry_2d.py`，涉及 CAD 原语只动 `geometry_3d_builders.py`。
 - 后续检查：下一阶段（真实模型接入）时确认拆分边界是否依然合理，尤其是 `geometry_3d_builders.py` 是否会随 CAD 功能增加而再次超标。
+
+## [pitfall] [verified] 2026-05-30: 自检 #2 全过程使用系统 python3 而非项目 .venv
+
+- 背景：2026-05-30 自检 #2 从环境检查、pytest 运行、pip install 到 pre-commit 检查，全程使用 `python3`（系统 /usr/bin/python3）和 `pip --user` 全局包，未创建项目级 `.venv/`。用户明确指出"不应使用 python3 命令，应先创建环境"。
+- 具体违规：
+  1. 环境自检（Step 0）时明知无 .venv 且 Python 3.10.12 < 3.11，但仅作为"已知问题"记录，未尝试修复。
+  2. 所有 `python3 -m pytest`、`pip install cadquery`、`python3 pre-commit-check.py` 均在 venv 外执行。
+  3. 系统全局安装了 CadQuery 全家桶（cadquery, cadquery-ocp, vtk, ezdxf 等），污染了全局 Python 环境。
+- 根因分析：
+  1. **"已知问题 = 已处理"的错误心智模型**：PROGRESS.md 中记录了"无 .venv"，心理上将其归档为"已记录"而不再处理。但 harness 的「环境自检」要求是**搭建环境**而非仅**记录问题**。
+  2. **工具惯性**：`python3` 是 shell 中最短路径，创建 venv + source activate + pip install 是三步操作，agent 倾向于选择一步到位的命令。
+  3. **缺乏环境自检拦截**：AGENTS.md Step 0 定义了环境自检，但 agent 在自检 #2 时完全跳过了这一步，直接开始了审计。
+- 纠正措施：
+  1. 已创建 `backend/.venv/`，使用 `python3.10 -m venv .venv` + `pip install -e ".[dev,cad]"`（Tsinghua 镜像）。
+  2. `backend/.gitignore` 已添加 `.venv/`。
+  3. 后续所有命令必须通过 `source backend/.venv/bin/activate && python ...` 或 `backend/.venv/bin/python ...` 执行。
+  4. Python 3.10.12 vs 3.11 差距：pyproject.toml 允许 ≥3.10，功能不受限。若后续需要 3.11+ 特性再升级。
+- 约束：此规则即刻生效。每次会话 Step 0 必须检查 `.venv/bin/python` 可用，不可跳过。

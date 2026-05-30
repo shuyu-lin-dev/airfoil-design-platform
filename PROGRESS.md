@@ -45,8 +45,8 @@
 - ~~冲刺合同缺失：12/16 任务无合同（已补建，2026-05-30 自检 #2）~~
 - StarletteDeprecationWarning: httpx 应升级为 httpx2（不影响功能）
 - CadQuery FutureWarning: `save` will be removed in next release
-- Python 3.10.12 低于环境声明 ≥3.11（pyproject.toml 写 ≥3.10，实际不阻塞）
-- 无 .venv 虚拟环境隔离（pip --user 全局安装）
+- Python 3.10.12 低于环境声明 ≥3.11（pyproject.toml 写 ≥3.10，实际不阻塞；系统无 3.11+ 可用）
+- ~~无 .venv 虚拟环境隔离~~（已修复，2026-05-30 自检 #2 环境修复）
 - `serialization/`、`models/`、`optimization/` 目录仅含 `__init__.py`，无实际实现
 - uvicorn 启动需先 `pip install -e .`（当前未安装 editable 模式）
 
@@ -59,11 +59,13 @@
 
 ## 最近验证
 
-- 命令：`cd backend && pytest`
+- 命令：`source .venv/bin/activate && pytest`（venv 内）
 - 结果：**104 passed**, 8 warnings
-- 证据：全部 15 个任务验收标准满足，T000-T015 status=passing；代码结构全部合规（pre-commit 零违规）；冲刺合同 16/16 全覆盖。
+- 证据：全部 15 个任务验收标准满足，T000-T015 status=passing；代码结构全部合规（pre-commit 零违规）；冲刺合同 16/16 全覆盖；`.venv/` 已创建，依赖已安装。
 - 自检 #2 修复内容：
-  - `core/geometry.py` 拆分为 `geometry_2d.py`（53 行）+ `geometry_3d.py`（74 行）+ `geometry_3d_builders.py`（192 行）+ 原文件为 re-export 兼容层
+  - **环境**：创建 `backend/.venv/`，`pip install -e ".[dev,cad]"`，不再使用系统 `python3 --user`
+  - `core/geometry.py` 拆分为 `geometry_2d.py`（53 行）+ `geometry_3d.py`（114 行）+ `geometry_3d_builders.py`（196 行）+ 原文件为 re-export 兼容层
   - `core/optimization.py` 提取 `_perturb_cst_params()` + `_perturb_structure_params()`，`coupled_optimize()` 从 62→48 行
   - 测试文件拆分：`test_contracts.py`→`test_contracts_validate.py`+`test_contracts_models.py`；`test_geometry_api.py`→`test_geometry_2d_api.py`+`test_geometry_3d_api.py`；`test_optimization_coupled_api.py` 独立
   - 补建 T002-T007、T010-T015 共 12 个轻量冲刺合同
+  - 添加根 `.gitignore` 忽略 `__pycache__/`
