@@ -11,4 +11,12 @@
 - [ADR 0005](docs/adr/0005-multi-agent-parallelization-task-model.md) — 多 Agent 并行化任务模型预留
 - [ADR 0006](docs/adr/0006-code-structure-constraints-and-enforcement.md) — 代码结构约束与自动化执行
 
-当实现需要偏离既有规则时，先在这里补充决策，再修改代码或任务。
+## 补充决策
+
+### 2026-05-30 — 任务激活时同步更新 PROGRESS.md
+
+**决策**：在 `agent-workflow.md` 工作规则中增加约束——任务激活时（status 从 `not_started` 变为 `active`）必须同步更新 `PROGRESS.md` 的「当前 active 功能项」和「当前状态」。
+
+**原因**：T001 执行过程中发现，任务在 `tasks.yaml` 中标记为 `active` 后，`PROGRESS.md` 未同步更新，导致外部观测者无法通过该文件感知当前 WIP。`PROGRESS.md` 是会话启动流程的首要读取文件，其信息必须与 `tasks.yaml` 保持同步。
+
+**影响**：任务生命周期的三个关键节点均需更新 `PROGRESS.md`——激活时、完成时、阻塞时。
