@@ -73,6 +73,7 @@
 ## 会话流程
 
 0. **环境自检**：确认 `python --version`（≥3.11）、`.venv/` 存在且已激活、`pip list | grep fastapi` 有输出。任一不满足则先搭建环境。
+   - **CWD 约定**：自检后先 `cd` 到 `backend/`（CWD 持久），后续命令不加 `cd backend &&` 前缀，直接以 `source .venv/bin/activate &&` 起手，命中权限规则。
 1. 读取 `PROGRESS.md`、`DECISIONS.md` 和 `tasks/tasks.yaml`；`CONTEXT.md` 按需查阅。
 2. 确认当前是否已有 `active` 任务。
 3. 阅读当前任务的冲刺合同；若缺失，先在 `.harness/state/sprint-contracts/` 创建。

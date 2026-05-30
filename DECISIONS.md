@@ -28,3 +28,11 @@
 **原因**：这三个字段各自独立对观测者有意义，缺一个就会造成信息不一致。
 
 **影响**：`agent-workflow.md` 对应条目已更新。
+
+### 2026-05-30 — Bash 权限规则前缀匹配失效问题
+
+**决策**：项目 `.claude/settings.json` 中的 Bash 权限规则采用前缀匹配。当 agent 执行的命令含 `cd backend &&` 前缀时，无法命中以 `source .venv/bin/activate &&` 起手的规则。解决方式：(1) 利用 CWD 持久性，先 `cd` 到 `backend/`，后续命令直接从 `source .venv/bin/activate &&` 起手；(2) 补 `cd backend &&` 前缀的规则作为兜底。
+
+**原因**：`cd backend && source .venv/bin/activate && pytest --tb=short 2>&1` 无法匹配 `Bash(source .venv/bin/activate && pytest *)`，因为规则从命令首字符开始做前缀匹配，`cd` 破坏了前缀。每次执行都要人批权限。
+
+**影响**：`.claude/settings.json` 已补 `cd backend && source .venv/bin/activate && *` 系列规则。agent 工作流规则中增加约定——后端测试/启动命令统一先 `cd backend` 改变 CWD，再执行无需 cd 前缀的命令。
