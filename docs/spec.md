@@ -126,9 +126,12 @@ backend/
       core/
       services/
       models/
+        aerodynamics/
+        structure/
+        weights/
       optimization/
+        algorithms/
       artifacts/
-      serialization/
       config/
       lib/
 ```
@@ -137,12 +140,11 @@ backend/
 
 - `api/`：FastAPI 路由，只做请求响应和调用 service。
 - `contracts/`：Pydantic 数据契约。
-- `core/`：翼型、气动、强度、优化的纯领域逻辑。
+- `core/`：翼型、气动、强度、优化的纯领域编排逻辑，只依赖 `models/` 和 `optimization/` 的抽象接口。
 - `services/`：业务工作流编排。
-- `models/`：模型适配层，第一版为 stub。
-- `optimization/`：优化算法和目标函数，第一版为 stub。
+- `models/`：预测模型适配层——抽象接口 + 工厂注册 + 可替换实现（`aerodynamics/`、`structure/`）。权重文件放在 `models/weights/`（非源码）。
+- `optimization/`：优化算法适配层——抽象接口 + 工厂注册 + 可替换算法（`algorithms/`）。
 - `artifacts/`：HDF5 与 STEP artifact 存储。
-- `serialization/`：MessagePack / numpy bytes 编解码边界。
 - `config/`：默认值和路径配置。
 - `lib/`：通用基础工具。
 

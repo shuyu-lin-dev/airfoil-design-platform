@@ -72,10 +72,9 @@ backend/
     contracts/           # Pydantic 数据契约
     core/                # 纯领域逻辑
     services/            # 业务编排
-    models/              # 模型适配层（stub）
-    optimization/        # 优化算法（stub）
+    models/              # 预测模型适配层（工厂 + aerodynamics/structure/weights）
+    optimization/        # 优化算法适配层（工厂 + algorithms/）
     artifacts/           # HDF5/STEP 存储
-    serialization/       # MessagePack/numpy 编解码
     config/              # 默认值和路径配置
     lib/                 # 通用基础工具
   tests/                 # pytest 测试

@@ -351,3 +351,16 @@
 - 原因：`docs/` 是项目文档的自然入口，ADRs 放在这里可发现性更高；`.harness/instruction/` 更适合放规则和工作流指引，而非业务架构决策。
 - 否决方案：保持原位，或在两处各放一份副本。
 - 约束：后续新增 ADR 一律放入 `docs/adr/`，按 `NNNN-title.md` 编号。引用 ADR 时使用 `docs/adr/` 路径。
+
+## [decision] [verified] 2026-05-30: 目录结构澄清——`models/`/`optimization/` 采用工厂模式，删除 `serialization/`
+
+- 背景：`models/`、`optimization/`、`serialization/` 三个目录均为架构预留位，仅含 `__init__.py` 无实现代码。同时 `core/optimization.py` 包含所有优化逻辑（扰动 stub），`core/aerodynamics.py` 和 `core/structure.py` 包含预测 stub。grill-with-docs 会话指出目录结构不合理——优化和预测模型可替换性是真实的架构需求，但空目录 vs 代码分离的现状与架构边界声明不符。
+- 决策：
+  1. **删除 `serialization/`**：无对应代码，也无可预见的 MessagePack/numpy bytes 编解码需求。
+  2. **保留并重构 `models/`**：作为预测模型适配层，采用工厂模式——`base.py`（抽象接口）+ `factory.py`（注册表 + 配置驱动创建）+ `aerodynamics/`（气动模型实现）+ `structure/`（强度模型实现）+ `weights/`（非源码：`.pt`/`.onnx` 权重文件）。
+  3. **保留并重构 `optimization/`**：作为优化算法适配层，同工厂模式——`base.py` + `factory.py` + `algorithms/`（扰动/遗传/贝叶斯等）。
+  4. **`core/` 只依赖抽象接口**：`core/` import `models/base.py` 和 `optimization/base.py`，不直接依赖具体实现类。具体实现通过工厂注册后按配置创建。
+- 原因：预测模型（stub/GNN/PINN）和优化算法（扰动/遗传/贝叶斯）的输入输出契约稳定，中间实现随着项目演进而替换。工厂模式让 `core/` 感知不到具体实现变更，同时在 stub 阶段就能验证架构正确性。这与 MODULAR-RAG-MCP-SERVER 的 LLM/Embedding 工厂同构——区别在于那里适配外部服务，这里适配可替换的领域算法实现。
+- 否决方案：(1) 保持三个空目录不变——浪费架构位且混淆目录意图；(2) 工厂放在 `core/` 内部——`core/` 职责膨胀，从编排降级为容器；(3) 把预测模型代码直接留在 `core/` 里——换模型时动 `core/` 违反了开闭原则。
+- 约束：`models/weights/` 只放权重文件，不参与 Python import。工厂注册采用模块 import 时自注册模式（参考 MODULAR-RAG-MCP-SERVER 的 `_register_builtin_providers()`）。`core/` 对 `models/` 和 `optimization/` 的 import 仅限于抽象基类，不出现具体类名。
+- 后续检查：实施重构时验证 `core/` 中无具体模型/算法类的直接 import。

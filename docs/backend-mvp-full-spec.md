@@ -1113,25 +1113,29 @@ airfoil-design-platform/
 
         models/
           __init__.py
-          aerodynamic_models.py
-          structure_models.py
-          model_registry.py
+          base.py               (抽象接口)
+          factory.py            (ModelFactory + 注册表)
+          aerodynamics/
+            __init__.py
+            stub.py
+          structure/
+            __init__.py
+            stub.py
+          weights/              (非源码：.pt / .onnx 权重文件)
 
         optimization/
           __init__.py
-          genetic_algorithm.py
-          objectives.py
+          base.py               (抽象接口)
+          factory.py            (OptimizerFactory + 注册表)
+          algorithms/
+            __init__.py
+            perturb.py
 
-	        artifacts/
-	          __init__.py
-	          hdf5_store.py
-	          step_store.py
-	          artifact_registry.py
-
-        serialization/
+        artifacts/
           __init__.py
-          msgpack_codec.py
-          numpy_codec.py
+          hdf5_store.py
+          step_store.py
+          artifact_registry.py
 
         config/
           __init__.py
@@ -1150,18 +1154,17 @@ airfoil-design-platform/
 - `contracts/`：Pydantic 数据契约，请求模型、响应模型、字段单位、校验。
 - `core/`：翼型、气动、强度、优化的纯领域逻辑。
 - `services/`：业务工作流编排。
-- `models/`：神经网络模型适配层，第一版为 stub。
-- `optimization/`：遗传算法、目标函数、停止条件，第一版为 stub。
+- `models/`：预测模型适配层——抽象接口（`base.py`）+ 工厂注册（`factory.py`）+ 可替换实现（`aerodynamics/`、`structure/`）。权重文件放在 `models/weights/`（非 Python 源码）。
+- `optimization/`：优化算法适配层——抽象接口（`base.py`）+ 工厂注册（`factory.py`）+ 可替换算法（`algorithms/`）。
 - `artifacts/`：HDF5 与 STEP artifact 代码。
 - `backend/runtime_artifacts/`：HDF5 与 STEP 运行时输出文件，应由 `.gitignore` 忽略。
-- `serialization/`：MessagePack / numpy bytes 编解码边界。
 - `config/`：默认值和路径配置，是默认蒙皮材料、默认内部结构材料、重力加速度、artifact 根目录和 stub 模式的事实源。
 - `lib/`：通用基础工具，只放脱离翼型业务也有意义的代码。
 
 `contracts` 与 `models` 的边界必须明确：
 
 - `contracts` 是 API 数据契约。
-- `models` 是机器学习模型适配层。
+- `models` 是预测模型适配层，包含抽象接口和可替换实现。
 
 ## 11. 风险点
 

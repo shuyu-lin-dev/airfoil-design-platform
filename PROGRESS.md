@@ -42,6 +42,7 @@
 - **2026-05-30 ADR 目录迁移**：`.harness/instruction/adr/` → `docs/adr/`，提高决策可发现性。引用路径全部更新（AGENTS.md、bootstrap-contract.md、knowledge-index.md、artifact-policy.md）。见 DECISIONS.md 对应决策。
 - **2026-05-30 PROGRESS.md「进行中」自评**：用户指出 T016-T018 执行期间「进行中」始终为 `无`。该字段应在任务开始时更新为活动任务 ID，任务完成时移入「已完成」——它是跨会话断点定位的核心字段，不能永远是 `无`。详情见 `learnings-3.md`。
 - **2026-05-30 T018 误删恢复**：用户指出 `models/`、`optimization/`、`serialization/` 是架构预留位，仅含 `__init__.py` 是正常状态，不应删除。T018 判定为误操作，三目录已恢复。根因：将"暂无实现"错误等同于"死代码"。
+- **2026-05-30 grill-with-docs 目录结构澄清**：经设计审查决定 — (1) `serialization/` 无对应代码且无预见需求，确认删除；(2) `models/` 保留并采用工厂模式重构为预测模型适配层（抽象接口 + 工厂注册 + aerodynamics/structure/weights 子包）；(3) `optimization/` 保留并采用工厂模式重构为优化算法适配层（抽象接口 + 工厂注册 + algorithms 子包）；(4) `core/` 只依赖抽象接口不 import 具体实现。详见 DECISIONS.md 对应决策。
 
 ## 已知问题
 
@@ -52,7 +53,7 @@
 - ~~CadQuery FutureWarning: `save` will be removed in next release（已修复，2026-05-30 T017：pytest filterwarnings 抑制 CadQuery 内部 FutureWarning）~~
 - Python 3.10.12 低于环境声明 ≥3.11（已验证不阻塞：pyproject.toml 写 ≥3.10 自洽，系统无 3.11+ 可用，功能不受限）
 - ~~无 .venv 虚拟环境隔离~~（已修复，2026-05-30 自检 #2 环境修复）
-- `serialization/`、`models/`、`optimization/` 目录仅含 `__init__.py`，无实际实现（**非问题**：架构预留位，不应删除。T018 误删已恢复，见 DECISIONS.md pitfall）
+- `models/`、`optimization/` 目录目前仅含 `__init__.py`，待按工厂模式重构（见 2026-05-30 grill-with-docs 决策）。`serialization/` 已确认删除。
 - ~~uvicorn 启动需先 `pip install -e .`（当前未安装 editable 模式）~~（已验证已解决：.venv 中 `pip show airfoil-platform` 确认 0.1.0 已安装）
 
 ## 下一步
