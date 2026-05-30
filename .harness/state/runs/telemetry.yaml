@@ -25,121 +25,18 @@
 #   notes: ""                # 可选：本次运行的显著事件
 
 # ── 运行记录 ──
-runs:
-  - run_id: 2026-05-30-selfcheck
-    task_id: maintenance    # 非功能开发任务，项目自检 + 目录修复
-    status: passing
-    duration_min: 25
-    model: deepseek-v4-pro
-    token_estimate: 30000
-    tool_calls:
-      total: 22
-      file_reads: 8
-      file_edits: 4
-      shell_commands: 8
-      tests_run: 1
-    failures:
-      test_failures: 0
-      validation_retries: 0
-      blocked_issues: 0
-    notes: "项目自检 + 删除空嵌套目录 backend/backend/；首次发现并记录 9 步协议 6 步遗漏违规"
-  - run_id: 2026-05-30-selfcheck-2
-    task_id: maintenance    # 项目自检 #2 — 代码结构拆分 + 冲刺合同补建
-    status: passing
-    duration_min: 180
-    model: deepseek-v4-pro
-    token_estimate: 120000
-    tool_calls:
-      total: 45
-      file_reads: 15
-      file_edits: 12
-      shell_commands: 14
-      tests_run: 3
-    failures:
-      test_failures: 0
-      validation_retries: 1
-      blocked_issues: 1
-    notes: "全面对照 spec.md 自检；修复6项代码结构违规(文件≤200行/函数≤50行)；补建12个轻量冲刺合同；pre-commit零违规；104 tests pass"
-  - run_id: 2026-05-30-T016
-    task_id: T016
-    status: passing
-    duration_min: 5
-    model: deepseek-v4-pro
-    token_estimate: 3000
-    tool_calls:
-      total: 5
-      file_reads: 1
-      file_edits: 1
-      shell_commands: 2
-      tests_run: 1
-    failures:
-      test_failures: 0
-      validation_retries: 0
-      blocked_issues: 0
-    notes: "httpx→httpx2 消除 StarletteDeprecationWarning；pytest 104 passed, 7 warnings→0 StarletteDeprecationWarning"
-  - run_id: 2026-05-30-T017
-    task_id: T017
-    status: passing
-    duration_min: 3
-    model: deepseek-v4-pro
-    token_estimate: 2000
-    tool_calls:
-      total: 4
-      file_reads: 0
-      file_edits: 1
-      shell_commands: 2
-      tests_run: 1
-    failures:
-      test_failures: 0
-      validation_retries: 0
-      blocked_issues: 0
-    notes: "pytest filterwarnings 抑制 CadQuery 内部 FutureWarning；pytest 104 passed, 0 warnings"
-  - run_id: 2026-05-30-T018
-    task_id: T018
-    status: passing
-    duration_min: 3
-    model: deepseek-v4-pro
-    token_estimate: 2000
-    tool_calls:
-      total: 3
-      file_reads: 0
-      file_edits: 0
-      shell_commands: 2
-      tests_run: 1
-    failures:
-      test_failures: 0
-      validation_retries: 0
-      blocked_issues: 0
-    notes: "删除 serialization/models/optimization 空死目录；pytest 104 passed, 0 warnings"
-  - run_id: 2026-05-30-grill-with-docs
-    task_id: maintenance    # grill-with-docs 设计审查 — 目录结构澄清
-    status: passing
-    duration_min: 60
-    model: deepseek-v4-pro
-    token_estimate: 40000
-    tool_calls:
-      total: 25
-      file_reads: 12
-      file_edits: 5
-      shell_commands: 6
-      tests_run: 0
-    failures:
-      test_failures: 0
-      validation_retries: 0
-      blocked_issues: 0
-    notes: "grill-with-docs 会话：决定删除 serialization/；models/ optimization/ 采用工厂模式；更新 7 个文档 + 新建 ADR 0003；git commit 9ff579c"
+runs: []
 
 # ── 累积统计（每次运行后滚动更新） ──
 cumulative:
-  total_sessions: 6
-  total_tasks_completed: 3
-  total_duration_min: 276
-  total_tool_calls: 104
+  total_sessions: 0
+  total_tasks_completed: 0
+  total_duration_min: 0
+  total_tool_calls: 0
   total_test_failures: 0
-  avg_token_per_session: 44000
+  avg_token_per_session: 0
   tasks_by_status:
-    passing: 3
+    passing: 0
     blocked: 0
     abandoned: 0
-  model_usage:
-    deepseek-v4-pro: 6
+  model_usage: {}

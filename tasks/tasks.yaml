@@ -100,9 +100,9 @@ tasks:
   - id: T001
     title: Backend skeleton
     behavior: 后端调用者可以通过 FastAPI TestClient 访问健康检查，并能运行最小测试命令。
-    status: passing
+    status: not_started
     checklist: default
-    evidence: "pytest 35 passed; GET /health 返回 status=ok version=0.1.0; FastAPI TestClient 可加载; 所有 expected_outputs 文件已创建。"
+    evidence: ""
     depends_on:
       - T000
     allowed_paths:
@@ -128,9 +128,9 @@ tasks:
   - id: T002
     title: Common contracts and config
     behavior: 后端具备公共请求响应契约和配置默认值，能拒绝核心非法输入。
-    status: passing
+    status: not_started
     checklist: default
-    evidence: "pytest 35 passed (含34个contracts测试+1个health测试); contracts/common.py 包含所有核心校验 (CST长度、ratio范围、wing_planform默认值/硬校验、structure_design范围、material_properties默认/覆盖/字段完整性); config/settings.py 管理所有默认值。"
+    evidence: ""
     depends_on:
       - T001
     allowed_paths:
@@ -159,9 +159,9 @@ tasks:
   - id: T003
     title: Geometry 2D API
     behavior: 后端调用者提交 12 个 CST 参数后，可以获得 200 个二维翼型点和结果元信息。
-    status: passing
+    status: not_started
     checklist: default
-    evidence: "pytest 41 passed (6 geometry API tests); POST /geometry/airfoil-2d 返回200点，前100个上表面后100个下表面；包含is_stub/model_version; 拒绝!=12的CST参数。"
+    evidence: ""
     depends_on:
       - T002
     parallelizable_group: post-t002
@@ -191,9 +191,9 @@ tasks:
   - id: T004
     title: Artifact infrastructure with HDF5 store
     behavior: 后端具备格式无关的 artifact 注册中心，支持 HDF5 文件写入、JSON sidecar 落盘和元信息查询。
-    status: passing
+    status: not_started
     checklist: default
-    evidence: "pytest 49 passed (8 HDF5 store tests); artifact_id SHA-256前12字符幂等；HDF5写入/读取 roundtrip正确；JSON sidecar同步落盘；dataset布局/coordinates(1000,2)+/fields/pressure(1000,)+/fields/velocity(1000,)正确；纯Python测试无HTTP依赖。"
+    evidence: ""
     depends_on:
       - T002
     parallelizable_group: post-t002
@@ -220,9 +220,9 @@ tasks:
   - id: T005
     title: Artifact query and download API
     behavior: 后端调用者可通过 artifact_id 查询 artifact 元信息和下载 artifact 文件内容。
-    status: passing
+    status: not_started
     checklist: default
-    evidence: "pytest 54 passed (5 artifact API tests); GET /artifacts/{id} 从JSON sidecar读取返回元信息；GET /artifacts/{id}/download 返回文件内容；元信息查询和文件下载分离；404处理正确。"
+    evidence: ""
     depends_on:
       - T004
     parallelizable_group: post-t004
@@ -248,9 +248,9 @@ tasks:
   - id: T006
     title: Aerodynamic prediction API
     behavior: 后端调用者提交 CST 参数和工况参数后，可以获得气动标量、Cp 分布和 HDF5 场数据 artifact。
-    status: passing
+    status: not_started
     checklist: default
-    evidence: "pytest 62 passed (8 aero API tests); POST /aerodynamics/predict 返回 lift_drag_ratio+200 Cp点+field_artifact；HDF5文件和JSON sidecar落盘；压力/速度场不在JSON中；artifact_id幂等；is_stub/model_version正确。"
+    evidence: ""
     depends_on:
       - T004
     parallelizable_group: post-t004
@@ -283,9 +283,9 @@ tasks:
   - id: T007
     title: STEP artifact store
     behavior: artifact 系统支持 STEP 格式文件的写入、JSON sidecar 落盘和注册，不涉及几何生成逻辑。
-    status: passing
+    status: not_started
     checklist: default
-    evidence: "pytest 68 passed (6 STEP store tests); CadQuery方盒STEP导出/写入/回读正常；JSON sidecar含components字段；artifact_registry可查询STEP元信息；纯Python测试无HTTP依赖。"
+    evidence: ""
     depends_on:
       - T004
     parallelizable_group: post-t004
@@ -310,9 +310,9 @@ tasks:
   - id: T008
     title: Geometry 3D API
     behavior: 后端调用者提交翼型、机翼平面和结构设计输入后，可以获得结构 STEP artifact。
-    status: passing
+    status: not_started
     checklist: default
-    evidence: "pytest 77 passed (15 geometry API tests含9 wing-3d); POST /geometry/wing-3d 返回结构STEP artifact; STEP可被CadQuery回读且组件非空; bbox符合chord=1.0/span/2=5.0; 翼肋数量符合rib_spacing推导; 不返回点云; is_stub/model_version正确。"
+    evidence: ""
     depends_on:
       - T007
       - T003
@@ -353,9 +353,9 @@ tasks:
   - id: T009
     title: Structure prediction API
     behavior: 后端调用者提交三维机翼相关输入后，可以获得应力极值和重量结果。
-    status: passing
+    status: not_started
     checklist: default
-    evidence: "pytest 84 passed (7 structure API tests); POST /structure/predict 返回 max_stress(Pa) + weight(N); weight 只含蒙皮/前梁/后梁/翼肋; 不暴露mass; 材料可选缺省; 重量随参数变化合理; is_stub/model_version正确。"
+    evidence: ""
     depends_on:
       - T002
     parallelizable_group: post-t002
@@ -387,9 +387,9 @@ tasks:
   - id: T010
     title: Aerodynamic optimization API
     behavior: 后端调用者提交气动优化请求后，可以获得原始与优化后的 CST 参数和升阻比对比。
-    status: passing
+    status: not_started
     checklist: default
-    evidence: "pytest 96 passed (12 opt tests含4 aero); POST /optimization/aerodynamic 只改cst_params不改condition; 返回original/optimized+actual_improvement_ratio; stub行为符合规格; is_stub/model_version正确。"
+    evidence: ""
     depends_on:
       - T002
     parallelizable_group: post-t002
@@ -420,9 +420,9 @@ tasks:
   - id: T011
     title: Structural optimization API
     behavior: 后端调用者提交强度优化请求后，可以获得只改变结构优化变量的重量减轻结果。
-    status: passing
+    status: not_started
     checklist: default
-    evidence: "pytest 96 passed (12 opt tests含4 struct); POST /optimization/structural 只改结构优化变量; 不改condition/wing_planform/material; 优化后参数在硬校验范围内; weight降低; actual_reduction_ratio正确。"
+    evidence: ""
     depends_on:
       - T002
     allowed_paths:
@@ -450,9 +450,9 @@ tasks:
   - id: T012
     title: Coupled optimization API
     behavior: 后端调用者提交耦合优化请求后，可以获得气动与强度耦合适应度提升结果。
-    status: passing
+    status: not_started
     checklist: default
-    evidence: "pytest 96 passed (12 opt tests含4 coupled); POST /optimization/coupled 改cst_params+结构变量; 不改condition/wing_planform/material; fitness=lift_drag_ratio/weight公式验证正确; fitness提升; actual_improvement_ratio正确。"
+    evidence: ""
     depends_on:
       - T010
       - T011
@@ -481,9 +481,9 @@ tasks:
   - id: T013
     title: Teaching airfoil generation API
     behavior: 教学调用者提交中弧线和厚度趋势控制点后，可以获得 200 个二维翼型点。
-    status: passing
+    status: not_started
     checklist: default
-    evidence: "pytest 104 passed (8 teaching tests含4 generation); POST /teaching/airfoil-from-control-points 返回200点; stub忽略输入返回固定翼型; 拒绝非2个控制点; is_stub/model_version正确。"
+    evidence: ""
     depends_on:
       - T003
     allowed_paths:
@@ -511,9 +511,9 @@ tasks:
   - id: T014
     title: Teaching CST inverse API
     behavior: 教学调用者提交 200 个二维翼型点后，可以获得 12 个 CST 参数。
-    status: passing
+    status: not_started
     checklist: default
-    evidence: "pytest 104 passed (8 teaching tests含4 CST inverse); POST /teaching/cst-from-airfoil 返回12个CST参数; stub忽略输入返回固定CST; 拒绝!=200点; 顺序前6上表面后6下表面; is_stub/model_version正确。"
+    evidence: ""
     depends_on:
       - T013
     allowed_paths:
@@ -539,9 +539,9 @@ tasks:
   - id: T015
     title: Documentation pass
     behavior: 后续维护者可以通过 README 和 docs 理解目标、非目标、运行测试命令、字段单位和 artifact 策略。
-    status: passing
+    status: not_started
     checklist: default
-    evidence: "backend/README.md 完整覆盖目标/非目标/API概览/字段单位/目录结构/artifact策略/坐标系; backend/.gitignore 忽略runtime_artifacts/; pytest 104 passed 全部通过。"
+    evidence: ""
     depends_on:
       - T012
       - T014
@@ -565,66 +565,3 @@ tasks:
       commands:
         - cd backend && pytest
 
-  - id: T016
-    title: 永久化 StarletteDeprecationWarning 修复
-    behavior: Starlette testclient 使用 httpx2 而非 httpx，pytest 不再输出 StarletteDeprecationWarning。
-    status: passing
-    checklist: default
-    evidence: "pytest 104 passed, 0 StarletteDeprecationWarning; pyproject.toml dev deps httpx→httpx2。"
-    depends_on:
-      - T015
-    allowed_paths:
-      - backend/pyproject.toml
-      - PROGRESS.md
-      - tasks/tasks.yaml
-    expected_outputs:
-      - backend/pyproject.toml（dev deps 中 httpx→httpx2）
-    acceptance_criteria:
-      - pytest 零 StarletteDeprecationWarning。
-      - dep 变更永久化到 pyproject.toml。
-    validation:
-      commands:
-        - cd backend && pytest
-
-  - id: T017
-    title: 抑制 CadQuery 内部 FutureWarning 残留
-    behavior: pytest 输出不包含 CadQuery 内部 @deprecate 装饰器产生的 FutureWarning。
-    status: passing
-    checklist: default
-    evidence: "pytest 104 passed, 0 warnings（全额消除）；pyproject.toml filterwarnings 忽略 cadquery.* FutureWarning。"
-    depends_on:
-      - T016
-    allowed_paths:
-      - backend/pyproject.toml
-      - PROGRESS.md
-      - tasks/tasks.yaml
-    expected_outputs:
-      - backend/pyproject.toml（pytest filterwarnings 新增 cadquery FutureWarning 抑制）
-    acceptance_criteria:
-      - pytest 零 FutureWarning（7 个 CadQuery 内部警告全消失）。
-    validation:
-      commands:
-        - cd backend && pytest
-
-  - id: T018
-    title: 清理空死目录 serialization/models/optimization
-    behavior: backend/src/airfoil_platform/ 下无仅含 __init__.py 的无效包。
-    status: passing
-    checklist: default
-    evidence: "【已撤销】pytest 104 passed; 三目录为架构预留位（非死代码），误删已恢复。T018 判定错误，见 DECISIONS.md pitfall。"
-    depends_on:
-      - T017
-    allowed_paths:
-      - backend/src/airfoil_platform/serialization/**
-      - backend/src/airfoil_platform/models/**
-      - backend/src/airfoil_platform/optimization/**
-      - PROGRESS.md
-      - tasks/tasks.yaml
-    expected_outputs:
-      - (删除 serialization/ models/ optimization/ 三个空目录)
-    acceptance_criteria:
-      - 三目录从仓库消失。
-      - 所有现有 import 不受影响，pytest 全通过。
-    validation:
-      commands:
-        - cd backend && pytest
