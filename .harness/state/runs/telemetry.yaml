@@ -43,18 +43,35 @@ runs:
       validation_retries: 0
       blocked_issues: 0
     notes: "项目自检 + 删除空嵌套目录 backend/backend/；首次发现并记录 9 步协议 6 步遗漏违规"
+  - run_id: 2026-05-30-selfcheck-2
+    task_id: maintenance    # 项目自检 #2 — 代码结构拆分 + 冲刺合同补建
+    status: passing
+    duration_min: 180
+    model: deepseek-v4-pro
+    token_estimate: 120000
+    tool_calls:
+      total: 45
+      file_reads: 15
+      file_edits: 12
+      shell_commands: 14
+      tests_run: 3
+    failures:
+      test_failures: 0
+      validation_retries: 1
+      blocked_issues: 1
+    notes: "全面对照 spec.md 自检；修复6项代码结构违规(文件≤200行/函数≤50行)；补建12个轻量冲刺合同；pre-commit零违规；104 tests pass"
 
 # ── 累积统计（每次运行后滚动更新） ──
 cumulative:
-  total_sessions: 1
+  total_sessions: 2
   total_tasks_completed: 0
-  total_duration_min: 25
-  total_tool_calls: 22
+  total_duration_min: 205
+  total_tool_calls: 67
   total_test_failures: 0
-  avg_token_per_session: 30000
+  avg_token_per_session: 75000
   tasks_by_status:
     passing: 0
     blocked: 0
     abandoned: 0
   model_usage:
-    deepseek-v4-pro: 1
+    deepseek-v4-pro: 2
