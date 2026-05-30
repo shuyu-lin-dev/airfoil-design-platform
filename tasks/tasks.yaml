@@ -128,9 +128,9 @@ tasks:
   - id: T002
     title: Common contracts and config
     behavior: 后端具备公共请求响应契约和配置默认值，能拒绝核心非法输入。
-    status: active
+    status: passing
     checklist: default
-    evidence: ""
+    evidence: "pytest 41 passed — 验证 cst_params 12数校验、ratio 0<r<=1、WingPlanform 默认值+硬校验范围、StructureDesign 三字段必填+硬校验范围、MaterialGroup 字段完整性+正数、MaterialProperties skin/internal_structure 可选、ConditionParams、ResultMeta 默认 is_stub/model_version。pre-commit 行数检查通过。"
     depends_on:
       - T001
     allowed_paths:
