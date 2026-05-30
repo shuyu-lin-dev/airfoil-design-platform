@@ -7,9 +7,9 @@
 
 ## 补充验证项
 
-- [ ] 测试通过：`cd backend && pytest`
+- [ ] 测试通过：`cd backend && source .venv/bin/activate && pytest`
 - [ ] 无调试代码残留：临时脚本、print 调试、未说明的半成品
-- [ ] 标准启动路径可用：`cd backend && uvicorn airfoil_platform.main:app --reload`
+- [ ] 标准启动路径可用：`cd backend && source .venv/bin/activate && uvicorn airfoil_platform.main:app --reload`
 - [ ] `.harness/state/working/` 已清理（除 `.gitkeep`）
 - [ ] 阻塞项和下一步已在 `PROGRESS.md` 明确记录
 - [ ] 若涉及领域术语歧义，同步更新 `CONTEXT.md` § Flagged ambiguities

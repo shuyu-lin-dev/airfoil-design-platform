@@ -2,16 +2,18 @@
 
 ## 运行时
 
-- Python：3.11+
-- 虚拟环境：venv（项目本地 `.venv/`）
+- Python：≥3.10（当前 3.10.12，pyproject.toml requires-python 一致）
+- 虚拟环境：venv（`backend/.venv/`）
 - 包管理：pip + pyproject.toml
 
 ## 依赖
 
 - FastAPI + uvicorn（Web 框架）
-- pytest + httpx（测试）
+- pytest + httpx2（测试）
 - h5py（HDF5 artifact 读写）
 - numpy（数值计算）
+- cadquery（三维 CAD 几何生成，可选）
+- CadQuery 2.7.0 内部 `@deprecate` 装饰器产生 FutureWarning，pytest filterwarnings 已抑制
 
 ## 服务
 
@@ -19,13 +21,13 @@
 
 ## 启动序列
 
-1. `python -m venv .venv && source .venv/bin/activate`
-2. `pip install -e .`
-3. `uvicorn airfoil_platform.main:app --reload`
+1. `cd backend && python3.10 -m venv .venv && source .venv/bin/activate`
+2. `pip install -e ".[dev,cad]"`
+3. `source .venv/bin/activate && uvicorn airfoil_platform.main:app --reload`
 
 ## 验证
 
-- `cd backend && pytest`
+- `cd backend && source .venv/bin/activate && pytest`
 
 ## 冷启动自检
 

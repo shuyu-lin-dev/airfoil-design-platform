@@ -270,7 +270,7 @@
 - 否决方案：(1) 全部用轻量合同——复杂任务需要明确排除项和观测信号；(2) 引入 JSON Schema 或结构化检查工具做一致性校验——当前阶段过重。
 - 约束：轻量合同仅用于简单任务；一旦任务涉及 CAD kernel、优化算法或多模块协调，必须用完整合同。FACT-SOURCE 标注是注释约定，不强制机器校验，但 agent 修改约束值时必须验证源头。若任务需要正当超标（如 CAD kernel 初始化代码），需在 DECISIONS.md 中记录例外并说明原因。
 
-## [decision] [draft] 2026-05-29: 多 Agent 并行化预留设计
+## [decision] [verified] 2026-05-29: 多 Agent 并行化预留设计
 
 - 背景：Wiki 多智能体 Git 协作模式提供了 worktree 隔离 + 任务分支 + integration branch 的完整模式。当前项目有意推迟多 Agent（WIP=1），但任务依赖图和路径隔离设计应提前预留并行化接口，避免后续重构。
 - 决策：在 `tasks.yaml` 的 `feature_schema` 中新增 `parallelizable_group` 可选字段——同一 group 内的任务具有相同的 `depends_on` 且 `allowed_paths` 互不相交，可在独立 worktree 中由不同 agent 并行处理。当前单 agent 模式下忽略此字段；多 agent 场景下，group 内的任务由不同 agent 并行执行，通过 integration branch 汇合。

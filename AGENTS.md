@@ -8,11 +8,9 @@
 
 ## 快速开始
 
-后端代码目录尚未创建。当前无 `make` 目标可用，后续任务会逐步建立。
-
-- 安装依赖：待 T001 创建 `backend/pyproject.toml` 后确定。
-- 启动开发：`cd backend && uvicorn airfoil_platform.main:app --reload`
-- 运行测试：`cd backend && pytest`
+- 安装依赖：`cd backend && python3.10 -m venv .venv && source .venv/bin/activate && pip install -e ".[dev,cad]"`
+- 启动开发：`cd backend && source .venv/bin/activate && uvicorn airfoil_platform.main:app --reload`
+- 运行测试：`cd backend && source .venv/bin/activate && pytest`
 - 完整验证：见各任务的 `validation.commands`。
 
 当前状态和下一步见 `PROGRESS.md`。
@@ -45,7 +43,7 @@
 
 ## 会话流程
 
-0. **环境自检**：确认 Python ≥3.11、`.venv/` 已激活、`fastapi` 可导入。任一不满足先搭建环境（见 `.harness/environment/environment.md`）。
+0. **环境自检**：确认 Python ≥3.10、`.venv/` 已激活、`fastapi` 可导入。任一不满足先搭建环境（见 `.harness/environment/environment.md`）。
 1. 读取 `PROGRESS.md`、`DECISIONS.md`、`tasks/tasks.yaml`。`CONTEXT.md` 按需查阅。
 2. 确认当前 `active` 任务；若无，选取下一个 `not_started` 任务。
 3. 阅读/创建对应冲刺合同（`.harness/state/sprint-contracts/`），缺失则先创建。

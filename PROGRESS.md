@@ -8,7 +8,7 @@
 - 测试状态：**104 passed**, 8 warnings（CadQuery FutureWarning + Starlette DeprecationWarning）。
 - 构建状态：FastAPI 应用可启动，所有 12 个 API 端点已注册。
 - 代码结构：**全部 ≤200 行/文件，≤50 行/函数**（pre-commit 检查零违规）。
-- 冲刺合同：**16/16 全覆盖**（T000-T015，含轻量模板）。
+- 冲刺合同：**19/19 全覆盖**（T000-T018，T016-T018 为轻量合同；T018 已撤销）。
 - 当前 active 功能项：无。
 
 ## 已完成
