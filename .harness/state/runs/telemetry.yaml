@@ -60,18 +60,69 @@ runs:
       validation_retries: 1
       blocked_issues: 1
     notes: "全面对照 spec.md 自检；修复6项代码结构违规(文件≤200行/函数≤50行)；补建12个轻量冲刺合同；pre-commit零违规；104 tests pass"
+  - run_id: 2026-05-30-T016
+    task_id: T016
+    status: passing
+    duration_min: 5
+    model: deepseek-v4-pro
+    token_estimate: 3000
+    tool_calls:
+      total: 5
+      file_reads: 1
+      file_edits: 1
+      shell_commands: 2
+      tests_run: 1
+    failures:
+      test_failures: 0
+      validation_retries: 0
+      blocked_issues: 0
+    notes: "httpx→httpx2 消除 StarletteDeprecationWarning；pytest 104 passed, 7 warnings→0 StarletteDeprecationWarning"
+  - run_id: 2026-05-30-T017
+    task_id: T017
+    status: passing
+    duration_min: 3
+    model: deepseek-v4-pro
+    token_estimate: 2000
+    tool_calls:
+      total: 4
+      file_reads: 0
+      file_edits: 1
+      shell_commands: 2
+      tests_run: 1
+    failures:
+      test_failures: 0
+      validation_retries: 0
+      blocked_issues: 0
+    notes: "pytest filterwarnings 抑制 CadQuery 内部 FutureWarning；pytest 104 passed, 0 warnings"
+  - run_id: 2026-05-30-T018
+    task_id: T018
+    status: passing
+    duration_min: 3
+    model: deepseek-v4-pro
+    token_estimate: 2000
+    tool_calls:
+      total: 3
+      file_reads: 0
+      file_edits: 0
+      shell_commands: 2
+      tests_run: 1
+    failures:
+      test_failures: 0
+      validation_retries: 0
+      blocked_issues: 0
+    notes: "删除 serialization/models/optimization 空死目录；pytest 104 passed, 0 warnings"
 
 # ── 累积统计（每次运行后滚动更新） ──
 cumulative:
-  total_sessions: 2
-  total_tasks_completed: 0
-  total_duration_min: 205
-  total_tool_calls: 67
+  total_sessions: 5
+  total_tasks_completed: 3
+  total_duration_min: 216
+  total_tool_calls: 79
   total_test_failures: 0
-  avg_token_per_session: 75000
+  avg_token_per_session: 46400
   tasks_by_status:
-    passing: 0
+    passing: 3
     blocked: 0
     abandoned: 0
   model_usage:
-    deepseek-v4-pro: 2
+    deepseek-v4-pro: 5

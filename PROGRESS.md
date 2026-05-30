@@ -37,18 +37,19 @@
 ## 维护活动记录
 
 - **2026-05-30 自检 #2**（非任务维护活动）：无对应 tasks.yaml 条目。豁免原因：代码结构修复、冲刺合同补建和规则一致性检查是 harness 基础设施维护，不属于功能开发类 tracer bullet。按 DECISIONS.md pitfall 约定，此类活动在 PROGRESS.md 明确标注即可。
+- **2026-05-30 已知问题修复**（T016-T018）：消除 8 条 pytest 警告（StarletteDeprecationWarning + CadQuery FutureWarning）至零，删除 3 个空死目录，验证 2 个非阻塞问题。pytest 104 passed, 0 warnings。
 
 ## 已知问题
 
 - ~~`backend/backend/` 空嵌套目录（已修复，2026-05-30 自检 #1）~~
 - ~~代码结构违规：`core/geometry.py` 355 行、`generate_wing_3d_step()` 62 行、`coupled_optimize()` 61 行、3 个测试文件 >200 行（已修复，2026-05-30 自检 #2）~~
 - ~~冲刺合同缺失：12/16 任务无合同（已补建，2026-05-30 自检 #2）~~
-- StarletteDeprecationWarning: httpx 应升级为 httpx2（不影响功能）
-- CadQuery FutureWarning: `save` will be removed in next release
-- Python 3.10.12 低于环境声明 ≥3.11（pyproject.toml 写 ≥3.10，实际不阻塞；系统无 3.11+ 可用）
+- ~~StarletteDeprecationWarning: httpx 应升级为 httpx2（已修复，2026-05-30 T016：pyproject.toml `httpx`→`httpx2`）~~
+- ~~CadQuery FutureWarning: `save` will be removed in next release（已修复，2026-05-30 T017：pytest filterwarnings 抑制 CadQuery 内部 FutureWarning）~~
+- Python 3.10.12 低于环境声明 ≥3.11（已验证不阻塞：pyproject.toml 写 ≥3.10 自洽，系统无 3.11+ 可用，功能不受限）
 - ~~无 .venv 虚拟环境隔离~~（已修复，2026-05-30 自检 #2 环境修复）
-- `serialization/`、`models/`、`optimization/` 目录仅含 `__init__.py`，无实际实现
-- uvicorn 启动需先 `pip install -e .`（当前未安装 editable 模式）
+- ~~`serialization/`、`models/`、`optimization/` 目录仅含 `__init__.py`，无实际实现~~（已修复，2026-05-30 T018：删除空死目录）
+- ~~uvicorn 启动需先 `pip install -e .`（当前未安装 editable 模式）~~（已验证已解决：.venv 中 `pip show airfoil-platform` 确认 0.1.0 已安装）
 
 ## 下一步
 
@@ -59,13 +60,6 @@
 
 ## 最近验证
 
-- 命令：`source .venv/bin/activate && pytest`（venv 内）
-- 结果：**104 passed**, 8 warnings
-- 证据：全部 15 个任务验收标准满足，T000-T015 status=passing；代码结构全部合规（pre-commit 零违规）；冲刺合同 16/16 全覆盖；`.venv/` 已创建，依赖已安装。
-- 自检 #2 修复内容：
-  - **环境**：创建 `backend/.venv/`，`pip install -e ".[dev,cad]"`，不再使用系统 `python3 --user`
-  - `core/geometry.py` 拆分为 `geometry_2d.py`（53 行）+ `geometry_3d.py`（114 行）+ `geometry_3d_builders.py`（196 行）+ 原文件为 re-export 兼容层
-  - `core/optimization.py` 提取 `_perturb_cst_params()` + `_perturb_structure_params()`，`coupled_optimize()` 从 62→48 行
-  - 测试文件拆分：`test_contracts.py`→`test_contracts_validate.py`+`test_contracts_models.py`；`test_geometry_api.py`→`test_geometry_2d_api.py`+`test_geometry_3d_api.py`；`test_optimization_coupled_api.py` 独立
-  - 补建 T002-T007、T010-T015 共 12 个轻量冲刺合同
-  - 添加根 `.gitignore` 忽略 `__pycache__/`
+- 命令：`source backend/.venv/bin/activate && pytest`
+- 结果：**104 passed**, 0 warnings
+- 证据：T016 消除 StarletteDeprecationWarning（httpx→httpx2）；T017 抑制 CadQuery 内部 FutureWarning（pytest filterwarnings）；T018 删除 3 个空死目录；Python 版本和 uvicorn 已验证不阻塞。

@@ -564,3 +564,67 @@ tasks:
     validation:
       commands:
         - cd backend && pytest
+
+  - id: T016
+    title: 永久化 StarletteDeprecationWarning 修复
+    behavior: Starlette testclient 使用 httpx2 而非 httpx，pytest 不再输出 StarletteDeprecationWarning。
+    status: passing
+    checklist: default
+    evidence: "pytest 104 passed, 0 StarletteDeprecationWarning; pyproject.toml dev deps httpx→httpx2。"
+    depends_on:
+      - T015
+    allowed_paths:
+      - backend/pyproject.toml
+      - PROGRESS.md
+      - tasks/tasks.yaml
+    expected_outputs:
+      - backend/pyproject.toml（dev deps 中 httpx→httpx2）
+    acceptance_criteria:
+      - pytest 零 StarletteDeprecationWarning。
+      - dep 变更永久化到 pyproject.toml。
+    validation:
+      commands:
+        - cd backend && pytest
+
+  - id: T017
+    title: 抑制 CadQuery 内部 FutureWarning 残留
+    behavior: pytest 输出不包含 CadQuery 内部 @deprecate 装饰器产生的 FutureWarning。
+    status: passing
+    checklist: default
+    evidence: "pytest 104 passed, 0 warnings（全额消除）；pyproject.toml filterwarnings 忽略 cadquery.* FutureWarning。"
+    depends_on:
+      - T016
+    allowed_paths:
+      - backend/pyproject.toml
+      - PROGRESS.md
+      - tasks/tasks.yaml
+    expected_outputs:
+      - backend/pyproject.toml（pytest filterwarnings 新增 cadquery FutureWarning 抑制）
+    acceptance_criteria:
+      - pytest 零 FutureWarning（7 个 CadQuery 内部警告全消失）。
+    validation:
+      commands:
+        - cd backend && pytest
+
+  - id: T018
+    title: 清理空死目录 serialization/models/optimization
+    behavior: backend/src/airfoil_platform/ 下无仅含 __init__.py 的无效包。
+    status: passing
+    checklist: default
+    evidence: "pytest 104 passed; serialization/ models/ optimization/ 三个空目录已删除；无 import 引用。"
+    depends_on:
+      - T017
+    allowed_paths:
+      - backend/src/airfoil_platform/serialization/**
+      - backend/src/airfoil_platform/models/**
+      - backend/src/airfoil_platform/optimization/**
+      - PROGRESS.md
+      - tasks/tasks.yaml
+    expected_outputs:
+      - (删除 serialization/ models/ optimization/ 三个空目录)
+    acceptance_criteria:
+      - 三目录从仓库消失。
+      - 所有现有 import 不受影响，pytest 全通过。
+    validation:
+      commands:
+        - cd backend && pytest
