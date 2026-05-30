@@ -100,7 +100,7 @@ tasks:
   - id: T001
     title: Backend skeleton
     behavior: 后端调用者可以通过 FastAPI TestClient 访问健康检查，并能运行最小测试命令。
-    status: not_started
+    status: active
     checklist: default
     evidence: ""
     depends_on:
