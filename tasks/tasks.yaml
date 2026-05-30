@@ -159,9 +159,9 @@ tasks:
   - id: T003
     title: Geometry 2D API
     behavior: 后端调用者提交 12 个 CST 参数后，可以获得 200 个二维翼型点和结果元信息。
-    status: active
+    status: passing
     checklist: default
-    evidence: ""
+    evidence: "pytest 52 passed — 验证 POST /geometry/airfoil-2d 接收 12 CST 参数、返回 200 个二维翼型点（前 100 上表面+后 100 下表面）、前后缘闭合、x单调递增、is_stub/model_version 正确、非法 cst_params 数量返回 422。"
     depends_on:
       - T002
     parallelizable_group: post-t002

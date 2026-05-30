@@ -40,17 +40,36 @@ runs:
       blocked_issues: 0
     notes: "test_contracts.py 初始256行超限，拆分为 test_contracts.py(176行)+test_contracts_material.py(88行)"
 
+  - run_id: 2026-05-30-T003
+    task_id: T003
+    status: passing
+    duration_min: 12
+    model: deepseek-v4-pro
+    token_estimate: 8000
+    tool_calls:
+      total: 16
+      file_reads: 10
+      file_edits: 5
+      file_writes: 8
+      shell_commands: 7
+      tests_run: 2
+    failures:
+      test_failures: 0
+      validation_retries: 0
+      blocked_issues: 0
+    notes: "CST 纯数学实现(math.comb)，零后缘厚度，cosine spacing x分布。11 个测试全部首次通过。"
+
 # ── 累积统计 ──
 cumulative:
-  total_sessions: 2
-  total_tasks_completed: 2
-  total_duration_min: 35
-  total_tool_calls: 40
+  total_sessions: 3
+  total_tasks_completed: 3
+  total_duration_min: 47
+  total_tool_calls: 56
   total_test_failures: 0
-  avg_token_per_session: 13500
+  avg_token_per_session: 11667
   tasks_by_status:
-    passing: 2
+    passing: 3
     blocked: 0
     abandoned: 0
   model_usage:
-    deepseek-v4-pro: 2
+    deepseek-v4-pro: 3
