@@ -37,7 +37,23 @@
       "Bash(find /home/lsy/workspace/notes/wiki/ -type f -iname '*agent*' 2>/dev/null)",
       "Bash(find /home/lsy/workspace/notes/wiki/ -type f -iname '*harness*' 2>/dev/null)",
       "Bash(grep -rl -i 'agent' /home/lsy/workspace/notes/wiki/ --include='*' 2>/dev/null)",
-      "Bash(grep -rl -i 'harness' /home/lsy/workspace/notes/wiki/ --include='*' 2>/dev/null)"
+      "Bash(grep -rl -i 'harness' /home/lsy/workspace/notes/wiki/ --include='*' 2>/dev/null)",
+      "Bash(python3.10 --version *)",
+      "Bash(python3.10 *)",
+      "Bash(source .venv/bin/activate && timeout *)",
+      "Bash(timeout *)",
+      "Bash(ls *)",
+      "Bash(pwd *)",
+      "Bash(find . *)",
+      "Bash(find backend *)",
+      "Bash(find /home/lsy/workspace/dev/airfoil-design-platform *)",
+      "Bash(grep *)",
+      "Bash(wc *)",
+      "Bash(cat *)",
+      "Bash(test *)",
+      "Bash(echo *)",
+      "Bash(rm .harness/state/working/*)",
+      "Bash(rm /home/lsy/workspace/dev/airfoil-design-platform/.harness/state/working/*)"
     ]
   }
 }

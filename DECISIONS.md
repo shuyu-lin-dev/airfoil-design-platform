@@ -36,3 +36,15 @@
 **原因**：`cd backend && source .venv/bin/activate && pytest --tb=short 2>&1` 无法匹配 `Bash(source .venv/bin/activate && pytest *)`，因为规则从命令首字符开始做前缀匹配，`cd` 破坏了前缀。每次执行都要人批权限。
 
 **影响**：`.claude/settings.json` 已补 `cd backend && source .venv/bin/activate && *` 系列规则。agent 工作流规则中增加约定——后端测试/启动命令统一先 `cd backend` 改变 CWD，再执行无需 cd 前缀的命令。
+
+### 2026-05-30 — Bash 权限规则覆盖缺口补全（三层根因）
+
+**决策**：T003 执行过程中发现，即使已修复 `cd backend &&` 前缀问题，仍有 8 条命令触发人工审批。根因有三层：
+
+1. **无 wildcard 后缀的规则被 `2>&1` 破坏**：`Bash(python3.10 --version)` 无法匹配 `python3.10 --version 2>&1`，因为规则不含 `*` 后缀，`2>&1` 被视为命令的一部分导致前缀匹配失败。修复：所有固定命令规则追加 `*` 后缀。
+2. **缺少 `timeout` 前缀规则**：`timeout 3 uvicorn ...` 和 `source .venv/bin/activate && timeout 3 uvicorn ...` 无任何规则覆盖。修复：新增 `Bash(timeout *)` 和 `Bash(source .venv/bin/activate && timeout *)`。
+3. **缺少基础开发工具规则**：`ls`、`pwd`、`find`、`grep`、`wc`、`cat`、`test`、`echo` 等日常开发命令无覆盖，每次均需审批。修复：新增上述命令的允许规则。
+
+**原因**：上一轮修复只关注了 `cd backend &&` 前缀问题（CWD 层），未审查规则覆盖度（规则完备性层）和 wildcard 使用规范（匹配语义层）。三层独立但叠加作用，导致实际体验改善有限。
+
+**影响**：`.claude/settings.json` 新增 17 条规则，覆盖 venv 激活后的 timeout 命令、python3.10 所有子命令和常用开发工具命令。规则总数从 34 增至 51。
