@@ -38,6 +38,7 @@
 
 - **2026-05-30 自检 #2**（非任务维护活动）：无对应 tasks.yaml 条目。豁免原因：代码结构修复、冲刺合同补建和规则一致性检查是 harness 基础设施维护，不属于功能开发类 tracer bullet。按 DECISIONS.md pitfall 约定，此类活动在 PROGRESS.md 明确标注即可。
 - **2026-05-30 已知问题修复**（T016-T018）：消除 8 条 pytest 警告（StarletteDeprecationWarning + CadQuery FutureWarning）至零，删除 3 个空死目录，验证 2 个非阻塞问题。pytest 104 passed, 0 warnings。**自评违规**：Plan 获批后跳过了"先在 tasks.yaml 新建任务条目"这步，直接写代码并在三任务全部 commit 后才批量补更 tasks.yaml/PROGRESS.md/telemetry。违反了任务完成协议"禁止批量补更 tracking"的约束。详情见 DECISIONS.md pitfall 和 `.harness/state/runs/2026-05-30-learnings-3.md`。
+- **2026-05-30 权限清单精简**：`.claude/settings.json` 删 19 条全局 `python3`/`python`/裸 `pytest` 权限，新增 10 条 venv 上下文安全命令。核心原则：只允许 venv 隔离环境内操作，禁止使用系统全局 Python。详见 `.harness/tool/tool-manifest.md`。
 
 ## 已知问题
 
