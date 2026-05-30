@@ -333,6 +333,7 @@
 - 根因：**tasks.yaml 被当成"事后归档文档"而非"事前任务模型"**。Plan 获批后的心理状态是"可以开始写代码"，而正确的下一步是"先将 plan 中的任务条目写入 tasks.yaml（事实源），再开始写代码"。这是 `[pitfall] 2026-05-29` 的变体——上次是"验证=完成"，这次是"plan 获批=可以跳过 tracking 直接编码"。
 - 纠正措施：Plan 获批后的第一个动作必须是：将 plan 中拆分的任务条目添加至 tasks.yaml（status=`active` 或 `not_started`）并提交。此后才能开始第一个任务的代码实现。tasks.yaml 是执行的前置依赖，不是执行后的归档。
 - 约束：此规则即刻生效。无 tasks.yaml 条目 = 无任务执行权。
+- 补充发现（同 session）：PROGRESS.md「进行中」在 T016-T018 整个执行期间始终为 `无`。该字段应在**任务开始时**更新为活动任务 ID，**任务完成时**移入「已完成」——它是跨会话断点定位的核心字段。措施：任务开始第一步 = 更新 PROGRESS.md 进行中 + tasks.yaml status→active；任务完成最后一步 = 更新 PROGRESS.md 进行中→已完成/无。
 
 ## [decision] [verified] 2026-05-30: ADR 目录从 .harness/instruction/adr/ 迁移到 docs/adr/
 

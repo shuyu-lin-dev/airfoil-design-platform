@@ -40,6 +40,7 @@
 - **2026-05-30 已知问题修复**（T016-T018）：消除 8 条 pytest 警告（StarletteDeprecationWarning + CadQuery FutureWarning）至零，删除 3 个空死目录，验证 2 个非阻塞问题。pytest 104 passed, 0 warnings。**自评违规**：Plan 获批后跳过了"先在 tasks.yaml 新建任务条目"这步，直接写代码并在三任务全部 commit 后才批量补更 tasks.yaml/PROGRESS.md/telemetry。违反了任务完成协议"禁止批量补更 tracking"的约束。详情见 DECISIONS.md pitfall 和 `.harness/state/runs/2026-05-30-learnings-3.md`。
 - **2026-05-30 权限清单精简**：`.claude/settings.json` 删 19 条全局 `python3`/`python`/裸 `pytest` 权限，新增 10 条 venv 上下文安全命令。核心原则：只允许 venv 隔离环境内操作，禁止使用系统全局 Python。详见 `.harness/tool/tool-manifest.md`。
 - **2026-05-30 ADR 目录迁移**：`.harness/instruction/adr/` → `docs/adr/`，提高决策可发现性。引用路径全部更新（AGENTS.md、bootstrap-contract.md、knowledge-index.md、artifact-policy.md）。见 DECISIONS.md 对应决策。
+- **2026-05-30 PROGRESS.md「进行中」自评**：用户指出 T016-T018 执行期间「进行中」始终为 `无`。该字段应在任务开始时更新为活动任务 ID，任务完成时移入「已完成」——它是跨会话断点定位的核心字段，不能永远是 `无`。详情见 `learnings-3.md`。
 
 ## 已知问题
 
