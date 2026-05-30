@@ -1,6 +1,6 @@
 # Artifact 策略
 
-本文定义后端 MVP 的 HDF5 与 STEP artifact 规则。架构决策背景见 `.harness/instruction/adr/0001-store-field-data-as-hdf5-artifacts.md` 和 `.harness/instruction/adr/0002-generate-structural-wing-geometry-as-step-artifacts.md`。
+本文定义后端 MVP 的 HDF5 与 STEP artifact 规则。架构决策背景见 `docs/adr/0001-store-field-data-as-hdf5-artifacts.md` 和 `docs/adr/0002-generate-structural-wing-geometry-as-step-artifacts.md`。
 
 ## REST JSON 边界
 

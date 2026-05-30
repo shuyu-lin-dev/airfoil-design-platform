@@ -22,7 +22,7 @@
 - `DECISIONS.md`：设计决策记录。
 - `tasks/tasks.yaml`：功能清单和任务契约。
 - `docs/`：规格和 API 契约。
-- `.harness/instruction/`：初始化契约、规则（rules/）和架构决策（adr/）。
+- `.harness/instruction/`：初始化契约、规则（rules/）。
 - `.harness/feedback/`：完成定义和退出检查清单。
 - `.harness/state/`：冲刺合同和运行记录。
 - `.harness/environment/`：环境声明和启动脚本。

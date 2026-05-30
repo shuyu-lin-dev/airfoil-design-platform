@@ -333,3 +333,11 @@
 - 根因：**tasks.yaml 被当成"事后归档文档"而非"事前任务模型"**。Plan 获批后的心理状态是"可以开始写代码"，而正确的下一步是"先将 plan 中的任务条目写入 tasks.yaml（事实源），再开始写代码"。这是 `[pitfall] 2026-05-29` 的变体——上次是"验证=完成"，这次是"plan 获批=可以跳过 tracking 直接编码"。
 - 纠正措施：Plan 获批后的第一个动作必须是：将 plan 中拆分的任务条目添加至 tasks.yaml（status=`active` 或 `not_started`）并提交。此后才能开始第一个任务的代码实现。tasks.yaml 是执行的前置依赖，不是执行后的归档。
 - 约束：此规则即刻生效。无 tasks.yaml 条目 = 无任务执行权。
+
+## [decision] [verified] 2026-05-30: ADR 目录从 .harness/instruction/adr/ 迁移到 docs/adr/
+
+- 背景：ADR（架构决策记录）之前放在 `.harness/instruction/adr/` 中，属于 harness 内部目录。用户指出 ADR 应放在 `docs/adr/` 便于查阅和决策追溯。
+- 决策：将 `0001-store-field-data-as-hdf5-artifacts.md` 和 `0002-generate-structural-wing-geometry-as-step-artifacts.md` 从 `.harness/instruction/adr/` 迁移到 `docs/adr/`，删除旧目录，更新所有引用路径。
+- 原因：`docs/` 是项目文档的自然入口，ADRs 放在这里可发现性更高；`.harness/instruction/` 更适合放规则和工作流指引，而非业务架构决策。
+- 否决方案：保持原位，或在两处各放一份副本。
+- 约束：后续新增 ADR 一律放入 `docs/adr/`，按 `NNNN-title.md` 编号。引用 ADR 时使用 `docs/adr/` 路径。
