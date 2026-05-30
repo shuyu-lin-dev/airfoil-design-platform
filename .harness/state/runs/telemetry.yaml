@@ -111,18 +111,35 @@ runs:
       validation_retries: 0
       blocked_issues: 0
     notes: "删除 serialization/models/optimization 空死目录；pytest 104 passed, 0 warnings"
+  - run_id: 2026-05-30-grill-with-docs
+    task_id: maintenance    # grill-with-docs 设计审查 — 目录结构澄清
+    status: passing
+    duration_min: 60
+    model: deepseek-v4-pro
+    token_estimate: 40000
+    tool_calls:
+      total: 25
+      file_reads: 12
+      file_edits: 5
+      shell_commands: 6
+      tests_run: 0
+    failures:
+      test_failures: 0
+      validation_retries: 0
+      blocked_issues: 0
+    notes: "grill-with-docs 会话：决定删除 serialization/；models/ optimization/ 采用工厂模式；更新 7 个文档 + 新建 ADR 0003；git commit 9ff579c"
 
 # ── 累积统计（每次运行后滚动更新） ──
 cumulative:
-  total_sessions: 5
+  total_sessions: 6
   total_tasks_completed: 3
-  total_duration_min: 216
-  total_tool_calls: 79
+  total_duration_min: 276
+  total_tool_calls: 104
   total_test_failures: 0
-  avg_token_per_session: 46400
+  avg_token_per_session: 44000
   tasks_by_status:
     passing: 3
     blocked: 0
     abandoned: 0
   model_usage:
-    deepseek-v4-pro: 5
+    deepseek-v4-pro: 6
