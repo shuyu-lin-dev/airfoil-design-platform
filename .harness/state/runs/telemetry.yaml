@@ -78,17 +78,36 @@ runs:
       blocked_issues: 0
     notes: "h5py 已在 venv 中，无新增依赖。纯 Python 测试（不含 HTTP API），10 个新测试首次全部通过。代码结构合规（最长 41 行）。"
 
+  - run_id: 2026-06-01-T005
+    task_id: T005
+    status: passing
+    duration_min: 8
+    model: deepseek-v4-pro
+    token_estimate: 10000
+    tool_calls:
+      total: 16
+      file_reads: 10
+      file_edits: 8
+      file_writes: 3
+      shell_commands: 6
+      tests_run: 2
+    failures:
+      test_failures: 0
+      validation_retries: 0
+      blocked_issues: 0
+    notes: "GET /artifacts/{id} 从 sidecar 读元信息，GET /artifacts/{id}/download 返回 FileResponse。5 个新测试首次全部通过，全量 67 passed。"
+
 # ── 累积统计 ──
 cumulative:
-  total_sessions: 4
-  total_tasks_completed: 4
-  total_duration_min: 52
-  total_tool_calls: 70
+  total_sessions: 5
+  total_tasks_completed: 5
+  total_duration_min: 60
+  total_tool_calls: 86
   total_test_failures: 0
-  avg_token_per_session: 10750
+  avg_token_per_session: 10600
   tasks_by_status:
-    passing: 4
+    passing: 5
     blocked: 0
     abandoned: 0
   model_usage:
-    deepseek-v4-pro: 4
+    deepseek-v4-pro: 5

@@ -222,15 +222,16 @@ tasks:
   - id: T005
     title: Artifact query and download API
     behavior: 后端调用者可通过 artifact_id 查询 artifact 元信息和下载 artifact 文件内容。
-    status: not_started
+    status: passing
     checklist: default
-    evidence: ""
+    evidence: "pytest 67 passed — 验证 GET /artifacts/{id} 从 JSON sidecar 返回元信息（artifact_id/format/role/status/datasets）、不依赖内存 registry（磁盘修改后响应反映变更）、GET /artifacts/{id}/download 返回 HDF5 文件（h5py 回读验证 dataset shape 一致）、不存在 artifact 返回 404。"
     depends_on:
       - T004
     parallelizable_group: post-t004
     allowed_paths:
       - backend/src/airfoil_platform/api/artifacts.py
       - backend/src/airfoil_platform/contracts/artifacts.py
+      - backend/src/airfoil_platform/main.py
       - backend/tests/test_artifacts_api.py
       - .harness/state/sprint-contracts/T005-*.md
       - PROGRESS.md
