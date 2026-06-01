@@ -36,8 +36,8 @@
 - `docs/backend-mvp-full-spec.md`：完整后端 MVP 原始规格。
 - `docs/adr/`：架构决策记录。
 - `.harness/instruction/`：规则文件（rules/）。
-- `.harness/feedback/`：会话退出检查清单。
-- `.harness/state/`：冲刺合同和会话运行记录。
+- `.harness/feedback/`：完成定义和会话退出检查清单。
+- `.harness/state/`：冲刺合同、运行记录和历史归档。
 - `.harness/environment/`：环境声明和启动脚本。
 - `.harness/tool/`：pre-commit 自动检查脚本。
 

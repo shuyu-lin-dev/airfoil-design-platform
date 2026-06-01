@@ -56,7 +56,7 @@
 
 ## 任务完成协议（硬性，不可跳步）
 
-每完成一个任务，按以下顺序执行。任一步未完成，任务不得标记为 `passing`。这是唯一事实源——`session-exit-checklist.md` 提供补充核对项，但本协议定义完成流程。
+每完成一个任务，按以下顺序执行。任一步未完成，任务不得标记为 `passing`。本协议定义完成流程（执行步骤），质量门槛见 `.harness/feedback/definition-of-done.md`（完成标准），退出核对项见 `session-exit-checklist.md`（自检清单）。
 
 1. **验证**：运行 `validation.commands`（通常是 `cd backend && pytest`），确认全部通过。
 2. **提交代码**：`git add` + `git commit`，仅包含实现文件，message 格式 `feat/fix: <标题> (T00X)`。
