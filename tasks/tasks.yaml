@@ -192,9 +192,9 @@ tasks:
   - id: T004
     title: Artifact infrastructure with HDF5 store
     behavior: 后端具备格式无关的 artifact 注册中心，支持 HDF5 文件写入、JSON sidecar 落盘和元信息查询。
-    status: not_started
+    status: passing
     checklist: default
-    evidence: ""
+    evidence: "pytest 62 passed — 验证 artifact_id 生成（确定性、键序无关、12 hex chars）、HDF5 写入（/coordinates /fields/pressure /fields/velocity 三 dataset 回读一致）、JSON sidecar 同步落盘（artifact_id/format/role/status/datasets）、ArtifactRegistry 注册+cache 查询+sidecar 回退、目录自动创建。纯 Python 测试，不依赖 HTTP API。"
     depends_on:
       - T002
     parallelizable_group: post-t002
