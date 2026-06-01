@@ -135,17 +135,36 @@ runs:
       blocked_issues: 0
     notes: "step_store.py 首次忘记 import cadquery as cq 导致 NameError，修复后 4 个测试全部通过。全量 81 passed。"
 
+  - run_id: 2026-06-01-T008
+    task_id: T008
+    status: passing
+    duration_min: 15
+    model: deepseek-v4-pro
+    token_estimate: 18000
+    tool_calls:
+      total: 20
+      file_reads: 8
+      file_edits: 15
+      file_writes: 5
+      shell_commands: 10
+      tests_run: 4
+    failures:
+      test_failures: 2
+      validation_retries: 2
+      blocked_issues: 0
+    notes: "3D CAD 生成最复杂任务。遇到：1) 轮廓点 TE 重复导致 StdFail_NotDone，修复为 upper_pts[:-1]+lower_reversed；2) generate_wing_3d() 55行超限，提取 _save_assembly_and_sidecar()；3) cq.exporters.export() 不支持 Assembly，保留 assy.save()。全量 88 passed。"
+
 # ── 累积统计 ──
 cumulative:
-  total_sessions: 7
-  total_tasks_completed: 7
-  total_duration_min: 69
-  total_tool_calls: 108
-  total_test_failures: 1
-  avg_token_per_session: 10285
+  total_sessions: 8
+  total_tasks_completed: 8
+  total_duration_min: 84
+  total_tool_calls: 128
+  total_test_failures: 3
+  avg_token_per_session: 11000
   tasks_by_status:
-    passing: 7
+    passing: 8
     blocked: 0
     abandoned: 0
   model_usage:
-    deepseek-v4-pro: 7
+    deepseek-v4-pro: 8

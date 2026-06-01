@@ -75,6 +75,14 @@
 
 **决策**：后端 API 行为测试不再直接依赖 Starlette `TestClient`，改用 `backend/tests/api_client.py` 中的最小同步 ASGI 客户端。依赖范围同步收紧为 `fastapi>=0.110,<0.116`、`starlette>=0.37.2,<0.42`、`httpx>=0.27,<0.28`、`anyio>=3.7,<4`。
 
-**原因**：当前环境中 `anyio.from_thread.start_blocking_portal().call(...)` 会超时，Starlette `TestClient` 依赖该线程桥，导致 `TestClient(app).get("/health")` 挂住。直接 ASGI 调用可覆盖项目当前需要的 API 行为测试，不引入线程桥。
+**原因**：当前环境中 `anyio.from_thread.start_blocking_portal().call(...)` 会超时
+
+### 2026-06-01 — cadquery Assembly 导出使用 save() 而非 exporters.export()
+
+**决策**：`geometry_service.py` 中的 `_save_assembly_and_sidecar()` 使用 `assy.save(path)` 导出 STEP，而不是 `cq.exporters.export(assy, path)`。cadquery 2.7 中 `exporters.export()` 的 DispatchError 不支持 Assembly 类型的 multi-compound 导出。
+
+**原因**：`cq.exporters.export()` 期望单个 Shape/Workplane 对象，Assembly 内部以 tuple 形式组织子组件，exporter 无法识别。`save()` 方法虽在 2.7 中标记 FutureWarning，但目前是唯一能保留组件名称的 Assembly STEP 导出方式。
+
+**影响**：后续 cadquery 版本升级时需关注 `save()` 的替代方案（如 `exportAssembly()` 独立 API）。，Starlette `TestClient` 依赖该线程桥，导致 `TestClient(app).get("/health")` 挂住。直接 ASGI 调用可覆盖项目当前需要的 API 行为测试，不引入线程桥。
 
 **影响**：现有 health 和 geometry API 测试恢复为稳定快速回归。后续新增 API 测试优先复用项目内 `SyncASGIClient`；若未来需要 WebSocket、streaming 或 lifespan 语义，再单独扩展测试客户端或重新评估 Starlette TestClient。

@@ -317,9 +317,9 @@ tasks:
   - id: T008
     title: Geometry 3D API
     behavior: 后端调用者提交翼型、机翼平面和结构设计输入后，可以获得结构 STEP artifact。
-    status: not_started
+    status: passing
     checklist: default
-    evidence: ""
+    evidence: "pytest 88 passed — 验证 POST /geometry/wing-3d 返回 geometry_artifact(format=step/role=structural_step)、STEP 文件存在且非空、cq 回读 findSolid() 成功、组件覆盖 skin/front_spar/rear_spar/rib_*、外包盒 chord~1.0m+zmax~5.0m(span/2)、rib_spacing=0.5→11 ribs、无效结构参数→422。"
     depends_on:
       - T007
       - T003
@@ -329,6 +329,7 @@ tasks:
       - backend/src/airfoil_platform/core/geometry.py
       - backend/src/airfoil_platform/services/geometry_service.py
       - backend/tests/test_geometry_api.py
+      - backend/tests/test_geometry_3d_api.py
       - backend/pyproject.toml
       - .harness/state/sprint-contracts/T008-*.md
       - PROGRESS.md
