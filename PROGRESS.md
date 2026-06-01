@@ -24,7 +24,8 @@
 - 2026-06-01 T006 验证通过：77 passed，代码结构合规。
 - T007 STEP artifact store — write_step_artifact() 写入 STEP + sidecar + ArtifactRegistry 查询。
 - T008 Geometry 3D API — POST /geometry/wing-3d cadquery 生成右半翼蒙皮/梁/肋 STEP 装配。
-- 2026-06-01 T008 验证通过：88 passed，代码结构合规。
+- T009 Structure prediction API — POST /structure/predict stub 计算 max_stress+weight。
+- 2026-06-01 T009 验证通过：92 passed，代码结构合规。
 
 ## 进行中
 
@@ -32,7 +33,7 @@
 
 ## 下一步
 
-1. T009 Structure prediction API — 强度预测，返回 max_stress 和 weight。
+1. T010 Aerodynamic optimization API — 气动优化，返回优化前后 CST 参数和升阻比对比。
 
 ## 最近验证
 

@@ -362,9 +362,9 @@ tasks:
   - id: T009
     title: Structure prediction API
     behavior: 后端调用者提交三维机翼相关输入后，可以获得应力极值和重量结果。
-    status: not_started
+    status: passing
     checklist: default
-    evidence: ""
+    evidence: "pytest 92 passed — 验证 POST /structure/predict 返回 max_stress>0(Pa)+weight>0(N)、默认材料缺省可用、自定义材料接受、缺 structure_design→422、is_stub/model_version 正确。"
     depends_on:
       - T002
     parallelizable_group: post-t002
