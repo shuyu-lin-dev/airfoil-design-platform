@@ -35,11 +35,11 @@
 - `docs/api-contracts.md`：API 输入输出契约摘要。
 - `docs/backend-mvp-full-spec.md`：完整后端 MVP 原始规格。
 - `docs/adr/`：架构决策记录。
-- `.harness/instruction/`：初始化契约、规则（rules/）和模板符合性检查。
-- `.harness/feedback/`：完成定义和会话退出检查清单。
+- `.harness/instruction/`：规则文件（rules/）。
+- `.harness/feedback/`：会话退出检查清单。
 - `.harness/state/`：冲刺合同和会话运行记录。
 - `.harness/environment/`：环境声明和启动脚本。
-- `.harness/tool/`：工具权限和 CI 配置。
+- `.harness/tool/`：pre-commit 自动检查脚本。
 
 ## 会话流程
 

@@ -48,3 +48,16 @@
 **原因**：上一轮修复只关注了 `cd backend &&` 前缀问题（CWD 层），未审查规则覆盖度（规则完备性层）和 wildcard 使用规范（匹配语义层）。三层独立但叠加作用，导致实际体验改善有限。
 
 **影响**：`.claude/settings.json` 新增 17 条规则，覆盖 venv 激活后的 timeout 命令、python3.10 所有子命令和常用开发工具命令。规则总数从 34 增至 51。
+
+### 2026-05-31 — Harness 精简：T003 复盘驱动的一轮清理
+
+**决策**：基于 T003 执行复盘，识别出 harness 中 13/22 文件存在冗余/过期/错误信息。执行以下清理：
+
+- **删除 5 个文件**：`definition-of-done.md`（与 agent-workflow.md 完成协议争当权威）、`tool-manifest.md`（含错误 auto-allow 声明且与 settings.json 不同步）、`knowledge-index.md`（与 AGENTS.md 冗余）、`bootstrap-contract.md`（T000 历史快照，完全过期）、`_TEMPLATE-light.md`（从未被使用）。
+- **归档 1 个文件**：`template-compliance.md` → `.harness/state/runs/`（一次性审计记录，非运行时指导）。
+- **修正 3 处不一致**：agent-workflow.md Python 版本 3.11→3.10；完成协议 9→10 步（增加"提交状态"步骤以反映实际的双 commit 模式）；tasks.yaml checklist "单任务单 commit"→"代码变更单 commit + 状态文件 chore commit"。
+- **新增 allowed_paths 检查门**：`pre-commit-check.py` 增加 `check_allowed_paths()`，在 commit 时对活跃任务的 staged files 做 allowed_paths 匹配检查（warn-only，暂不阻断）。
+
+**原因**：T003 复盘暴露了三个问题——(1) 条件规则文件（io-hygiene/artifact-policy）被误判为 dead，但实际属于"本轮未激活"；(2) `allowed_paths` 靠文字规则约束，无自动执行，T003 commit 实际触碰了未在允许列表的 `__init__.py` 和 sprint contract；(3) `tool-manifest.md` 包含错误信息（声称 ls/find/grep 等已 auto-allow）。
+
+**影响**：harness 文件从 22 减至 16 个活跃文件（不含 runs/ 归档和 __pycache__），AGENTS.md 专题文档索引同步更新。pre-commit hook 新增 allowed_paths warn-only 检查。

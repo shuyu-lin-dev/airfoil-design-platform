@@ -30,7 +30,7 @@ feature_schema:
   checklist_note: checklist 继承自 default_checklist，任务可通过 checklist_overrides 追加或移除项。标记 passing 前必须逐项确认为 [x]。
 default_checklist:
   - pytest 通过
-  - git commit（单任务单 commit）
+  - git commit（代码变更单 commit + 状态文件 chore commit）
   - tasks.yaml status + evidence 更新
   - PROGRESS.md 更新
   - DECISIONS.md 补充（若有新决策/依赖/pitfall）

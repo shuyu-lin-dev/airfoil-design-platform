@@ -56,23 +56,24 @@
 
 ## 任务完成协议（硬性，不可跳步）
 
-每完成一个任务，按以下顺序执行。任一步未完成，任务不得标记为 `passing`。这是唯一事实源——`definition-of-done.md` 和 `session-exit-checklist.md` 提供补充细节，但本协议定义完成流程。
+每完成一个任务，按以下顺序执行。任一步未完成，任务不得标记为 `passing`。这是唯一事实源——`session-exit-checklist.md` 提供补充核对项，但本协议定义完成流程。
 
 1. **验证**：运行 `validation.commands`（通常是 `cd backend && pytest`），确认全部通过。
-2. **提交**：`git add` + `git commit`，单任务单 commit，message 格式 `feat/fix: <标题> (T00X)`。
+2. **提交代码**：`git add` + `git commit`，仅包含实现文件，message 格式 `feat/fix: <标题> (T00X)`。
 3. **状态**：更新 `tasks/tasks.yaml` 中当前任务的 `status` 为 `passing`、`evidence` 为验证结果摘要。
 4. **进度**：更新 `PROGRESS.md` 的当前状态、已完成、最近验证和下一步。
 5. **决策**：若涉及新依赖、架构选择或用户纠正，补充 `DECISIONS.md`。
 6. **学习**：若发现新陷阱、反模式或规则冲突，写入 `.harness/state/runs/YYYY-MM-DD-learnings.md`。
 7. **遥测**：填写 `.harness/state/runs/telemetry.yaml` 的本次 run 记录。
-8. **清理**：清除 `.harness/state/working/` 中本任务的临时文件（`.gitkeep` 保留）。
-9. **自检**：对照 `.harness/feedback/session-exit-checklist.md` 确认无遗漏。
+8. **提交状态**：`git add` + `git commit` 步骤 3–7 更新的跟踪文件，message 格式 `chore: <T00X> 状态更新 — tasks.yaml/PROGRESS/telemetry`。
+9. **清理**：清除 `.harness/state/working/` 中本任务的临时文件（`.gitkeep` 保留）。
+10. **自检**：对照 `.harness/feedback/session-exit-checklist.md` 确认无遗漏。
 
 若连续执行多任务，每个任务独立执行上述 9 步。禁止批量补更。
 
 ## 会话流程
 
-0. **环境自检**：确认 `python --version`（≥3.11）、`.venv/` 存在且已激活、`pip list | grep fastapi` 有输出。任一不满足则先搭建环境。
+0. **环境自检**：确认 `python --version`（≥3.10）、`.venv/` 存在且已激活、`pip list | grep fastapi` 有输出。任一不满足则先搭建环境。
    - **CWD 约定**：自检后先 `cd` 到 `backend/`（CWD 持久），后续命令不加 `cd backend &&` 前缀，直接以 `source .venv/bin/activate &&` 起手，命中权限规则。
 1. 读取 `PROGRESS.md`、`DECISIONS.md` 和 `tasks/tasks.yaml`；`CONTEXT.md` 按需查阅。
 2. 确认当前是否已有 `active` 任务。
