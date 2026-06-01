@@ -62,3 +62,19 @@
 **原因**：T003 复盘暴露了三个问题——(1) 条件规则文件（io-hygiene/artifact-policy）被误判为 dead，但实际属于"本轮未激活"；(2) `allowed_paths` 靠文字规则约束，无自动执行，T003 commit 实际触碰了未在允许列表的 `__init__.py` 和 sprint contract；(3) `tool-manifest.md` 包含错误信息（声称 ls/find/grep 等已 auto-allow）。
 
 **影响**：harness 活跃文件从 22 减至 17 个（不含 runs/ 归档和 __pycache__），AGENTS.md 专题文档索引同步更新。agent-workflow.md "唯一事实源"表述改为定义三大互补文档的角色。pre-commit hook 新增 allowed_paths warn-only 检查。
+
+### 2026-06-01 — pre-commit allowed_paths 从软提醒升级为阻断
+
+**决策**：pre-commit hook 改为每次 commit 都运行，并由脚本自行读取所有 staged files；`check_allowed_paths()` 对 active task 范围外文件返回非零值，阻断提交。移除 `.harness/` 整体白名单，仅保留流程追踪文件、runs 记录和文档 ADR 等小范围白名单。各任务的 `allowed_paths` 补充对应 `.harness/state/sprint-contracts/T00X-*.md`。
+
+**原因**：T003 后的 warn-only 只能提示，不能防止越界提交；同时 `.harness/` 整体放行会绕过任务范围约束。sprint contract 是任务生命周期文件，应明确纳入任务范围，而不是依赖宽泛白名单。
+
+**影响**：后续 active task 若 staged 了未列入 `allowed_paths` 且不属于流程白名单的文件，pre-commit 将失败。无 active task 时允许 harness 维护类提交继续进行。
+
+### 2026-06-01 — API 测试改用项目内同步 ASGI 测试客户端
+
+**决策**：后端 API 行为测试不再直接依赖 Starlette `TestClient`，改用 `backend/tests/api_client.py` 中的最小同步 ASGI 客户端。依赖范围同步收紧为 `fastapi>=0.110,<0.116`、`starlette>=0.37.2,<0.42`、`httpx>=0.27,<0.28`、`anyio>=3.7,<4`。
+
+**原因**：当前环境中 `anyio.from_thread.start_blocking_portal().call(...)` 会超时，Starlette `TestClient` 依赖该线程桥，导致 `TestClient(app).get("/health")` 挂住。直接 ASGI 调用可覆盖项目当前需要的 API 行为测试，不引入线程桥。
+
+**影响**：现有 health 和 geometry API 测试恢复为稳定快速回归。后续新增 API 测试优先复用项目内 `SyncASGIClient`；若未来需要 WebSocket、streaming 或 lifespan 语义，再单独扩展测试客户端或重新评估 Starlette TestClient。

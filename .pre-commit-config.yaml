@@ -2,9 +2,9 @@ repos:
   - repo: local
     hooks:
       - id: file-and-func-limits
-        name: Check file (≤200 lines) and function (≤50 lines) limits
+        name: Check scoped files and Python size limits
         entry: python3 .harness/tool/pre-commit-check.py
         language: system
-        files: ^backend/(src|tests)/.*\.py$
         pass_filenames: false
+        always_run: true
         stages: [pre-commit]

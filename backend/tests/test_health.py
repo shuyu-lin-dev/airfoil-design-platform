@@ -1,8 +1,7 @@
-from fastapi.testclient import TestClient
-
 from airfoil_platform.main import app
+from tests.api_client import SyncASGIClient
 
-client = TestClient(app)
+client = SyncASGIClient(app)
 
 
 def test_health_returns_ok():

@@ -1,12 +1,12 @@
 # 项目进度
 
-> 更新日期：2026-05-30
+> 更新日期：2026-06-01
 > 分支：`rebuild_from_harness_v0.2.0` — 基于 harness + spec 从零重建
 
 ## 当前状态
 
-- 最新检查点：**T003 Geometry 2D API 完成**，CST → 200 个二维翼型点 API 就绪。
-- 测试状态：52 passed（1 health + 40 contracts + 11 geometry）。
+- 最新检查点：**T003 Geometry 2D API 完成**；2026-06-01 已完成一轮 harness 收尾维护。
+- 测试状态：52 passed；harness pre-commit 单测 5 passed。
 - 构建状态：后端包可编辑安装。
 - 代码结构：`contracts/`、`config/`、`api/`、`core/`、`services/` 模块已创建。
 - 当前 active 功能项：无。
@@ -17,6 +17,8 @@
 - T001 Backend skeleton：FastAPI app + GET /health + pytest TestClient 验证通过。
 - T002 Common contracts and config：cst_params 12数校验、ratio 0<r<=1、WingPlanform/StructureDesign/MaterialProperties/ConditionParams/ResultMeta 契约 + config/settings.py 默认值。
 - T003 Geometry 2D API：POST /geometry/airfoil-2d 接收 12 CST 参数，返回 200 个二维翼型点（前 100 上表面+后 100 下表面），含 is_stub/model_version 元信息。
+- 2026-06-01 harness 收尾：修正 stale references；pre-commit 改为覆盖所有 staged files，并将 active task 的 `allowed_paths` 越界升级为 blocking；补充 pre-commit 单元测试；同步 T000 旧路径。
+- 2026-06-01 测试阻塞修复：约束 FastAPI/Starlette/httpx/anyio 版本范围，并改用项目内同步 ASGI 测试客户端，避开当前环境中 Starlette TestClient 的线程桥超时。
 
 ## 进行中
 
@@ -28,4 +30,6 @@
 
 ## 最近验证
 
-- `cd backend && pytest`：52 passed（test_health + test_contracts + test_contracts_material + test_geometry_api）。
+- `cd backend && .venv/bin/python -m pytest`：52 passed。
+- `backend/.venv/bin/python -m pytest .harness/tool/test_pre_commit_check.py`：5 passed。
+- `python3 .harness/tool/pre-commit-check.py backend/tests/api_client.py backend/tests/test_health.py backend/tests/test_geometry_api.py .harness/tool/pre-commit-check.py .harness/tool/test_pre_commit_check.py`：通过。

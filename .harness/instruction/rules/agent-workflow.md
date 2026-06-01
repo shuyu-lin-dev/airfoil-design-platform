@@ -69,7 +69,7 @@
 9. **清理**：清除 `.harness/state/working/` 中本任务的临时文件（`.gitkeep` 保留）。
 10. **自检**：对照 `.harness/feedback/session-exit-checklist.md` 确认无遗漏。
 
-若连续执行多任务，每个任务独立执行上述 9 步。禁止批量补更。
+若连续执行多任务，每个任务独立执行上述 10 步。禁止批量补更。
 
 ## 会话流程
 
@@ -79,7 +79,7 @@
 2. 确认当前是否已有 `active` 任务。
 3. 阅读当前任务的冲刺合同；若缺失，先在 `.harness/state/sprint-contracts/` 创建。
    - **完整合同**（复杂任务：>3 新文件或涉及外部 kernel）：包含范围/验证标准/排除项/观测信号/失败反馈格式。模板见 `.harness/state/sprint-contracts/_TEMPLATE-full.md`。
-   - **轻量合同**（简单任务：≤3 新文件，纯 stub/CRUD）：仅 YAML frontmatter（task/scope/validation 三字段 + 排除项一行）。模板见 `.harness/state/sprint-contracts/_TEMPLATE-light.md`。
+   - **轻量合同**（简单任务：≤3 新文件，纯 stub/CRUD）：直接在对应合同文件写 YAML frontmatter（task/scope/validation 三字段 + 排除项一行），不依赖单独模板。
    - 复杂任务判定标准：新建文件 >3 个，或依赖 CAD kernel/外部系统，或跨 ≥3 个模块的协调逻辑。
 4. 执行任务时遵守 `allowed_paths`、代码结构约束（文件 ≤200 行、函数 ≤50 行）和 `.harness/instruction/rules/io-hygiene.md`。
 5. 复杂任务（>3 新文件或涉及外部 kernel）必须先写 `.harness/state/working/plan.md` 再动手。

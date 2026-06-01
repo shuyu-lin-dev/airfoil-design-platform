@@ -67,12 +67,11 @@ tasks:
       - .harness/instruction/rules/testing.md
       - .harness/instruction/rules/artifact-policy.md
       - .harness/instruction/rules/architecture-boundaries.md
-      - .harness/instruction/bootstrap-contract.md
+      - .harness/state/runs/2026-05-27-bootstrap-contract.md
       - .harness/feedback/definition-of-done.md
       - .harness/feedback/session-exit-checklist.md
       - .harness/state/sprint-contracts/T001-backend-skeleton.md
-      - .harness/instruction/template-compliance.md
-      - .harness/state/runs/2026-05-27-bootstrap.md
+      - .harness/state/runs/2026-05-27-template-compliance.md
     acceptance_criteria:
       - 仓库有 agent 入口文件。
       - 仓库有任务清单、进度文件和 API 契约摘要。
@@ -91,11 +90,11 @@ tasks:
         - test -f .harness/instruction/rules/testing.md
         - test -f .harness/instruction/rules/artifact-policy.md
         - test -f .harness/instruction/rules/architecture-boundaries.md
-        - test -f .harness/instruction/bootstrap-contract.md
+        - test -f .harness/state/runs/2026-05-27-bootstrap-contract.md
         - test -f .harness/feedback/definition-of-done.md
         - test -f .harness/feedback/session-exit-checklist.md
         - test -f .harness/state/sprint-contracts/T001-backend-skeleton.md
-        - test -f .harness/instruction/template-compliance.md
+        - test -f .harness/state/runs/2026-05-27-template-compliance.md
 
   - id: T001
     title: Backend skeleton
@@ -137,6 +136,7 @@ tasks:
       - backend/src/airfoil_platform/contracts/**
       - backend/src/airfoil_platform/config/**
       - backend/tests/**
+      - .harness/state/sprint-contracts/T002-*.md
       - PROGRESS.md
       - tasks/tasks.yaml
     expected_outputs:
@@ -171,6 +171,7 @@ tasks:
       - backend/src/airfoil_platform/core/geometry.py
       - backend/src/airfoil_platform/services/geometry_service.py
       - backend/tests/test_geometry_api.py
+      - .harness/state/sprint-contracts/T003-*.md
       - PROGRESS.md
       - tasks/tasks.yaml
     expected_outputs:
@@ -200,6 +201,7 @@ tasks:
     allowed_paths:
       - backend/src/airfoil_platform/artifacts/**
       - backend/tests/**
+      - .harness/state/sprint-contracts/T004-*.md
       - PROGRESS.md
       - tasks/tasks.yaml
     expected_outputs:
@@ -230,6 +232,7 @@ tasks:
       - backend/src/airfoil_platform/api/artifacts.py
       - backend/src/airfoil_platform/contracts/artifacts.py
       - backend/tests/test_artifacts_api.py
+      - .harness/state/sprint-contracts/T005-*.md
       - PROGRESS.md
       - tasks/tasks.yaml
     expected_outputs:
@@ -259,6 +262,7 @@ tasks:
       - backend/src/airfoil_platform/contracts/aerodynamics.py
       - backend/src/airfoil_platform/core/aerodynamics.py
       - backend/src/airfoil_platform/services/aerodynamic_service.py
+      - .harness/state/sprint-contracts/T006-*.md
       - backend/tests/test_aerodynamics_api.py
       - PROGRESS.md
       - tasks/tasks.yaml
@@ -292,6 +296,7 @@ tasks:
     allowed_paths:
       - backend/src/airfoil_platform/artifacts/step_store.py
       - backend/tests/test_step_store.py
+      - .harness/state/sprint-contracts/T007-*.md
       - PROGRESS.md
       - tasks/tasks.yaml
     expected_outputs:
@@ -323,6 +328,7 @@ tasks:
       - backend/src/airfoil_platform/services/geometry_service.py
       - backend/tests/test_geometry_api.py
       - backend/pyproject.toml
+      - .harness/state/sprint-contracts/T008-*.md
       - PROGRESS.md
       - tasks/tasks.yaml
     expected_outputs:
@@ -365,6 +371,7 @@ tasks:
       - backend/src/airfoil_platform/core/structure.py
       - backend/src/airfoil_platform/services/structure_service.py
       - backend/tests/test_structure_api.py
+      - .harness/state/sprint-contracts/T009-*.md
       - PROGRESS.md
       - tasks/tasks.yaml
     expected_outputs:
@@ -399,6 +406,7 @@ tasks:
       - backend/src/airfoil_platform/core/optimization.py
       - backend/src/airfoil_platform/services/optimization_service.py
       - backend/tests/test_optimization_api.py
+      - .harness/state/sprint-contracts/T010-*.md
       - PROGRESS.md
       - tasks/tasks.yaml
     expected_outputs:
@@ -431,6 +439,7 @@ tasks:
       - backend/src/airfoil_platform/core/optimization.py
       - backend/src/airfoil_platform/services/optimization_service.py
       - backend/tests/test_optimization_api.py
+      - .harness/state/sprint-contracts/T011-*.md
       - PROGRESS.md
       - tasks/tasks.yaml
     expected_outputs:
@@ -462,6 +471,7 @@ tasks:
       - backend/src/airfoil_platform/core/optimization.py
       - backend/src/airfoil_platform/services/optimization_service.py
       - backend/tests/test_optimization_api.py
+      - .harness/state/sprint-contracts/T012-*.md
       - PROGRESS.md
       - tasks/tasks.yaml
     expected_outputs:
@@ -492,6 +502,7 @@ tasks:
       - backend/src/airfoil_platform/core/teaching.py
       - backend/src/airfoil_platform/services/teaching_service.py
       - backend/tests/test_teaching_api.py
+      - .harness/state/sprint-contracts/T013-*.md
       - PROGRESS.md
       - tasks/tasks.yaml
     expected_outputs:
@@ -522,6 +533,7 @@ tasks:
       - backend/src/airfoil_platform/core/teaching.py
       - backend/src/airfoil_platform/services/teaching_service.py
       - backend/tests/test_teaching_api.py
+      - .harness/state/sprint-contracts/T014-*.md
       - PROGRESS.md
       - tasks/tasks.yaml
     expected_outputs:
@@ -550,6 +562,7 @@ tasks:
       - backend/.gitignore
       - backend/docs/**
       - docs/**
+      - .harness/state/sprint-contracts/T015-*.md
       - PROGRESS.md
       - tasks/tasks.yaml
     expected_outputs:
@@ -564,4 +577,3 @@ tasks:
     validation:
       commands:
         - cd backend && pytest
-

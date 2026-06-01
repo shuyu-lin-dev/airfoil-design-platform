@@ -6,7 +6,7 @@
 
 - 第一版采用 TDD。
 - API 行为测试优先。
-- 每个核心接口至少有一个 FastAPI TestClient 行为测试。
+- 每个核心接口至少有一个 ASGI 行为测试；优先使用项目内同步 ASGI 测试客户端，避免依赖 Starlette TestClient 的线程桥。
 - 纯函数规则可单独测 core，例如比例校验、CST 顺序解析、`fitness = lift_drag_ratio / weight`。
 - 结构尺寸范围、材料组字段完整性、半翼肋距推导等规则应作为 contract 或 core 规则测试覆盖。
 - service/core 测试服务于行为风险，不提前扩成大测试矩阵。

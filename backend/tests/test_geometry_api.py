@@ -1,6 +1,7 @@
 import pytest
 from fastapi import FastAPI
-from fastapi.testclient import TestClient
+
+from tests.api_client import SyncASGIClient
 
 
 # Fixture that builds a standalone app with just the geometry router.
@@ -11,7 +12,7 @@ def client():
 
     app = FastAPI()
     app.include_router(router)
-    return TestClient(app)
+    return SyncASGIClient(app)
 
 
 class TestAirfoil2D:
@@ -87,22 +88,20 @@ class TestAirfoil2DValidation:
     ])
     def test_wrong_cst_count_returns_422(self, bad_cst):
         from fastapi import FastAPI
-        from fastapi.testclient import TestClient
         from airfoil_platform.api.geometry import router
 
         app = FastAPI()
         app.include_router(router)
-        client = TestClient(app)
+        client = SyncASGIClient(app)
         resp = client.post("/geometry/airfoil-2d", json={"cst_params": bad_cst})
         assert resp.status_code == 422
 
     def test_missing_cst_params_returns_422(self):
         from fastapi import FastAPI
-        from fastapi.testclient import TestClient
         from airfoil_platform.api.geometry import router
 
         app = FastAPI()
         app.include_router(router)
-        client = TestClient(app)
+        client = SyncASGIClient(app)
         resp = client.post("/geometry/airfoil-2d", json={})
         assert resp.status_code == 422

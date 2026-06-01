@@ -9,7 +9,7 @@
 ## 依赖
 
 - FastAPI + uvicorn（Web 框架）
-- pytest + httpx2（测试）
+- pytest + httpx（测试）
 - h5py（HDF5 artifact 读写）
 - numpy（数值计算）
 - cadquery（三维 CAD 几何生成，可选）
@@ -34,7 +34,7 @@
 新会话能否仅凭仓库内容回答以下五个问题？若能，冷启动通过。
 
 - [ ] **这是什么系统？** → `AGENTS.md` 第一节「项目概览」
-- [ ] **如何组织？** → `AGENTS.md` § 专题文档 + `.harness/state/knowledge-index.md`
+- [ ] **如何组织？** → `AGENTS.md` § 专题文档 + `.harness/instruction/rules/`
 - [ ] **如何启动？** → `.harness/environment/environment.md` § 启动序列
 - [ ] **如何验证？** → `cd backend && pytest`（及 `tasks/tasks.yaml` 中各任务的 `validation.commands`）
 - [ ] **当前做到哪里？** → `PROGRESS.md` § 当前状态 + § 下一步

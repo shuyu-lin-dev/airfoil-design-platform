@@ -19,10 +19,11 @@ FUNC_LINE_LIMIT = 50
 ALWAYS_ALLOW = {
     'PROGRESS.md', 'tasks/tasks.yaml', 'DECISIONS.md', 'CONTEXT.md',
     '.claude/settings.json', '.gitignore', '.pre-commit-config.yaml',
+    '.harness/state/runs/telemetry.yaml',
 }
 ALWAYS_ALLOW_PREFIXES = (
-    '.harness/', 'docs/adr/', 'docs/spec.md', 'docs/api-contracts.md',
-    'docs/backend-mvp-full-spec.md',
+    '.harness/state/runs/', 'docs/adr/', 'docs/spec.md',
+    'docs/api-contracts.md', 'docs/backend-mvp-full-spec.md',
 )
 
 
@@ -75,13 +76,12 @@ def check_file(filepath):
 # allowed_paths gate
 # ---------------------------------------------------------------------------
 
-def _parse_active_task_allowed_paths():
+def _parse_active_task_allowed_paths(tasks_path='tasks/tasks.yaml'):
     """Parse tasks/tasks.yaml to find the active task's allowed_paths.
 
     Returns (task_id, allowed_paths) or (None, []) if no active task found.
     Uses a lightweight state machine – no PyYAML dependency.
     """
-    tasks_path = 'tasks/tasks.yaml'
     if not os.path.isfile(tasks_path):
         return None, []
 
@@ -129,8 +129,8 @@ def _match_allowed(filepath, allowed_patterns):
     return False
 
 
-def check_allowed_paths(staged_files):
-    task_id, allowed = _parse_active_task_allowed_paths()
+def check_allowed_paths(staged_files, tasks_path='tasks/tasks.yaml'):
+    task_id, allowed = _parse_active_task_allowed_paths(tasks_path)
     if task_id is None:
         return 0  # no active task – allow all
 
@@ -142,10 +142,10 @@ def check_allowed_paths(staged_files):
             continue
         if _match_allowed(f, allowed):
             continue
-        print(f"WARNING: {f} not in {task_id} allowed_paths (commit proceeds)")
+        print(f"VIOLATION: {f} not in {task_id} allowed_paths")
         violations += 1
 
-    return 0  # warn-only; upgrade to block after trial period
+    return violations
 
 
 # ---------------------------------------------------------------------------
@@ -167,13 +167,12 @@ def main():
         return 0
 
     # Run allowed_paths check on all staged files (not just .py)
-    check_allowed_paths(files)
+    total = check_allowed_paths(files)
 
     # Run line/function checks only on source Python files
     source_files = [f for f in files if f.startswith('backend/src/') or f.startswith('backend/tests/')]
     source_files = [f for f in source_files if f.endswith('.py') and os.path.isfile(f)]
 
-    total = 0
     for f in source_files:
         total += check_file(f)
     return 1 if total > 0 else 0
