@@ -397,9 +397,9 @@ tasks:
   - id: T010
     title: Aerodynamic optimization API
     behavior: 后端调用者提交气动优化请求后，可以获得原始与优化后的 CST 参数和升阻比对比。
-    status: not_started
+    status: passing
     checklist: default
-    evidence: ""
+    evidence: "pytest 98 passed — POST /optimization/aerodynamic stub CST 优化(1+0.05*i/12)、actual_improvement_ratio>0、condition 不变、非法 target_ratio(0)→422。"
     depends_on:
       - T002
     parallelizable_group: post-t002
@@ -431,7 +431,9 @@ tasks:
   - id: T011
     title: Structural optimization API
     behavior: 后端调用者提交强度优化请求后，可以获得只改变结构优化变量的重量减轻结果。
-    status: not_started
+    status: passing
+    checklist: default
+    evidence: "pytest 98 passed — POST /optimization/structural stub 结构参数缩减(factor=1-target*0.5)、optimized 在硬校验范围内、actual_reduction_ratio≥0。"
     checklist: default
     evidence: ""
     depends_on:
@@ -462,7 +464,9 @@ tasks:
   - id: T012
     title: Coupled optimization API
     behavior: 后端调用者提交耦合优化请求后，可以获得气动与强度耦合适应度提升结果。
-    status: not_started
+    status: passing
+    checklist: default
+    evidence: "pytest 98 passed — POST /optimization/coupled fitness=lift_drag_ratio/weight 耦合优化、original_cst/optimized_cst/original_structure/optimized_structure 全部返回、actual_improvement_ratio≠0。"
     checklist: default
     evidence: ""
     depends_on:

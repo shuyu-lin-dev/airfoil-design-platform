@@ -25,7 +25,10 @@
 - T007 STEP artifact store — write_step_artifact() 写入 STEP + sidecar + ArtifactRegistry 查询。
 - T008 Geometry 3D API — POST /geometry/wing-3d cadquery 生成右半翼蒙皮/梁/肋 STEP 装配。
 - T009 Structure prediction API — POST /structure/predict stub 计算 max_stress+weight。
-- 2026-06-01 T009 验证通过：92 passed，代码结构合规。
+- T010 Aerodynamic optimization API — POST /optimization/aerodynamic stub CST 优化。
+- T011 Structural optimization API — POST /optimization/structural stub 结构参数优化。
+- T012 Coupled optimization API — POST /optimization/coupled fitness 耦合优化。
+- 2026-06-01 T012 验证通过：98 passed，代码结构合规。
 
 ## 进行中
 
@@ -33,7 +36,7 @@
 
 ## 下一步
 
-1. T010 Aerodynamic optimization API — 气动优化，返回优化前后 CST 参数和升阻比对比。
+1. T013 Teaching airfoil generation API — 教学翼型生成，中弧线+厚度控制点输入。
 
 ## 最近验证
 
