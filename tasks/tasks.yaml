@@ -252,9 +252,9 @@ tasks:
   - id: T006
     title: Aerodynamic prediction API
     behavior: 后端调用者提交 CST 参数和工况参数后，可以获得气动标量、Cp 分布和 HDF5 场数据 artifact。
-    status: not_started
+    status: passing
     checklist: default
-    evidence: ""
+    evidence: "pytest 77 passed — 验证 POST /aerodynamics/predict 返回 lift_drag_ratio>0 + 200 Cp 点(含 x/cp) + field_artifact 引用(is_stub/model_version)；HDF5 数据集 shapes 正确(/coordinates 1000,2 /fields/pressure 1000 /fields/velocity 1000)；JSON sidecar 同步存在；artifact_id 确定性(id1==id2)；非法 cst_params 数量→422。"
     depends_on:
       - T004
     parallelizable_group: post-t004
@@ -263,6 +263,7 @@ tasks:
       - backend/src/airfoil_platform/contracts/aerodynamics.py
       - backend/src/airfoil_platform/core/aerodynamics.py
       - backend/src/airfoil_platform/services/aerodynamic_service.py
+      - backend/src/airfoil_platform/main.py
       - .harness/state/sprint-contracts/T006-*.md
       - backend/tests/test_aerodynamics_api.py
       - PROGRESS.md
