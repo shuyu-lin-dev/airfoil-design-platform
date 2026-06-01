@@ -498,9 +498,9 @@ tasks:
   - id: T013
     title: Teaching airfoil generation API
     behavior: 教学调用者提交中弧线和厚度趋势控制点后，可以获得 200 个二维翼型点。
-    status: not_started
+    status: passing
     checklist: default
-    evidence: ""
+    evidence: "pytest 101 passed — POST /teaching/airfoil-from-control-points 线性中弧线+抛物线厚度分布→200点、有弯度时上下表面 y 值不同。"
     depends_on:
       - T003
     allowed_paths:
@@ -529,9 +529,9 @@ tasks:
   - id: T014
     title: Teaching CST inverse API
     behavior: 教学调用者提交 200 个二维翼型点后，可以获得 12 个 CST 参数。
-    status: not_started
+    status: passing
     checklist: default
-    evidence: ""
+    evidence: "pytest 101 passed — POST /teaching/cst-from-airfoil 200翼型点→12 CST 参数(前6上表面+后6下表面)、stub 近似反推。"
     depends_on:
       - T013
     allowed_paths:

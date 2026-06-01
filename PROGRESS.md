@@ -28,7 +28,9 @@
 - T010 Aerodynamic optimization API — POST /optimization/aerodynamic stub CST 优化。
 - T011 Structural optimization API — POST /optimization/structural stub 结构参数优化。
 - T012 Coupled optimization API — POST /optimization/coupled fitness 耦合优化。
-- 2026-06-01 T012 验证通过：98 passed，代码结构合规。
+- T013 Teaching airfoil generation API — POST /teaching/airfoil-from-control-points。
+- T014 Teaching CST inverse API — POST /teaching/cst-from-airfoil。
+- 2026-06-01 T014 验证通过：101 passed，代码结构合规。
 
 ## 进行中
 
