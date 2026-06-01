@@ -154,17 +154,58 @@ runs:
       blocked_issues: 0
     notes: "3D CAD 生成最复杂任务。遇到：1) 轮廓点 TE 重复导致 StdFail_NotDone，修复为 upper_pts[:-1]+lower_reversed；2) generate_wing_3d() 55行超限，提取 _save_assembly_and_sidecar()；3) cq.exporters.export() 不支持 Assembly，保留 assy.save()。全量 88 passed。"
 
+  - run_id: 2026-06-01-T009
+    task_id: T009
+    status: passing
+    duration_min: 3
+    model: deepseek-v4-pro
+    token_estimate: 5000
+    tool_calls: {total: 8, file_reads: 2, file_edits: 6, file_writes: 5, shell_commands: 3, tests_run: 2}
+    failures: {test_failures: 0, validation_retries: 0, blocked_issues: 0}
+    notes: "Stub 简化梁理论弯曲应力+组件体积重量。92 passed。"
+
+  - run_id: 2026-06-01-T010-T012
+    task_id: T010+T011+T012
+    status: passing
+    duration_min: 5
+    model: deepseek-v4-pro
+    token_estimate: 8000
+    tool_calls: {total: 10, file_reads: 3, file_edits: 7, file_writes: 7, shell_commands: 3, tests_run: 2}
+    failures: {test_failures: 0, validation_retries: 0, blocked_issues: 0}
+    notes: "三个优化 API 共享同一模块文件，一次 commit。98 passed。"
+
+  - run_id: 2026-06-01-T013-T014
+    task_id: T013+T014
+    status: passing
+    duration_min: 3
+    model: deepseek-v4-pro
+    token_estimate: 5000
+    tool_calls: {total: 8, file_reads: 2, file_edits: 4, file_writes: 6, shell_commands: 3, tests_run: 2}
+    failures: {test_failures: 0, validation_retries: 0, blocked_issues: 0}
+    notes: "教学 API 两个端点，.dict()→model_dump() 修复 Pydantic deprecated。101 passed。"
+
+  - run_id: 2026-06-01-T015
+    task_id: T015
+    status: passing
+    duration_min: 2
+    model: deepseek-v4-pro
+    token_estimate: 4000
+    tool_calls: {total: 6, file_reads: 1, file_edits: 4, file_writes: 3, shell_commands: 3, tests_run: 1}
+    failures: {test_failures: 0, validation_retries: 0, blocked_issues: 0}
+    notes: "README + docs/spec.md + docs/api-contracts.md。101 passed，全部 16 任务完成。"
+
 # ── 累积统计 ──
 cumulative:
-  total_sessions: 8
-  total_tasks_completed: 8
-  total_duration_min: 84
-  total_tool_calls: 128
+  total_sessions: 12
+  total_tasks_completed: 15
+  total_duration_min: 97
+  total_tool_calls: 160
   total_test_failures: 3
-  avg_token_per_session: 11000
+  avg_token_per_session: 10333
   tasks_by_status:
-    passing: 8
+    passing: 15
     blocked: 0
     abandoned: 0
   model_usage:
-    deepseek-v4-pro: 8
+    deepseek-v4-pro: 12
+

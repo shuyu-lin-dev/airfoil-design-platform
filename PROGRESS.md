@@ -5,10 +5,10 @@
 
 ## 当前状态
 
-- 最新检查点：**T008 Geometry 3D API 完成**；88 passed。
-- 测试状态：88 passed；harness pre-commit 单测 5 passed。
+- 最新检查点：**全部 16 个任务完成 (T000-T015)**；101 passed。
+- 测试状态：101 passed；harness pre-commit 单测 5 passed。
 - 构建状态：后端包可编辑安装。
-- 代码结构：`contracts/`、`config/`、`api/`、`core/`、`services/`、`artifacts/` 模块已创建。
+- 代码结构：全部模块就位（`contracts/`、`config/`、`api/`、`core/`、`services/`、`artifacts/`）。
 - 当前 active 功能项：无。
 
 ## 已完成
@@ -31,6 +31,8 @@
 - T013 Teaching airfoil generation API — POST /teaching/airfoil-from-control-points。
 - T014 Teaching CST inverse API — POST /teaching/cst-from-airfoil。
 - 2026-06-01 T014 验证通过：101 passed，代码结构合规。
+- T015 Documentation pass — README + docs/spec.md + docs/api-contracts.md。
+- 2026-06-01 T015 验证通过：101 passed，全部 16 任务完成。
 
 ## 进行中
 
@@ -38,7 +40,7 @@
 
 ## 下一步
 
-1. T013 Teaching airfoil generation API — 教学翼型生成，中弧线+厚度控制点输入。
+- 全部任务完成。后续可引入真实 CFD/FEA 求解器替代 stub 算法。
 
 ## 最近验证
 

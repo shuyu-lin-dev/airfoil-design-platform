@@ -558,9 +558,9 @@ tasks:
   - id: T015
     title: Documentation pass
     behavior: 后续维护者可以通过 README 和 docs 理解目标、非目标、运行测试命令、字段单位和 artifact 策略。
-    status: not_started
+    status: passing
     checklist: default
-    evidence: ""
+    evidence: "pytest 101 passed — README.md 覆盖目标/非目标/字段单位/artifact 策略/API 端点表；.gitignore 忽略 runtime_artifacts/；docs/spec.md 全部 12 端点规格；docs/api-contracts.md 通用模型和默认值。"
     depends_on:
       - T012
       - T014
