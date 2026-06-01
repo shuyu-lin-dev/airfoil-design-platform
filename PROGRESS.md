@@ -5,8 +5,8 @@
 
 ## 当前状态
 
-- 最新检查点：**T006 Aerodynamic prediction API 完成**；77 passed。
-- 测试状态：77 passed；harness pre-commit 单测 5 passed。
+- 最新检查点：**T007 STEP artifact store 完成**；81 passed。
+- 测试状态：81 passed；harness pre-commit 单测 5 passed。
 - 构建状态：后端包可编辑安装。
 - 代码结构：`contracts/`、`config/`、`api/`、`core/`、`services/`、`artifacts/` 模块已创建。
 - 当前 active 功能项：无。
@@ -22,6 +22,8 @@
 - 2026-06-01 T005 验证通过：67 passed，代码结构合规。
 - T006 Aerodynamic prediction API — POST /aerodynamics/predict stub 算法返回升阻比+200 Cp+HDF5 场数据。
 - 2026-06-01 T006 验证通过：77 passed，代码结构合规。
+- T007 STEP artifact store — write_step_artifact() 写入 STEP + sidecar + ArtifactRegistry 查询。
+- 2026-06-01 T007 验证通过：81 passed，代码结构合规。
 
 ## 进行中
 
@@ -29,9 +31,9 @@
 
 ## 下一步
 
-1. T007 STEP artifact store — STEP 格式写入、JSON sidecar 落盘和注册。
+1. T008 Geometry 3D API — 三维机翼结构 STEP artifact 生成。
 
 ## 最近验证
 
-- `cd backend && .venv/bin/python -m pytest`：77 passed。
+- `cd backend && .venv/bin/python -m pytest`：81 passed。
 - `backend/.venv/bin/python -m pytest .harness/tool/test_pre_commit_check.py`：5 passed。

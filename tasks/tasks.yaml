@@ -289,9 +289,9 @@ tasks:
   - id: T007
     title: STEP artifact store
     behavior: artifact 系统支持 STEP 格式文件的写入、JSON sidecar 落盘和注册，不涉及几何生成逻辑。
-    status: not_started
+    status: passing
     checklist: default
-    evidence: ""
+    evidence: "pytest 81 passed — 验证 write_step_artifact() 写入 STEP 到 geometry/<id>.step（文件非空）、JSON sidecar 同步落盘（artifact_id/format/role/components）、ArtifactRegistry 可查询 STEP artifact 元信息、CadQuery 可回读并验证盒子尺寸（xlen=1/ylen=2/zlen=3）、目录自动创建。无 HTTP API 依赖。"
     depends_on:
       - T004
     parallelizable_group: post-t004

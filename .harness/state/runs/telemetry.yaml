@@ -116,17 +116,36 @@ runs:
       blocked_issues: 0
     notes: "Stub 算法 camber+aoa 升阻比、x-based Cp、40×25 网格场数据。10 个新测试首次全部通过，全量 77 passed。架构边界 clean。"
 
+  - run_id: 2026-06-01-T007
+    task_id: T007
+    status: passing
+    duration_min: 3
+    model: deepseek-v4-pro
+    token_estimate: 6000
+    tool_calls:
+      total: 8
+      file_reads: 2
+      file_edits: 6
+      file_writes: 2
+      shell_commands: 4
+      tests_run: 2
+    failures:
+      test_failures: 1
+      validation_retries: 1
+      blocked_issues: 0
+    notes: "step_store.py 首次忘记 import cadquery as cq 导致 NameError，修复后 4 个测试全部通过。全量 81 passed。"
+
 # ── 累积统计 ──
 cumulative:
-  total_sessions: 6
-  total_tasks_completed: 6
-  total_duration_min: 66
-  total_tool_calls: 100
-  total_test_failures: 0
-  avg_token_per_session: 10833
+  total_sessions: 7
+  total_tasks_completed: 7
+  total_duration_min: 69
+  total_tool_calls: 108
+  total_test_failures: 1
+  avg_token_per_session: 10285
   tasks_by_status:
-    passing: 6
+    passing: 7
     blocked: 0
     abandoned: 0
   model_usage:
-    deepseek-v4-pro: 6
+    deepseek-v4-pro: 7
